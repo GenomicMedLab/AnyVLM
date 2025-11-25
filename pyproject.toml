@@ -17,11 +17,15 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
+    "ga4gh.va_spec",
+    "biocommons.anyvar@git+https://github.com/biocommons/anyvar.git@storage-refactor-epic",
     "fastapi>=0.95.0",
     "python-multipart",  # required for fastapi file uploads
     "uvicorn",
-    "python-dotenv",
+    "click",
     "anyio",
+    "python-dotenv",
+    "pydantic-settings",
 ]
 dynamic = ["version"]
 
@@ -37,6 +41,7 @@ dev = [
     "ruff==0.12.8",
     "pre-commit>=4.2.0",
     "ipykernel",
+    "fastapi[standard]",
 ]
 
 [project.urls]
@@ -45,6 +50,9 @@ Documentation = "https://github.com/genomicmedlab/vlm_in_a_box/"
 Changelog = "https://github.com/genomicmedlab/vlm_in_a_box/releases"
 Source = "https://github.com/genomicmedlab/vlm_in_a_box/"
 "Bug Tracker" = "https://github.com/genomicmedlab/vlm_in_a_box/issues"
+
+[project.scripts]
+vlm = "vlm.cli:_cli"
 
 
 [build-system]
@@ -57,32 +65,9 @@ build-backend = "setuptools.build_meta"
 [tool.setuptools_scm]
 
 [tool.pytest.ini_options]
-addopts = "--cov=anyvar --cov-report term-missing"
+addopts = "--cov=vlm --cov-report term-missing"
 testpaths = ["tests"]
 pythonpath = ["src"]
-
-[tool.coverage.run]
-branch = true
-source = ["biocommons.example"]
-omit = ["*_test.py", "*/test/*", "*/tests/*"]
-
-[tool.coverage.report]
-show_missing = true
-exclude_lines = [
-    # Have to re-enable the standard pragma
-    "pragma: no cover",
-
-    # Don't complain about missing debug-only code:
-    "def __repr__",
-    "if self.debug",
-
-    # Don't complain if tests don't hit defensive assertion code:
-    "raise AssertionError",
-    "raise NotImplementedError",
-
-    # Don't complain if non-runnable code isn't run:
-    "if __name__ == .__main__.:",
-]
 
 [tool.ruff]
 src = ["src"]
