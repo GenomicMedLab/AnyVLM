@@ -15,12 +15,11 @@ def restapi_client():
     return TestClient(app=vlm_restapi)
 
 
-@pytest.mark.ci_ok
 def test_service_info(restapi_client: TestClient, test_data_dir: Path):
     response = restapi_client.get("/service-info")
     response.raise_for_status()
 
-    with (test_data_dir / "service_info_openapi.yaml").open() as f:
+    with (test_data_dir / "ga4gh-service-info" / "service-info.yaml").open() as f:
         spec = yaml.safe_load(f)
 
     resp_schema = spec["paths"]["/service-info"]["get"]["responses"]["200"]["content"][

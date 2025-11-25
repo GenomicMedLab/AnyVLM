@@ -39,16 +39,16 @@ SERVICE_DESCRIPTION = "A VLM-In-A-Box instance"
 class ServiceInfo(BaseModel):
     """Define response structure for GA4GH /service_info endpoint."""
 
-    id: Literal["org.cancervariants.metakb"] = "org.cancervariants.metakb"
-    name: Literal["metakb"] = "metakb"
+    id: Literal["org.biocommons.vlm"] = "org.biocommons.vlm"
+    name: Literal["vlm"] = "vlm"
     type: ServiceType
     description: str = SERVICE_DESCRIPTION
     organization: ServiceOrganization
     contactUrl: Literal["Alex.Wagner@nationwidechildrens.org"] = (  # noqa: N815
         "Alex.Wagner@nationwidechildrens.org"
     )
-    documentationUrl: Literal["https://github.com/cancervariants/metakb"] = (  # noqa: N815
-        "https://github.com/cancervariants/metakb"
+    documentationUrl: Literal["https://github.com/genomicmedlab/vlm_in_a_box"] = (  # noqa: N815
+        "https://github.com/genomicmedlab/vlm_in_a_box"
     )
     createdAt: Literal["2025-06-01T00:00:00Z"] = "2025-06-01T00:00:00Z"  # noqa: N815
     updatedAt: Literal["2025-06-01T00:00:00Z"] = "2025-06-01T00:00:00Z"  # noqa: N815
