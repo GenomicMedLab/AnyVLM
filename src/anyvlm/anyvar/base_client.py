@@ -4,7 +4,7 @@ import abc
 
 from anyvar.utils.types import VrsObject
 
-from vlm.schemas.domain import AlleleFrequencyAnnotation
+from anyvlm.schemas.domain import AlleleFrequencyAnnotation
 
 
 class BaseAnyVarClient(abc.ABC):
