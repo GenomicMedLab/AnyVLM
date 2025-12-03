@@ -6,10 +6,10 @@ from enum import Enum
 
 from fastapi import FastAPI
 
-from vlm import __version__
-from vlm.anyvar.base_client import BaseAnyVarClient
-from vlm.config import get_config
-from vlm.schemas.common import (
+from anyvlm import __version__
+from anyvlm.anyvar.base_client import BaseAnyVarClient
+from anyvlm.config import get_config
+from anyvlm.schemas.common import (
     SERVICE_DESCRIPTION,
     ServiceInfo,
     ServiceOrganization,
@@ -41,12 +41,12 @@ async def lifespan(app: FastAPI) -> AsyncGenerator:
 
 
 app = FastAPI(
-    title="vlm",
+    title="AnyVLM",
     description=SERVICE_DESCRIPTION,
     version=__version__,
     license={
         "name": "Apache 2.0",
-        "url": "https://github.com/genomicmedlab/vlm_in_a_box/blob/main/LICENSE",
+        "url": "https://github.com/genomicmedlab/anyvlm/blob/main/LICENSE",
     },
     contact={
         "name": "Alex H. Wagner",

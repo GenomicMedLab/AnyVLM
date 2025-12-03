@@ -7,7 +7,7 @@ import pytest
 import yaml
 from fastapi.testclient import TestClient
 
-from vlm.main import app as vlm_restapi
+from anyvlm.main import app as vlm_restapi
 
 
 @pytest.fixture(scope="module")
