@@ -2,10 +2,10 @@
 
 import click
 
-import vlm
+import anyvlm
 
 
-@click.version_option(vlm.__version__)
+@click.version_option(anyvlm.__version__)
 @click.group()
 def _cli() -> None:
     """Manage VLM data."""

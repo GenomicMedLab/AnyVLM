@@ -4,7 +4,7 @@ from functools import cache
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from vlm.schemas.common import ServiceEnvironment
+from anyvlm.schemas.common import ServiceEnvironment
 
 
 class Settings(BaseSettings):

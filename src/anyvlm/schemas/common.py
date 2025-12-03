@@ -5,7 +5,7 @@ from typing import Literal
 
 from pydantic import BaseModel
 
-from vlm import __version__
+from anyvlm import __version__
 
 
 class ServiceEnvironment(str, Enum):

@@ -6,10 +6,10 @@ from enum import Enum
 
 from fastapi import FastAPI
 
-from vlm import __version__
-from vlm.anyvar.base_client import BaseAnyVarClient
-from vlm.config import get_config
-from vlm.schemas.common import (
+from anyvlm import __version__
+from anyvlm.anyvar.base_client import BaseAnyVarClient
+from anyvlm.config import get_config
+from anyvlm.schemas.common import (
     SERVICE_DESCRIPTION,
     ServiceInfo,
     ServiceOrganization,
