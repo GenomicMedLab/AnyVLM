@@ -47,8 +47,8 @@ class ServiceInfo(BaseModel):
     contactUrl: Literal["Alex.Wagner@nationwidechildrens.org"] = (  # noqa: N815
         "Alex.Wagner@nationwidechildrens.org"
     )
-    documentationUrl: Literal["https://github.com/genomicmedlab/vlm_in_a_box"] = (  # noqa: N815
-        "https://github.com/genomicmedlab/vlm_in_a_box"
+    documentationUrl: Literal["https://github.com/genomicmedlab/anyvlm"] = (  # noqa: N815
+        "https://github.com/genomicmedlab/anyvlm"
     )
     createdAt: Literal["2025-06-01T00:00:00Z"] = "2025-06-01T00:00:00Z"  # noqa: N815
     updatedAt: Literal["2025-06-01T00:00:00Z"] = "2025-06-01T00:00:00Z"  # noqa: N815

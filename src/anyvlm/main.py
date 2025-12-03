@@ -46,7 +46,7 @@ app = FastAPI(
     version=__version__,
     license={
         "name": "Apache 2.0",
-        "url": "https://github.com/genomicmedlab/vlm_in_a_box/blob/main/LICENSE",
+        "url": "https://github.com/genomicmedlab/anyvlm/blob/main/LICENSE",
     },
     contact={
         "name": "Alex H. Wagner",
