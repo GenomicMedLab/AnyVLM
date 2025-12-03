@@ -41,7 +41,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator:
 
 
 app = FastAPI(
-    title="vlm",
+    title="AnyVLM",
     description=SERVICE_DESCRIPTION,
     version=__version__,
     license={

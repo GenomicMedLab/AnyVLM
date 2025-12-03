@@ -1,4 +1,4 @@
-"""Provide abstraction for a VLM-to-AnyVar connection."""
+"""Provide abstraction for a AnyVLM-to-AnyVar connection."""
 
 import abc
 

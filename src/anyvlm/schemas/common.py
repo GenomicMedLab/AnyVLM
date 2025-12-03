@@ -29,18 +29,18 @@ class ServiceType(BaseModel):
     """Define service_info response for type field"""
 
     group: Literal["org.biocommons"] = "org.biocommons"
-    artifact: Literal["VLM API"] = "VLM API"
+    artifact: Literal["AnyVLM API"] = "AnyVLM API"
     version: str = __version__
 
 
-SERVICE_DESCRIPTION = "A VLM-In-A-Box instance"
+SERVICE_DESCRIPTION = "An AnyVLM instance"
 
 
 class ServiceInfo(BaseModel):
     """Define response structure for GA4GH /service_info endpoint."""
 
-    id: Literal["org.biocommons.vlm"] = "org.biocommons.vlm"
-    name: Literal["vlm"] = "vlm"
+    id: Literal["org.biocommons.anyvlm"] = "org.biocommons.anyvlm"
+    name: Literal["anyvlm"] = "anyvlm"
     type: ServiceType
     description: str = SERVICE_DESCRIPTION
     organization: ServiceOrganization

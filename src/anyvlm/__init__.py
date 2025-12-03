@@ -3,7 +3,7 @@
 from importlib.metadata import PackageNotFoundError, version
 
 try:
-    __version__ = version("vlm")
+    __version__ = version("anyvlm")
 except PackageNotFoundError:
     __version__ = "unknown"
 finally:
