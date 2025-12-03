@@ -3,18 +3,22 @@
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from enum import Enum
+from http import HTTPStatus
+from typing import Annotated
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, Query, Request
 
 from anyvlm import __version__
 from anyvlm.anyvar.base_client import BaseAnyVarClient
 from anyvlm.config import get_config
+from anyvlm.functions.get_caf import get_caf
 from anyvlm.schemas.common import (
     SERVICE_DESCRIPTION,
     ServiceInfo,
     ServiceOrganization,
     ServiceType,
 )
+from anyvlm.schemas.vlm import VlmResponse
 
 
 def create_anyvar_client(
@@ -77,4 +81,48 @@ def service_info() -> ServiceInfo:
         organization=ServiceOrganization(),
         type=ServiceType(),
         environment=get_config().env,
+    )
+
+
+@app.get(
+    "/vlm-query",
+    summary="Provides counts of occurrences of a single sequence variant, broken down by zygosity",
+    description="Provides counts of occurrences of a single sequence variant, broken down by zygosity",
+    tags=[_Tag.SEARCH]
+)
+def vlm_query(
+    request: Request,
+    assemblyId: Annotated[str, Query(..., description="Genome reference assembly")],
+    referenceName: Annotated[str, Query(..., description="Chromosome with optional 'chr' prefix")],
+    start: Annotated[int, Query(..., description="Variant position")],
+    referenceBases: Annotated[str, Query(..., description="Genomic bases ('T', 'AC', etc.)")],
+    alternateBases: Annotated[str, Query(..., description="Genomic bases ('T', 'AC', etc.)")]
+) -> VlmResponse
+    if not assemblyId or referenceName or start or referenceBases or alternateBases:
+        raise HTTPException(
+            HTTPStatus.BAD_REQUEST,
+            detail="'assemblyId', 'referenceName', 'start', 'referenceBase', and 'alternateBases' are required",
+        )
+    
+    valid_assembly_ids = [
+        "GRCh37",
+        "GRCh38",
+        "hg38",
+        "hg19"
+    ]
+    if assemblyId not in (valid_assembly_ids):
+        raise HTTPException(
+            HTTPStatus.BAD_REQUEST,
+            detail="assemblyId must be one of: " + ", ".join(valid_assembly_ids),
+        )
+
+    anyvar_client: BaseAnyVarClient = request.app.state.anyvar_client
+    
+    caf_data = get_caf(
+        anyvar_client,
+        assemblyId,
+        referenceName,
+        start,
+        referenceBases,
+        alternateBases
     )
