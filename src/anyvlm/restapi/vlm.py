@@ -29,7 +29,7 @@ def ingest_vcf(vcf_path: Path) -> None:
 @app.get(
     "/vlm-query",
     summary="Provides counts of occurrences of a single sequence variant, broken down by zygosity",
-    description="Provides counts of occurrences of a single sequence variant, broken down by zygosity",  # TODO: Update this
+    description="Search for a single sequence variant and receive a count of its observed occurrences broken down by zygosity, in accordance with the Variant-Level Matching protocol",
     tags=[EndpointTag.SEARCH],
 )
 def vlm_query(
