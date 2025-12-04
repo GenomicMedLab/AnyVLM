@@ -24,7 +24,10 @@ class BeaconHandover(BaseModel):
     """Describes how users can get more information about the results provided in the parent `VlmResponse`"""
 
     handoverType: HandoverType = HandoverType()
-    url: str = "https://anvil.terra.bio/#workspaces?filter=GREGoR"  # TODO: verify what to use here
+    url: str = Field(
+        default="https://anvil.terra.bio/#workspaces?filter=GREGoR",  # TODO: verify what to use here
+        description="a url which directs users to more detailed information about the results tabulated by the API (ideally human-readable)",
+    )
 
 
 class Meta(BaseModel):
@@ -50,7 +53,7 @@ class ResultSet(BaseModel):
     exists: bool
     id: str = Field(
         ...,
-        description="id should be constructed of the `HandoverType.id` + the result set's zygosity",
+        description="id should be constructed of the `HandoverType.id` + the ResultSet's zygosity",
         examples=["Geno2MP Homozygous", "MyGene2 Heterozygous"],
     )
     results: list = Field(
@@ -59,7 +62,9 @@ class ResultSet(BaseModel):
         max_length=0,
         description="This must always be set to an empty array",
     )
-    resultsCount: int
+    resultsCount: int = Field(
+        ..., description="A count for the zygosity indicated by the ResultSet's `id`"
+    )
     setType: str = RESULT_ENTITY_TYPE
 
 
