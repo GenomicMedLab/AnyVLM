@@ -19,6 +19,7 @@ from anyvlm.schemas.common import (
     ServiceType,
 )
 from anyvlm.schemas.vlm import VlmResponse
+from anyvlm.utils.types import GrcAssemblyId, UscsAssemblyBuild
 
 
 def create_anyvar_client(
@@ -87,7 +88,7 @@ def service_info() -> ServiceInfo:
 @app.get(
     "/vlm-query",
     summary="Provides counts of occurrences of a single sequence variant, broken down by zygosity",
-    description="Provides counts of occurrences of a single sequence variant, broken down by zygosity",
+    description="Provides counts of occurrences of a single sequence variant, broken down by zygosity", #TODO: Update this
     tags=[_Tag.SEARCH]
 )
 def vlm_query(
@@ -104,12 +105,7 @@ def vlm_query(
             detail="'assemblyId', 'referenceName', 'start', 'referenceBase', and 'alternateBases' are required",
         )
     
-    valid_assembly_ids = [
-        "GRCh37",
-        "GRCh38",
-        "hg38",
-        "hg19"
-    ]
+    valid_assembly_ids = {assembly_id.value for assembly_id in GrcAssemblyId} | {assembly_id.value for assembly_id in UscsAssemblyBuild}
     if assemblyId not in (valid_assembly_ids):
         raise HTTPException(
             HTTPStatus.BAD_REQUEST,
