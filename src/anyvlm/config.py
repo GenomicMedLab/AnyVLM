@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     """
 
     model_config = SettingsConfigDict(
-        env_prefix="vlm_",
+        env_prefix="anyvlm_",
         env_file=".env",
         env_file_encoding="utf-8",
         extra="ignore",
