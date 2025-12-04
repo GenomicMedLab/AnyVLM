@@ -4,11 +4,18 @@ from pathlib import Path
 from typing import Annotated
 
 from fastapi import Query, Request
+from ga4gh.va_spec.base.core import CohortAlleleFrequencyStudyResult
 
 from anyvlm.anyvar.base_client import BaseAnyVarClient
 from anyvlm.functions.get_caf import get_caf
 from anyvlm.main import app
-from anyvlm.schemas.vlm import VlmResponse
+from anyvlm.schemas.vlm import (
+    HandoverType,
+    ResponseField,
+    ResponseSummary,
+    ResultSet,
+    VlmResponse,
+)
 from anyvlm.utils.types import (
     ChromosomeName,
     EndpointTag,
@@ -61,8 +68,30 @@ def vlm_query(
     """
     anyvar_client: BaseAnyVarClient = request.app.state.anyvar_client
 
-    caf_data = get_caf(  # noqa: F841 - TODO: remove this noqa when endpoint is complete. See Issue #16 and Issue #13.
+    caf_data: list[CohortAlleleFrequencyStudyResult] = get_caf(
         anyvar_client, assemblyId, referenceName, start, referenceBases, alternateBases
     )
 
-    return VlmResponse()  # TODO: fill this out. See Issue #16 and Issue #13
+    result_sets: list[ResultSet] = []
+    if caf_data:
+        total: int = sum(
+            [caf_study_result.focusAlleleCount for caf_study_result in caf_data]
+        )  # TODO: I'm not sure this is the right field?
+        response_summary = ResponseSummary(exists=True, total=total)
+        for caf_study_result in caf_data:
+            result_sets.extend(
+                [
+                    ResultSet(
+                        exists=True,
+                        id=f"{HandoverType.id} {caf_study_result.cohort}",  # TODO - not sure that caf_study_result.cohort is the right field
+                        resultsCount=caf_study_result.focusAlleleCount,
+                    )
+                ]
+            )
+
+    else:
+        response_summary = ResponseSummary(exists=False, total=0)
+
+    return VlmResponse(
+        responseSummary=response_summary, response=ResponseField(resultSets=result_sets)
+    )
