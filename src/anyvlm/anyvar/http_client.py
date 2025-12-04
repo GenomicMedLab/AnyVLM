@@ -6,8 +6,8 @@ from http import HTTPStatus
 import requests
 from anyvar.utils.types import VrsObject
 
-from vlm.anyvar.base_client import AF_ANNOTATION_TYPE, AmbiguousAnnotationError
-from vlm.schemas.domain import AlleleFrequencyAnnotation
+from anyvlm.anyvar.base_client import AF_ANNOTATION_TYPE, AmbiguousAnnotationError
+from anyvlm.schemas.domain import AlleleFrequencyAnnotation
 
 
 class HttpAnyVarClient(abc.ABC):
@@ -69,6 +69,12 @@ class HttpAnyVarClient(abc.ABC):
         :param end: end position for genomic region
         :return: list of matching variant objects
         """
+        response = requests.get(
+            f"{self.hostname}/search?accession={accession}&start={start}&end{end}",
+            timeout=self.request_timeout,
+        )
+        response.raise_for_status()
+        return response.json()["variations"]
 
     def get_af_annotation(self, key: str) -> AlleleFrequencyAnnotation | None:
         """Get AF annotation for a key (object ID)
