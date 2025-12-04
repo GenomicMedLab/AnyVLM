@@ -4,7 +4,7 @@ from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from enum import Enum
 from http import HTTPStatus
-from typing import Annotated
+from typing import Annotated, Union
 
 from fastapi import FastAPI, HTTPException, Query, Request
 
@@ -19,7 +19,7 @@ from anyvlm.schemas.common import (
     ServiceType,
 )
 from anyvlm.schemas.vlm import VlmResponse
-from anyvlm.utils.types import ALLOWED_GENOMIC_BASES, GrcAssemblyId, UscsAssemblyBuild, is_valid_dna_sequence
+from anyvlm.utils.types import ALLOWED_GENOMIC_BASES, GenomicSequence, GrcAssemblyId, UscsAssemblyBuild, is_valid_dna_sequence
 
 
 def create_anyvar_client(
@@ -93,32 +93,12 @@ def service_info() -> ServiceInfo:
 )
 def vlm_query(
     request: Request,
-    assemblyId: Annotated[str, Query(..., description="Genome reference assembly")],
+    assemblyId: Annotated[GrcAssemblyId | UscsAssemblyBuild, Query(..., description="Genome reference assembly")],
     referenceName: Annotated[str, Query(..., description="Chromosome with optional 'chr' prefix")],
     start: Annotated[int, Query(..., description="Variant position")],
-    referenceBases: Annotated[str, Query(..., description="Genomic bases ('T', 'AC', etc.)")],
-    alternateBases: Annotated[str, Query(..., description="Genomic bases ('T', 'AC', etc.)")]
+    referenceBases: Annotated[GenomicSequence, Query(..., description="Genomic bases ('T', 'AC', etc.)")],
+    alternateBases: Annotated[GenomicSequence, Query(..., description="Genomic bases ('T', 'AC', etc.)")]
 ) -> VlmResponse
-    # Validate param inputs:
-    if not assemblyId or referenceName or start or referenceBases or alternateBases:
-        raise HTTPException(
-            HTTPStatus.BAD_REQUEST,
-            detail="'assemblyId', 'referenceName', 'start', 'referenceBase', and 'alternateBases' are required",
-        )
-    
-    valid_assembly_ids = {assembly_id.value for assembly_id in GrcAssemblyId} | {assembly_id.value for assembly_id in UscsAssemblyBuild}
-    if assemblyId not in (valid_assembly_ids):
-        raise HTTPException(
-            HTTPStatus.BAD_REQUEST,
-            detail="assemblyId must be one of: " + ", ".join(valid_assembly_ids),
-        )
-    
-    for param_name, sequence in {"referenceBases": referenceBases, "alternateBases": alternateBases}.items():
-        if not is_valid_dna_sequence(sequence):
-            raise HTTPException(
-                HTTPStatus.BAD_REQUEST,
-                detail=f"{param_name} contains invalid bases. Sequence must consist only of: {' '.join(ALLOWED_GENOMIC_BASES)}"
-            )
 
     anyvar_client: BaseAnyVarClient = request.app.state.anyvar_client
     
