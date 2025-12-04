@@ -2,24 +2,21 @@
 
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from enum import Enum
-from http import HTTPStatus
-from typing import Annotated, Union
 
-from fastapi import FastAPI, HTTPException, Query, Request
+from fastapi import FastAPI
 
 from anyvlm import __version__
 from anyvlm.anyvar.base_client import BaseAnyVarClient
 from anyvlm.config import get_config
-from anyvlm.functions.get_caf import get_caf
 from anyvlm.schemas.common import (
     SERVICE_DESCRIPTION,
     ServiceInfo,
     ServiceOrganization,
     ServiceType,
 )
-from anyvlm.schemas.vlm import VlmResponse
-from anyvlm.utils.types import ChromosomeName, GenomicSequence, GrcAssemblyId, UscsAssemblyBuild
+from anyvlm.utils.types import (
+    EndpointTag,
+)
 
 
 def create_anyvar_client(
@@ -63,18 +60,11 @@ app = FastAPI(
 )
 
 
-class _Tag(str, Enum):
-    """Define tag names for endpoints."""
-
-    META = "Meta"
-    SEARCH = "Search"
-
-
 @app.get(
     "/service-info",
     summary="Get basic service information",
     description="Retrieve service metadata, such as versioning and contact info. Structured in conformance with the [GA4GH service info API specification](https://www.ga4gh.org/product/service-info/)",
-    tags=[_Tag.META],
+    tags=[EndpointTag.META],
 )
 def service_info() -> ServiceInfo:
     """Provide service info per GA4GH Service Info spec"""
@@ -83,32 +73,3 @@ def service_info() -> ServiceInfo:
         type=ServiceType(),
         environment=get_config().env,
     )
-
-
-@app.get(
-    "/vlm-query",
-    summary="Provides counts of occurrences of a single sequence variant, broken down by zygosity",
-    description="Provides counts of occurrences of a single sequence variant, broken down by zygosity", #TODO: Update this
-    tags=[_Tag.SEARCH]
-)
-def vlm_query(
-    request: Request,
-    assemblyId: Annotated[GrcAssemblyId | UscsAssemblyBuild, Query(..., description="Genome reference assembly")],
-    referenceName: Annotated[ChromosomeName, Query(..., description="Chromosome with optional 'chr' prefix")],
-    start: Annotated[int, Query(..., description="Variant position")],
-    referenceBases: Annotated[GenomicSequence, Query(..., description="Genomic bases ('T', 'AC', etc.)")],
-    alternateBases: Annotated[GenomicSequence, Query(..., description="Genomic bases ('T', 'AC', etc.)")]
-) -> VlmResponse:
-
-    anyvar_client: BaseAnyVarClient = request.app.state.anyvar_client
-    
-    caf_data = get_caf(
-        anyvar_client,
-        assemblyId,
-        referenceName,
-        start,
-        referenceBases,
-        alternateBases
-    )
-
-    return VlmResponse() #TODO: fill this out. See Issue #16 and Issue #13
