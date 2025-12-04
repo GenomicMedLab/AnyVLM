@@ -2,7 +2,6 @@
 
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from enum import Enum
 
 from fastapi import FastAPI
 
@@ -14,6 +13,9 @@ from anyvlm.schemas.common import (
     ServiceInfo,
     ServiceOrganization,
     ServiceType,
+)
+from anyvlm.utils.types import (
+    EndpointTag,
 )
 
 
@@ -58,18 +60,11 @@ app = FastAPI(
 )
 
 
-class _Tag(str, Enum):
-    """Define tag names for endpoints."""
-
-    META = "Meta"
-    SEARCH = "Search"
-
-
 @app.get(
     "/service-info",
     summary="Get basic service information",
     description="Retrieve service metadata, such as versioning and contact info. Structured in conformance with the [GA4GH service info API specification](https://www.ga4gh.org/product/service-info/)",
-    tags=[_Tag.META],
+    tags=[EndpointTag.META],
 )
 def service_info() -> ServiceInfo:
     """Provide service info per GA4GH Service Info spec"""
