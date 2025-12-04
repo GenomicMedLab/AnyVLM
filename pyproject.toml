@@ -26,6 +26,7 @@ dependencies = [
     "anyio",
     "python-dotenv",
     "pydantic-settings",
+    "requests",
 ]
 dynamic = ["version"]
 
@@ -36,6 +37,7 @@ test = [
     "httpx",
     "jsonschema",
     "pyyaml",
+    "responses",
 ]
 dev = [
     "ruff==0.12.8",
