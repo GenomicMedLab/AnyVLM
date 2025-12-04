@@ -19,7 +19,7 @@ from anyvlm.schemas.common import (
     ServiceType,
 )
 from anyvlm.schemas.vlm import VlmResponse
-from anyvlm.utils.types import ALLOWED_GENOMIC_BASES, GenomicSequence, GrcAssemblyId, UscsAssemblyBuild, is_valid_dna_sequence
+from anyvlm.utils.types import ChromosomeName, GenomicSequence, GrcAssemblyId, UscsAssemblyBuild
 
 
 def create_anyvar_client(
@@ -94,11 +94,11 @@ def service_info() -> ServiceInfo:
 def vlm_query(
     request: Request,
     assemblyId: Annotated[GrcAssemblyId | UscsAssemblyBuild, Query(..., description="Genome reference assembly")],
-    referenceName: Annotated[str, Query(..., description="Chromosome with optional 'chr' prefix")],
+    referenceName: Annotated[ChromosomeName, Query(..., description="Chromosome with optional 'chr' prefix")],
     start: Annotated[int, Query(..., description="Variant position")],
     referenceBases: Annotated[GenomicSequence, Query(..., description="Genomic bases ('T', 'AC', etc.)")],
     alternateBases: Annotated[GenomicSequence, Query(..., description="Genomic bases ('T', 'AC', etc.)")]
-) -> VlmResponse
+) -> VlmResponse:
 
     anyvar_client: BaseAnyVarClient = request.app.state.anyvar_client
     
@@ -110,3 +110,5 @@ def vlm_query(
         referenceBases,
         alternateBases
     )
+
+    return VlmResponse()
