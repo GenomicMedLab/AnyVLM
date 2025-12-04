@@ -18,4 +18,4 @@ def get_caf(
     :param alternateBases: Genomic bases ('T', 'AC', etc.)
     :return: list of CAFs contained in search interval
     """
-    raise NotImplementedError
+    raise NotImplementedError #TODO: Implement this. See Issue #16.

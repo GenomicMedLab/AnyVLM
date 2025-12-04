@@ -111,4 +111,4 @@ def vlm_query(
         alternateBases
     )
 
-    return VlmResponse()
+    return VlmResponse() #TODO: fill this out. See Issue #16 and Issue #13
