@@ -37,6 +37,7 @@ test = [
     "httpx",
     "jsonschema",
     "pyyaml",
+    "responses",
 ]
 dev = [
     "ruff==0.12.8",
