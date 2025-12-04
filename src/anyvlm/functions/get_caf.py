@@ -2,7 +2,7 @@
 
 from ga4gh.va_spec.base.core import CohortAlleleFrequencyStudyResult
 
-from vlm.anyvar.base_client import BaseAnyVarClient
+from anyvlm.anyvar.base_client import BaseAnyVarClient
 
 
 def get_caf(

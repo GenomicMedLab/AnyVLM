@@ -1,10 +1,10 @@
-"""Provide abstraction for a VLM-to-AnyVar connection."""
+"""Provide abstraction for a AnyVLM-to-AnyVar connection."""
 
 import abc
 
 from anyvar.utils.types import VrsObject
 
-from vlm.schemas.domain import AlleleFrequencyAnnotation
+from anyvlm.schemas.domain import AlleleFrequencyAnnotation
 
 # define constant to use as AnyVar annotation type
 AF_ANNOTATION_TYPE = "cohort_allele_frequency"

@@ -1,1 +1,1 @@
-# VLM in a Box
+# AnyVLM
