@@ -19,7 +19,7 @@ from anyvlm.schemas.common import (
     ServiceType,
 )
 from anyvlm.schemas.vlm import VlmResponse
-from anyvlm.utils.types import GrcAssemblyId, UscsAssemblyBuild
+from anyvlm.utils.types import ALLOWED_GENOMIC_BASES, GrcAssemblyId, UscsAssemblyBuild, is_valid_dna_sequence
 
 
 def create_anyvar_client(
@@ -99,6 +99,7 @@ def vlm_query(
     referenceBases: Annotated[str, Query(..., description="Genomic bases ('T', 'AC', etc.)")],
     alternateBases: Annotated[str, Query(..., description="Genomic bases ('T', 'AC', etc.)")]
 ) -> VlmResponse
+    # Validate param inputs:
     if not assemblyId or referenceName or start or referenceBases or alternateBases:
         raise HTTPException(
             HTTPStatus.BAD_REQUEST,
@@ -111,6 +112,13 @@ def vlm_query(
             HTTPStatus.BAD_REQUEST,
             detail="assemblyId must be one of: " + ", ".join(valid_assembly_ids),
         )
+    
+    for param_name, sequence in {"referenceBases": referenceBases, "alternateBases": alternateBases}.items():
+        if not is_valid_dna_sequence(sequence):
+            raise HTTPException(
+                HTTPStatus.BAD_REQUEST,
+                detail=f"{param_name} contains invalid bases. Sequence must consist only of: {' '.join(ALLOWED_GENOMIC_BASES)}"
+            )
 
     anyvar_client: BaseAnyVarClient = request.app.state.anyvar_client
     
