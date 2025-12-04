@@ -6,6 +6,13 @@ from anyvar.utils.types import VrsObject
 
 from vlm.schemas.domain import AlleleFrequencyAnnotation
 
+# define constant to use as AnyVar annotation type
+AF_ANNOTATION_TYPE = "cohort_allele_frequency"
+
+
+class AmbiguousAnnotationError(Exception):
+    """Raise if multiple candidate annotations exist on a variation"""
+
 
 class BaseAnyVarClient(abc.ABC):
     """Interface elements for an AnyVar client"""
@@ -21,7 +28,6 @@ class BaseAnyVarClient(abc.ABC):
     def put_af_annotation(self, key: str, af: AlleleFrequencyAnnotation) -> None:
         """Add an allele frequency annotation to a variation
 
-
         :param key: VRS ID for variation being annotated
         :param af: frequency data for for annotation
         """
@@ -36,6 +42,15 @@ class BaseAnyVarClient(abc.ABC):
         :param start: start position for genomic region
         :param end: end position for genomic region
         :return: list of matching variant objects
+        """
+
+    @abc.abstractmethod
+    def get_af_annotation(self, key: str) -> AlleleFrequencyAnnotation | None:
+        """Get AF annotation for a key (object ID)
+
+        :param key: object ID (presumably VRS ID)
+        :return: AF object if available, `None` otherwise
+        :raise KeyError: if object with given ID doesn't exist
         """
 
     @abc.abstractmethod

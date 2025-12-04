@@ -26,6 +26,7 @@ dependencies = [
     "anyio",
     "python-dotenv",
     "pydantic-settings",
+    "requests",
 ]
 dynamic = ["version"]
 
