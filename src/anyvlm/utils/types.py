@@ -74,3 +74,12 @@ def _normalize_chromosome_name(chromosome_name: str) -> str:
 
 
 ChromosomeName = Annotated[str, BeforeValidator(_normalize_chromosome_name)]
+
+
+class Zygosity(StrEnum):
+    """Allowable zygosity values as defined by the VLM protocol"""
+
+    HOMOZYGOUS = "Homozygous"
+    HETEROZYGOUS = "Heterozygous"
+    HEMIZYGOUS = "Hemizygous"
+    UNKNOWN = "Unknown Zygosity"

@@ -1,8 +1,11 @@
 """Schemas relating to VLM API."""
 
-from pydantic import BaseModel, Field
+from typing import Self
+
+from pydantic import BaseModel, Field, model_validator
 
 from anyvlm import __version__
+from anyvlm.utils.types import Zygosity
 
 # ruff: noqa: N815 (allows camelCase vars instead of snake_case)
 
@@ -88,3 +91,26 @@ class VlmResponse(BaseModel):
     meta: Meta = Meta()
     responseSummary: ResponseSummary
     response: ResponseField
+
+    @model_validator(mode="after")
+    def validate_resultset_ids(self) -> Self:
+        """Ensure each ResultSet.id is correctly constructed."""
+        handover_ids: list[str] = [
+            beaconHandover.handoverType.id for beaconHandover in self.beaconHandovers
+        ]
+
+        for result_set in self.response.resultSets:
+            node_id, zygosity = result_set.id.split(" ")
+
+            if node_id not in handover_ids:
+                error_message = f"Invalid ResultSet id - ids must be in form '<node_id> <zygosity>', but provided node_id of {node_id} does not match any `handoverType.id` provided in `self.beaconHandovers`"
+                raise ValueError(error_message)
+
+            try:
+                Zygosity(zygosity)
+            except ValueError as e:
+                valid_zygosity_values = {zygosity.value for zygosity in Zygosity}
+                error_message = f"Invalid ResultSet id - ids must be in form '<node_id> <zygosity>', but provided zygosity of {zygosity} is not found in allowable value set of: {', '.join(valid_zygosity_values)}"
+                raise ValueError(error_message) from e
+
+        return self
