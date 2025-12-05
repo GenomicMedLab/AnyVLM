@@ -4,7 +4,7 @@ from pydantic import BaseModel, Field
 
 from anyvlm import __version__
 
-# ruff: noqa: N815
+# ruff: noqa: N815 (allows camelCase vars instead of snake_case)
 
 RESULT_ENTITY_TYPE = "genomicVariant"
 
@@ -14,10 +14,10 @@ class HandoverType(BaseModel):
 
     id: str = Field(
         default="gregor", description="Node-specific identifier"
-    )  # TODO: verify what to use here
+    )  # TODO: verify what to use here. In the future this should be set dynamically.
     label: str = Field(
-        default="GREGor", description="Node-specific label"
-    )  # TODO: verify what to use here
+        default="GREGor AnVIL browser", description="Node-specific label"
+    )  # TODO: verify what to use here. In the future this should be set dynamically.
 
 
 class BeaconHandover(BaseModel):
@@ -25,8 +25,8 @@ class BeaconHandover(BaseModel):
 
     handoverType: HandoverType = HandoverType()
     url: str = Field(
-        default="https://anvil.terra.bio/#workspaces?filter=GREGoR",  # TODO: verify what to use here
-        description="a url which directs users to more detailed information about the results tabulated by the API (ideally human-readable)",
+        default="https://anvil.terra.bio/#workspaces?filter=GREGoR",  # TODO: verify what to use here. In the future this should be set dynamically.
+        description="A url which directs users to more detailed information about the results tabulated by the API (ideally human-readable)",
     )
 
 
@@ -34,7 +34,14 @@ class Meta(BaseModel):
     """Relevant metadata about the results provided in the parent `VlmResponse`"""
 
     apiVersion: str = __version__
-    beaconId: str = "org.gregor"  # TODO: verify what to use here
+    beaconId: str = Field(
+        default="org.gregor.beacon",  # TODO: verify what to use here. In the future this should be set dynamically.
+        description="""
+            The Id of a Beacon. Usually a reversed domain string, but any URI is acceptable. The purpose of this attribute is,
+            in the context of a Beacon network, to disambiguate responses coming from different Beacons. See the beacon documentation
+            [here](https://github.com/ga4gh-beacon/beacon-v2/blob/c6558bf2e6494df3905f7b2df66e903dfe509500/framework/src/common/beaconCommonComponents.yaml#L26)
+        """,
+    )
     returnedSchemas: list[dict[str, str]] = [
         {"entityType": RESULT_ENTITY_TYPE, "schema": "ga4gh-beacon-variant-v2.0.0"}
     ]
