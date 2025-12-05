@@ -7,13 +7,10 @@ from fastapi import Query, Request
 from ga4gh.va_spec.base.core import CohortAlleleFrequencyStudyResult
 
 from anyvlm.anyvar.base_client import BaseAnyVarClient
+from anyvlm.functions.build_vlm_response import build_vlm_response
 from anyvlm.functions.get_caf import get_caf
 from anyvlm.main import app
 from anyvlm.schemas.vlm import (
-    HandoverType,
-    ResponseField,
-    ResponseSummary,
-    ResultSet,
     VlmResponse,
 )
 from anyvlm.utils.types import (
@@ -67,31 +64,7 @@ def vlm_query(
     :return: A VlmResponse object containing cohort allele frequency data. If no matches are found, endpoint will return a status code of 200 with an empty set of results.
     """
     anyvar_client: BaseAnyVarClient = request.app.state.anyvar_client
-
     caf_data: list[CohortAlleleFrequencyStudyResult] = get_caf(
         anyvar_client, assemblyId, referenceName, start, referenceBases, alternateBases
     )
-
-    result_sets: list[ResultSet] = []
-    if caf_data:
-        total: int = sum(
-            [caf_study_result.focusAlleleCount for caf_study_result in caf_data]
-        )  # TODO: I'm not sure this is the right field?
-        response_summary = ResponseSummary(exists=True, total=total)
-        for caf_study_result in caf_data:
-            result_sets.extend(
-                [
-                    ResultSet(
-                        exists=True,
-                        id=f"{HandoverType.id} {caf_study_result.cohort}",  # TODO - not sure that caf_study_result.cohort is the right field
-                        resultsCount=caf_study_result.focusAlleleCount,
-                    )
-                ]
-            )
-
-    else:
-        response_summary = ResponseSummary(exists=False, total=0)
-
-    return VlmResponse(
-        responseSummary=response_summary, response=ResponseField(resultSets=result_sets)
-    )
+    return build_vlm_response(caf_data)
