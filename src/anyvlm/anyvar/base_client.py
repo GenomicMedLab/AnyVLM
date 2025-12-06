@@ -2,9 +2,7 @@
 
 import abc
 
-from anyvar.utils.types import VrsObject
-
-from anyvlm.schemas.domain import AlleleFrequencyAnnotation
+from anyvar.utils.types import VrsVariation
 
 # define constant to use as AnyVar annotation type
 AF_ANNOTATION_TYPE = "cohort_allele_frequency"
@@ -18,39 +16,23 @@ class BaseAnyVarClient(abc.ABC):
     """Interface elements for an AnyVar client"""
 
     @abc.abstractmethod
-    def put_objects(self, objects: list[VrsObject]) -> None:
+    def put_objects(self, objects: list[VrsVariation]) -> list[VrsVariation]:
         """Register objects with AnyVar
 
         :param objects: variation objects to register
-        """
-
-    @abc.abstractmethod
-    def put_af_annotation(self, key: str, af: AlleleFrequencyAnnotation) -> None:
-        """Add an allele frequency annotation to a variation
-
-        :param key: VRS ID for variation being annotated
-        :param af: frequency data for for annotation
+        :return: completed VRS objects
         """
 
     @abc.abstractmethod
     def search_by_interval(
         self, accession: str, start: int, end: int
-    ) -> list[VrsObject]:
+    ) -> list[VrsVariation]:
         """Get all variation IDs located within the specified range
 
         :param accession: sequence accession
         :param start: start position for genomic region
         :param end: end position for genomic region
         :return: list of matching variant objects
-        """
-
-    @abc.abstractmethod
-    def get_af_annotation(self, key: str) -> AlleleFrequencyAnnotation | None:
-        """Get AF annotation for a key (object ID)
-
-        :param key: object ID (presumably VRS ID)
-        :return: AF object if available, `None` otherwise
-        :raise KeyError: if object with given ID doesn't exist
         """
 
     @abc.abstractmethod

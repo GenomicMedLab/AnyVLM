@@ -1,16 +1,13 @@
 """Provide abstraction for a VLM-to-AnyVar connection."""
 
-import abc
-from http import HTTPStatus
-
 import requests
-from anyvar.utils.types import VrsObject
+from anyvar.utils.types import VrsVariation
+from ga4gh.vrs import models
 
-from anyvlm.anyvar.base_client import AF_ANNOTATION_TYPE, AmbiguousAnnotationError
-from anyvlm.schemas.domain import AlleleFrequencyAnnotation
+from anyvlm.anyvar.base_client import BaseAnyVarClient
 
 
-class HttpAnyVarClient(abc.ABC):
+class HttpAnyVarClient(BaseAnyVarClient):
     """AnyVar HTTP-based client"""
 
     def __init__(
@@ -24,8 +21,12 @@ class HttpAnyVarClient(abc.ABC):
         self.hostname = hostname
         self.request_timeout = request_timeout
 
-    def put_objects(self, objects: list[VrsObject]) -> list[VrsObject]:
+    def put_objects(self, objects: list[VrsVariation]) -> list[VrsVariation]:
         """Register objects with AnyVar
+
+        This method is intentionally naive. Future improvements could include
+        * A better way to batch requests together to mitigate HTTP latency
+        * A smarter dispatch for reconstructing variation model instances
 
         :param objects: variation objects to register
         :return: completed VRS objects
@@ -39,29 +40,18 @@ class HttpAnyVarClient(abc.ABC):
                 timeout=self.request_timeout,
             )
             response.raise_for_status()
-            results.append(response.json()["object"])
+            result_object = response.json()["object"]
+            if result_object.get("type") == "Allele":
+                results.append(models.Allele(**result_object))
+            else:
+                raise NotImplementedError(
+                    f"Unsupported object type: {result_object.get('type')}"
+                )
         return results
 
-    def put_af_annotation(self, key: str, af: AlleleFrequencyAnnotation) -> None:
-        """Add an allele frequency annotation to a variation
-
-        :param key: VRS ID for variation being annotated
-        :param af: frequency data for for annotation
-        """
-        response = requests.post(
-            f"{self.hostname}/variation/{key}/annotations",
-            json={
-                "annotation_type": AF_ANNOTATION_TYPE,
-                "annotation_value": af.model_dump(mode="json", exclude_none=True),
-            },
-            timeout=self.request_timeout,
-        )
-        response.raise_for_status()
-
-    @abc.abstractmethod
     def search_by_interval(
         self, accession: str, start: int, end: int
-    ) -> list[VrsObject]:
+    ) -> list[VrsVariation]:
         """Get all variation IDs located within the specified range
 
         :param accession: sequence accession
@@ -76,31 +66,7 @@ class HttpAnyVarClient(abc.ABC):
         response.raise_for_status()
         return response.json()["variations"]
 
-    def get_af_annotation(self, key: str) -> AlleleFrequencyAnnotation | None:
-        """Get AF annotation for a key (object ID)
-
-        :param key: object ID (presumably VRS ID)
-        :return: AF object if available, `None` otherwise
-        :raise KeyError: if object with given ID doesn't exist
-        """
-        response = requests.get(
-            f"{self.hostname}/variation/{key}/annotations/{AF_ANNOTATION_TYPE}",
-            timeout=self.request_timeout,
-        )
-        try:
-            response.raise_for_status()
-        except requests.HTTPError as e:
-            if response.status_code == HTTPStatus.NOT_FOUND:
-                raise KeyError from e
-            raise
-        data = response.json()
-        if len(data["annotations"]) == 0:
-            return None
-        if len(data["annotations"]) > 1:
-            raise AmbiguousAnnotationError
-        return AlleleFrequencyAnnotation(**data["annotations"][0]["annotation_value"])
-
-    def close(self) -> None:  # noqa: B027
+    def close(self) -> None:
         """Clean up AnyVar connection.
 
         This is a no-op for this class.
