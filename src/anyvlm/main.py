@@ -8,6 +8,7 @@ from fastapi import FastAPI
 
 from anyvlm import __version__
 from anyvlm.anyvar.base_client import BaseAnyVarClient
+from anyvlm.anyvar.http_client import HttpAnyVarClient
 from anyvlm.config import get_config
 from anyvlm.schemas.common import (
     SERVICE_DESCRIPTION,
@@ -18,13 +19,17 @@ from anyvlm.schemas.common import (
 
 
 def create_anyvar_client(
-    connection_string: str = "http://localhost:8000",
+    connection_string: str | None = None,
 ) -> BaseAnyVarClient:
     """Construct new AnyVar client instance
 
     :param connection_string: description of connection param
     :return: client instance
     """
+    if not connection_string:
+        connection_string = get_config().anyvar_uri
+    if connection_string.startswith("http://"):
+        return HttpAnyVarClient(connection_string)
     raise NotImplementedError
 
 
