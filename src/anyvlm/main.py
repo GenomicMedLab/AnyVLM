@@ -4,11 +4,13 @@ from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from enum import Enum
 
+from anyvar.anyvar import create_storage, create_translator
 from fastapi import FastAPI
 
 from anyvlm import __version__
 from anyvlm.anyvar.base_client import BaseAnyVarClient
 from anyvlm.anyvar.http_client import HttpAnyVarClient
+from anyvlm.anyvar.python_client import PythonAnyVarClient
 from anyvlm.config import get_config
 from anyvlm.schemas.common import (
     SERVICE_DESCRIPTION,
@@ -23,6 +25,10 @@ def create_anyvar_client(
 ) -> BaseAnyVarClient:
     """Construct new AnyVar client instance
 
+    If given a string for connecting to an AnyVar instance via HTTP requests, then
+    create an HTTP-based client. Otherwise, try to use AnyVar resource factory functions
+    for standing up a Python-based client.
+
     :param connection_string: description of connection param
     :return: client instance
     """
@@ -30,7 +36,9 @@ def create_anyvar_client(
         connection_string = get_config().anyvar_uri
     if connection_string.startswith("http://"):
         return HttpAnyVarClient(connection_string)
-    raise NotImplementedError
+    storage = create_storage()
+    translator = create_translator()
+    return PythonAnyVarClient(translator, storage)
 
 
 @asynccontextmanager
