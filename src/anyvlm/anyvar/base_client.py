@@ -5,7 +5,11 @@ import abc
 from anyvar.utils.types import VrsVariation
 
 
-class AnyVarConnectionError(Exception):
+class AnyVarClientError(Exception):
+    """Generic client-related exception."""
+
+
+class AnyVarConnectionError(AnyVarClientError):
     """Raise for network/communication failures when making calls to AnyVar instance"""
 
 
