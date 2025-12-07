@@ -9,10 +9,6 @@ class AnyVarClientError(Exception):
     """Generic client-related exception."""
 
 
-class AnyVarConnectionError(AnyVarClientError):
-    """Raise for network/communication failures when making calls to AnyVar instance"""
-
-
 class BaseAnyVarClient(abc.ABC):
     """Interface elements for an AnyVar client"""
 
@@ -22,7 +18,7 @@ class BaseAnyVarClient(abc.ABC):
 
         :param objects: variation objects to register
         :return: completed VRS objects
-        :raise AnyVarConnectionError: if connection is unsuccessful during registration request
+        :raise AnyVarClientError: for errors relating to specifics of client interface
         """
 
     @abc.abstractmethod
@@ -35,7 +31,7 @@ class BaseAnyVarClient(abc.ABC):
         :param start: start position for genomic region
         :param end: end position for genomic region
         :return: list of matching variant objects
-        :raise AnyVarConnectionError: if connection is unsuccessful during search query
+        :raise AnyVarClientError: if connection is unsuccessful during search query
         """
 
     @abc.abstractmethod

@@ -4,7 +4,7 @@ import requests
 from anyvar.utils.types import VrsVariation
 from ga4gh.vrs import models
 
-from anyvlm.anyvar.base_client import AnyVarConnectionError, BaseAnyVarClient
+from anyvlm.anyvar.base_client import AnyVarClientError, BaseAnyVarClient
 
 
 class HttpAnyVarClient(BaseAnyVarClient):
@@ -30,20 +30,19 @@ class HttpAnyVarClient(BaseAnyVarClient):
 
         :param objects: variation objects to register
         :return: completed VRS objects
-        :raise AnyVarConnectionError: if connection is unsuccessful during registration request
+        :raise AnyVarClientError: if connection is unsuccessful during registration request
         """
         results = []
-        url = f"{self.hostname}/vrs_variation"
         for vrs_object in objects:
             response = requests.put(
-                url,
+                f"{self.hostname}/vrs_variation",
                 json=vrs_object.model_dump(exclude_none=True, mode="json"),
                 timeout=self.request_timeout,
             )
             try:
                 response.raise_for_status()
             except requests.HTTPError as e:
-                raise AnyVarConnectionError from e
+                raise AnyVarClientError from e
             result_object = response.json()["object"]
             if result_object.get("type") == "Allele":
                 results.append(models.Allele(**result_object))
@@ -62,7 +61,7 @@ class HttpAnyVarClient(BaseAnyVarClient):
         :param start: start position for genomic region
         :param end: end position for genomic region
         :return: list of matching variant objects
-        :raise AnyVarConnectionError: if connection is unsuccessful during search query
+        :raise AnyVarClientError: if connection is unsuccessful during search query
         """
         response = requests.get(
             f"{self.hostname}/search?accession={accession}&start={start}&end={end}",
@@ -71,7 +70,11 @@ class HttpAnyVarClient(BaseAnyVarClient):
         try:
             response.raise_for_status()
         except requests.HTTPError as e:
-            raise AnyVarConnectionError from e
+            if response.json() == {
+                "detail": "Unable to dereference provided accession ID"
+            }:
+                return []
+            raise AnyVarClientError from e
         return [models.Allele(**v) for v in response.json()["variations"]]
 
     def close(self) -> None:

@@ -27,4 +27,60 @@ interactions:
     status:
       code: 404
       message: Not Found
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.32.5
+    method: GET
+    uri: http://localhost:8000/search?accession=GRCh45.p1:Y&start=2781760&end=2781760
+  response:
+    body:
+      string: '{"detail":"Unable to dereference provided accession ID"}'
+    headers:
+      content-length:
+      - '56'
+      content-type:
+      - application/json
+      date:
+      - Sun, 07 Dec 2025 21:54:07 GMT
+      server:
+      - uvicorn
+    status:
+      code: 404
+      message: Not Found
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.32.5
+    method: GET
+    uri: http://localhost:8000/search?accession=GRCh45.p1:Y&start=2781760&end=2781760
+  response:
+    body:
+      string: '{"detail":"Unable to dereference provided accession ID"}'
+    headers:
+      content-length:
+      - '56'
+      content-type:
+      - application/json
+      date:
+      - Sun, 07 Dec 2025 21:56:19 GMT
+      server:
+      - uvicorn
+    status:
+      code: 404
+      message: Not Found
 version: 1

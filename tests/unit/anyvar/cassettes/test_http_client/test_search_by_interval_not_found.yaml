@@ -27,4 +27,60 @@ interactions:
     status:
       code: 200
       message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.32.5
+    method: GET
+    uri: http://localhost:8000/search?accession=ga4gh:SQ.8_liLu1aycC0tPQPFmUaGXJLDs5SbPZ5&start=1&end=100
+  response:
+    body:
+      string: '{"variations":[]}'
+    headers:
+      content-length:
+      - '17'
+      content-type:
+      - application/json
+      date:
+      - Sun, 07 Dec 2025 21:54:07 GMT
+      server:
+      - uvicorn
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.32.5
+    method: GET
+    uri: http://localhost:8000/search?accession=ga4gh:SQ.8_liLu1aycC0tPQPFmUaGXJLDs5SbPZ5&start=1&end=100
+  response:
+    body:
+      string: '{"variations":[]}'
+    headers:
+      content-length:
+      - '17'
+      content-type:
+      - application/json
+      date:
+      - Sun, 07 Dec 2025 21:56:19 GMT
+      server:
+      - uvicorn
+    status:
+      code: 200
+      message: OK
 version: 1
