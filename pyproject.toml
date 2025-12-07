@@ -37,7 +37,7 @@ test = [
     "httpx",
     "jsonschema",
     "pyyaml",
-    "responses",
+    "pytest-recording",
 ]
 dev = [
     "ruff==0.12.8",

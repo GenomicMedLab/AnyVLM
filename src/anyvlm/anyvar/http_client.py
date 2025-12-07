@@ -4,7 +4,7 @@ import requests
 from anyvar.utils.types import VrsVariation
 from ga4gh.vrs import models
 
-from anyvlm.anyvar.base_client import BaseAnyVarClient
+from anyvlm.anyvar.base_client import AnyVarConnectionError, BaseAnyVarClient
 
 
 class HttpAnyVarClient(BaseAnyVarClient):
@@ -30,6 +30,7 @@ class HttpAnyVarClient(BaseAnyVarClient):
 
         :param objects: variation objects to register
         :return: completed VRS objects
+        :raise AnyVarConnectionError: if connection is unsuccessful during registration request
         """
         results = []
         url = f"{self.hostname}/vrs_variation"
@@ -39,7 +40,10 @@ class HttpAnyVarClient(BaseAnyVarClient):
                 json=vrs_object.model_dump(exclude_none=True, mode="json"),
                 timeout=self.request_timeout,
             )
-            response.raise_for_status()
+            try:
+                response.raise_for_status()
+            except requests.HTTPError as e:
+                raise AnyVarConnectionError from e
             result_object = response.json()["object"]
             if result_object.get("type") == "Allele":
                 results.append(models.Allele(**result_object))
@@ -58,13 +62,17 @@ class HttpAnyVarClient(BaseAnyVarClient):
         :param start: start position for genomic region
         :param end: end position for genomic region
         :return: list of matching variant objects
+        :raise AnyVarConnectionError: if connection is unsuccessful during search query
         """
         response = requests.get(
-            f"{self.hostname}/search?accession={accession}&start={start}&end{end}",
+            f"{self.hostname}/search?accession={accession}&start={start}&end={end}",
             timeout=self.request_timeout,
         )
-        response.raise_for_status()
-        return response.json()["variations"]
+        try:
+            response.raise_for_status()
+        except requests.HTTPError as e:
+            raise AnyVarConnectionError from e
+        return [models.Allele(**v) for v in response.json()["variations"]]
 
     def close(self) -> None:
         """Clean up AnyVar connection.
