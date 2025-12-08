@@ -63,7 +63,7 @@ class ResultSet(BaseModel):
     exists: bool
     id: str = Field(
         ...,
-        description="id should be constructed of the `HandoverType.id` + the ResultSet's zygosity",
+        description="id should be constructed of the `HandoverType.id` + the ResultSet's zygosity. See `validate_resultset_ids` validator in `VlmResponse` class.",
         examples=["Geno2MP Homozygous", "MyGene2 Heterozygous"],
     )
     results: list = Field(
