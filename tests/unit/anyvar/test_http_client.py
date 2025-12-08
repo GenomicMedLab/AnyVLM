@@ -10,6 +10,7 @@ AnyVar DB to record new test cassettes)
 import pytest
 from ga4gh.vrs import models
 
+from anyvlm.anyvar.base_client import UnidentifiedObjectError
 from anyvlm.anyvar.http_client import HttpAnyVarClient
 
 
@@ -23,21 +24,18 @@ def test_put_objects(client: HttpAnyVarClient, alleles: dict):
     """Test `put_objects` for a basic test suite of variants"""
     for allele_fixture in alleles.values():
         allele = models.Allele(**allele_fixture["variation"])
-        result = client.put_objects([allele])
-        assert result == [allele]
+        client.put_objects([allele])
 
 
 @pytest.mark.vcr
 def test_put_objects_no_ids(client: HttpAnyVarClient, alleles: dict):
     """Test `put_objects` for objects with IDs/digest/etc removed"""
-    for allele_fixture in alleles.values():
-        allele = models.Allele(**allele_fixture["variation"])
-        allele.id = None
-        allele.digest = None
-        allele.location.id = None
-        allele.location.digest = None
-        result = client.put_objects([allele])
-        assert result == [models.Allele(**allele_fixture["variation"])]
+    allele_iter = iter(alleles.values())
+    allele = models.Allele(**next(allele_iter)["variation"])
+    allele.id = None
+    other_allele = models.Allele(**next(allele_iter)["variation"])
+    with pytest.raises(UnidentifiedObjectError):
+        client.put_objects([other_allele, allele])
 
 
 @pytest.mark.vcr

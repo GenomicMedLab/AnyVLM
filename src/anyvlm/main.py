@@ -1,5 +1,6 @@
 """Define core FastAPI app"""
 
+import logging
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from enum import Enum
@@ -19,6 +20,8 @@ from anyvlm.schemas.common import (
     ServiceType,
 )
 
+_logger = logging.getLogger(__name__)
+
 
 def create_anyvar_client(
     connection_string: str | None = None,
@@ -27,7 +30,8 @@ def create_anyvar_client(
 
     If given a string for connecting to an AnyVar instance via HTTP requests, then
     create an HTTP-based client. Otherwise, try to use AnyVar resource factory functions
-    for standing up a Python-based client.
+    for standing up a Python-based client. In the latter case, see the AnyVar documentation
+    for configuration info (i.e. environment variables)
 
     :param connection_string: description of connection param
     :return: client instance
@@ -35,7 +39,11 @@ def create_anyvar_client(
     if not connection_string:
         connection_string = get_config().anyvar_uri
     if connection_string.startswith("http://"):
+        _logger.info(
+            "Initializing HTTP-based AnyVar client under hostname %s", connection_string
+        )
         return HttpAnyVarClient(connection_string)
+    _logger.info("Initializing AnyVar instance directly")
     storage = create_storage()
     translator = create_translator()
     return PythonAnyVarClient(translator, storage)

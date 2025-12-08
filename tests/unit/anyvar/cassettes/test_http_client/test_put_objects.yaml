@@ -779,4 +779,858 @@ interactions:
     status:
       code: 200
       message: OK
+- request:
+    body: '{"id": "ga4gh:VA.d6ru7RcuVO0-v3TtPFX5fZz-GLQDhMVb", "type": "Allele", "digest":
+      "d6ru7RcuVO0-v3TtPFX5fZz-GLQDhMVb", "location": {"id": "ga4gh:SL.JOFKL4nL5mRUlO_xLwQ8VOD1v7mxhs3I",
+      "type": "SequenceLocation", "digest": "JOFKL4nL5mRUlO_xLwQ8VOD1v7mxhs3I", "sequenceReference":
+      {"type": "SequenceReference", "refgetAccession": "SQ.IW78mgV5Cqf6M24hy52hPjyyo5tCCd86"},
+      "start": 36561661, "end": 36561663}, "state": {"type": "ReferenceLengthExpression",
+      "length": 0, "sequence": "", "repeatSubunitLength": 2}}'
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '503'
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.32.5
+    method: PUT
+    uri: http://localhost:8000/vrs_variation
+  response:
+    body:
+      string: '{"messages":[],"object":{"id":"ga4gh:VA.d6ru7RcuVO0-v3TtPFX5fZz-GLQDhMVb","type":"Allele","digest":"d6ru7RcuVO0-v3TtPFX5fZz-GLQDhMVb","location":{"id":"ga4gh:SL.JOFKL4nL5mRUlO_xLwQ8VOD1v7mxhs3I","type":"SequenceLocation","digest":"JOFKL4nL5mRUlO_xLwQ8VOD1v7mxhs3I","sequenceReference":{"type":"SequenceReference","refgetAccession":"SQ.IW78mgV5Cqf6M24hy52hPjyyo5tCCd86"},"start":36561661,"end":36561663},"state":{"type":"ReferenceLengthExpression","length":0,"sequence":"","repeatSubunitLength":2}},"object_id":"ga4gh:VA.d6ru7RcuVO0-v3TtPFX5fZz-GLQDhMVb"}'
+    headers:
+      content-length:
+      - '554'
+      content-type:
+      - application/json
+      date:
+      - Mon, 08 Dec 2025 21:07:31 GMT
+      server:
+      - uvicorn
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"id": "ga4gh:VA.d6ru7RcuVO0-v3TtPFX5fZz-GLQDhMVb", "type": "Allele", "digest":
+      "d6ru7RcuVO0-v3TtPFX5fZz-GLQDhMVb", "location": {"id": "ga4gh:SL.JOFKL4nL5mRUlO_xLwQ8VOD1v7mxhs3I",
+      "type": "SequenceLocation", "digest": "JOFKL4nL5mRUlO_xLwQ8VOD1v7mxhs3I", "sequenceReference":
+      {"type": "SequenceReference", "refgetAccession": "SQ.IW78mgV5Cqf6M24hy52hPjyyo5tCCd86"},
+      "start": 36561661, "end": 36561663}, "state": {"type": "ReferenceLengthExpression",
+      "length": 0, "sequence": "", "repeatSubunitLength": 2}}'
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '503'
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.32.5
+    method: PUT
+    uri: http://localhost:8000/vrs_variation
+  response:
+    body:
+      string: '{"messages":[],"object":{"id":"ga4gh:VA.d6ru7RcuVO0-v3TtPFX5fZz-GLQDhMVb","type":"Allele","digest":"d6ru7RcuVO0-v3TtPFX5fZz-GLQDhMVb","location":{"id":"ga4gh:SL.JOFKL4nL5mRUlO_xLwQ8VOD1v7mxhs3I","type":"SequenceLocation","digest":"JOFKL4nL5mRUlO_xLwQ8VOD1v7mxhs3I","sequenceReference":{"type":"SequenceReference","refgetAccession":"SQ.IW78mgV5Cqf6M24hy52hPjyyo5tCCd86"},"start":36561661,"end":36561663},"state":{"type":"ReferenceLengthExpression","length":0,"sequence":"","repeatSubunitLength":2}},"object_id":"ga4gh:VA.d6ru7RcuVO0-v3TtPFX5fZz-GLQDhMVb"}'
+    headers:
+      content-length:
+      - '554'
+      content-type:
+      - application/json
+      date:
+      - Mon, 08 Dec 2025 21:07:36 GMT
+      server:
+      - uvicorn
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"id": "ga4gh:VA.d6ru7RcuVO0-v3TtPFX5fZz-GLQDhMVb", "type": "Allele", "digest":
+      "d6ru7RcuVO0-v3TtPFX5fZz-GLQDhMVb", "location": {"id": "ga4gh:SL.JOFKL4nL5mRUlO_xLwQ8VOD1v7mxhs3I",
+      "type": "SequenceLocation", "digest": "JOFKL4nL5mRUlO_xLwQ8VOD1v7mxhs3I", "sequenceReference":
+      {"type": "SequenceReference", "refgetAccession": "SQ.IW78mgV5Cqf6M24hy52hPjyyo5tCCd86"},
+      "start": 36561661, "end": 36561663}, "state": {"type": "ReferenceLengthExpression",
+      "length": 0, "sequence": "", "repeatSubunitLength": 2}}'
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '503'
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.32.5
+    method: PUT
+    uri: http://localhost:8000/vrs_variation
+  response:
+    body:
+      string: '{"messages":[],"object":{"id":"ga4gh:VA.d6ru7RcuVO0-v3TtPFX5fZz-GLQDhMVb","type":"Allele","digest":"d6ru7RcuVO0-v3TtPFX5fZz-GLQDhMVb","location":{"id":"ga4gh:SL.JOFKL4nL5mRUlO_xLwQ8VOD1v7mxhs3I","type":"SequenceLocation","digest":"JOFKL4nL5mRUlO_xLwQ8VOD1v7mxhs3I","sequenceReference":{"type":"SequenceReference","refgetAccession":"SQ.IW78mgV5Cqf6M24hy52hPjyyo5tCCd86"},"start":36561661,"end":36561663},"state":{"type":"ReferenceLengthExpression","length":0,"sequence":"","repeatSubunitLength":2}},"object_id":"ga4gh:VA.d6ru7RcuVO0-v3TtPFX5fZz-GLQDhMVb"}'
+    headers:
+      content-length:
+      - '554'
+      content-type:
+      - application/json
+      date:
+      - Mon, 08 Dec 2025 21:07:52 GMT
+      server:
+      - uvicorn
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"id": "ga4gh:VA.Otc5ovrw906Ack087o1fhegB4jDRqCAe", "type": "Allele", "digest":
+      "Otc5ovrw906Ack087o1fhegB4jDRqCAe", "location": {"id": "ga4gh:SL.nhul5x5P_fKjGEpY9PEkMIekJfZaKom2",
+      "type": "SequenceLocation", "digest": "nhul5x5P_fKjGEpY9PEkMIekJfZaKom2", "sequenceReference":
+      {"type": "SequenceReference", "refgetAccession": "SQ.F-LrLMe1SRpfUZHkQmvkVKFEGaoDeHul"},
+      "start": 140753335, "end": 140753336}, "state": {"type": "LiteralSequenceExpression",
+      "sequence": "T"}}'
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '467'
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.32.5
+    method: PUT
+    uri: http://localhost:8000/vrs_variation
+  response:
+    body:
+      string: '{"messages":[],"object":{"id":"ga4gh:VA.Otc5ovrw906Ack087o1fhegB4jDRqCAe","type":"Allele","digest":"Otc5ovrw906Ack087o1fhegB4jDRqCAe","location":{"id":"ga4gh:SL.nhul5x5P_fKjGEpY9PEkMIekJfZaKom2","type":"SequenceLocation","digest":"nhul5x5P_fKjGEpY9PEkMIekJfZaKom2","sequenceReference":{"type":"SequenceReference","refgetAccession":"SQ.F-LrLMe1SRpfUZHkQmvkVKFEGaoDeHul"},"start":140753335,"end":140753336},"state":{"type":"LiteralSequenceExpression","sequence":"T"}},"object_id":"ga4gh:VA.Otc5ovrw906Ack087o1fhegB4jDRqCAe"}'
+    headers:
+      content-length:
+      - '522'
+      content-type:
+      - application/json
+      date:
+      - Mon, 08 Dec 2025 21:07:52 GMT
+      server:
+      - uvicorn
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"id": "ga4gh:VA.ruQCmfXJrEylHmOQF-1PG6bLwQesDU2g", "type": "Allele", "digest":
+      "ruQCmfXJrEylHmOQF-1PG6bLwQesDU2g", "location": {"id": "ga4gh:SL.JqeJ3V-75edWj03xbzw1gtSw3qPQVV2D",
+      "type": "SequenceLocation", "digest": "JqeJ3V-75edWj03xbzw1gtSw3qPQVV2D", "sequenceReference":
+      {"type": "SequenceReference", "refgetAccession": "SQ.8_liLu1aycC0tPQPFmUaGXJLDs5SbPZ5"},
+      "start": 2781703, "end": 2781704}, "state": {"type": "LiteralSequenceExpression",
+      "sequence": "G"}}'
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '463'
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.32.5
+    method: PUT
+    uri: http://localhost:8000/vrs_variation
+  response:
+    body:
+      string: '{"messages":[],"object":{"id":"ga4gh:VA.ruQCmfXJrEylHmOQF-1PG6bLwQesDU2g","type":"Allele","digest":"ruQCmfXJrEylHmOQF-1PG6bLwQesDU2g","location":{"id":"ga4gh:SL.JqeJ3V-75edWj03xbzw1gtSw3qPQVV2D","type":"SequenceLocation","digest":"JqeJ3V-75edWj03xbzw1gtSw3qPQVV2D","sequenceReference":{"type":"SequenceReference","refgetAccession":"SQ.8_liLu1aycC0tPQPFmUaGXJLDs5SbPZ5"},"start":2781703,"end":2781704},"state":{"type":"LiteralSequenceExpression","sequence":"G"}},"object_id":"ga4gh:VA.ruQCmfXJrEylHmOQF-1PG6bLwQesDU2g"}'
+    headers:
+      content-length:
+      - '518'
+      content-type:
+      - application/json
+      date:
+      - Mon, 08 Dec 2025 21:07:52 GMT
+      server:
+      - uvicorn
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"id": "ga4gh:VA.IM4QyU9D2kTJzeftUBBD4Vcd1peq0dn1", "type": "Allele", "digest":
+      "IM4QyU9D2kTJzeftUBBD4Vcd1peq0dn1", "location": {"id": "ga4gh:SL.sWfeTXwGUkfIuYRAkiFGPjkSk_mIDuXG",
+      "type": "SequenceLocation", "digest": "sWfeTXwGUkfIuYRAkiFGPjkSk_mIDuXG", "sequenceReference":
+      {"type": "SequenceReference", "refgetAccession": "SQ.8_liLu1aycC0tPQPFmUaGXJLDs5SbPZ5"},
+      "start": 2781760, "end": 2781762}, "state": {"type": "LiteralSequenceExpression",
+      "sequence": "CA"}}'
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '464'
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.32.5
+    method: PUT
+    uri: http://localhost:8000/vrs_variation
+  response:
+    body:
+      string: '{"messages":[],"object":{"id":"ga4gh:VA.IM4QyU9D2kTJzeftUBBD4Vcd1peq0dn1","type":"Allele","digest":"IM4QyU9D2kTJzeftUBBD4Vcd1peq0dn1","location":{"id":"ga4gh:SL.sWfeTXwGUkfIuYRAkiFGPjkSk_mIDuXG","type":"SequenceLocation","digest":"sWfeTXwGUkfIuYRAkiFGPjkSk_mIDuXG","sequenceReference":{"type":"SequenceReference","refgetAccession":"SQ.8_liLu1aycC0tPQPFmUaGXJLDs5SbPZ5"},"start":2781760,"end":2781762},"state":{"type":"LiteralSequenceExpression","sequence":"CA"}},"object_id":"ga4gh:VA.IM4QyU9D2kTJzeftUBBD4Vcd1peq0dn1"}'
+    headers:
+      content-length:
+      - '519'
+      content-type:
+      - application/json
+      date:
+      - Mon, 08 Dec 2025 21:07:52 GMT
+      server:
+      - uvicorn
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"id": "ga4gh:VA.xbX035HgURWIUAjn6x3cS26jafP8Q_bk", "type": "Allele", "digest":
+      "xbX035HgURWIUAjn6x3cS26jafP8Q_bk", "location": {"id": "ga4gh:SL.sYiBcbbgF-1CANNCTfQ6zwZOU0iHhymR",
+      "type": "SequenceLocation", "digest": "sYiBcbbgF-1CANNCTfQ6zwZOU0iHhymR", "sequenceReference":
+      {"type": "SequenceReference", "refgetAccession": "SQ.8_liLu1aycC0tPQPFmUaGXJLDs5SbPZ5"},
+      "start": 2781760, "end": 2781761}, "state": {"type": "LiteralSequenceExpression",
+      "sequence": "C"}}'
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '463'
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.32.5
+    method: PUT
+    uri: http://localhost:8000/vrs_variation
+  response:
+    body:
+      string: '{"messages":[],"object":{"id":"ga4gh:VA.xbX035HgURWIUAjn6x3cS26jafP8Q_bk","type":"Allele","digest":"xbX035HgURWIUAjn6x3cS26jafP8Q_bk","location":{"id":"ga4gh:SL.sYiBcbbgF-1CANNCTfQ6zwZOU0iHhymR","type":"SequenceLocation","digest":"sYiBcbbgF-1CANNCTfQ6zwZOU0iHhymR","sequenceReference":{"type":"SequenceReference","refgetAccession":"SQ.8_liLu1aycC0tPQPFmUaGXJLDs5SbPZ5"},"start":2781760,"end":2781761},"state":{"type":"LiteralSequenceExpression","sequence":"C"}},"object_id":"ga4gh:VA.xbX035HgURWIUAjn6x3cS26jafP8Q_bk"}'
+    headers:
+      content-length:
+      - '518'
+      content-type:
+      - application/json
+      date:
+      - Mon, 08 Dec 2025 21:07:52 GMT
+      server:
+      - uvicorn
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"id": "ga4gh:VA.9VDxL0stMBOZwcTKw3yb3UoWQkpaI9OD", "type": "Allele", "digest":
+      "9VDxL0stMBOZwcTKw3yb3UoWQkpaI9OD", "location": {"id": "ga4gh:SL.sYiBcbbgF-1CANNCTfQ6zwZOU0iHhymR",
+      "type": "SequenceLocation", "digest": "sYiBcbbgF-1CANNCTfQ6zwZOU0iHhymR", "sequenceReference":
+      {"type": "SequenceReference", "refgetAccession": "SQ.8_liLu1aycC0tPQPFmUaGXJLDs5SbPZ5"},
+      "start": 2781760, "end": 2781761}, "state": {"type": "LiteralSequenceExpression",
+      "sequence": "A"}}'
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '463'
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.32.5
+    method: PUT
+    uri: http://localhost:8000/vrs_variation
+  response:
+    body:
+      string: '{"messages":[],"object":{"id":"ga4gh:VA.9VDxL0stMBOZwcTKw3yb3UoWQkpaI9OD","type":"Allele","digest":"9VDxL0stMBOZwcTKw3yb3UoWQkpaI9OD","location":{"id":"ga4gh:SL.sYiBcbbgF-1CANNCTfQ6zwZOU0iHhymR","type":"SequenceLocation","digest":"sYiBcbbgF-1CANNCTfQ6zwZOU0iHhymR","sequenceReference":{"type":"SequenceReference","refgetAccession":"SQ.8_liLu1aycC0tPQPFmUaGXJLDs5SbPZ5"},"start":2781760,"end":2781761},"state":{"type":"LiteralSequenceExpression","sequence":"A"}},"object_id":"ga4gh:VA.9VDxL0stMBOZwcTKw3yb3UoWQkpaI9OD"}'
+    headers:
+      content-length:
+      - '518'
+      content-type:
+      - application/json
+      date:
+      - Mon, 08 Dec 2025 21:07:52 GMT
+      server:
+      - uvicorn
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"id": "ga4gh:VA.yi7A2l0uIUMaInQaJnHU_B2Cf_OuZRJg", "type": "Allele", "digest":
+      "yi7A2l0uIUMaInQaJnHU_B2Cf_OuZRJg", "location": {"id": "ga4gh:SL.JsFGLKlUDocinf7oWTXAvVT2WOso7R9u",
+      "type": "SequenceLocation", "digest": "JsFGLKlUDocinf7oWTXAvVT2WOso7R9u", "sequenceReference":
+      {"type": "SequenceReference", "refgetAccession": "SQ.8_liLu1aycC0tPQPFmUaGXJLDs5SbPZ5"},
+      "start": 2781761, "end": 2781785}, "state": {"type": "ReferenceLengthExpression",
+      "length": 23, "sequence": "AAAAAAAAAAAAAAAAAAAAAAA", "repeatSubunitLength":
+      1}}'
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '525'
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.32.5
+    method: PUT
+    uri: http://localhost:8000/vrs_variation
+  response:
+    body:
+      string: '{"messages":[],"object":{"id":"ga4gh:VA.yi7A2l0uIUMaInQaJnHU_B2Cf_OuZRJg","type":"Allele","digest":"yi7A2l0uIUMaInQaJnHU_B2Cf_OuZRJg","location":{"id":"ga4gh:SL.JsFGLKlUDocinf7oWTXAvVT2WOso7R9u","type":"SequenceLocation","digest":"JsFGLKlUDocinf7oWTXAvVT2WOso7R9u","sequenceReference":{"type":"SequenceReference","refgetAccession":"SQ.8_liLu1aycC0tPQPFmUaGXJLDs5SbPZ5"},"start":2781761,"end":2781785},"state":{"type":"ReferenceLengthExpression","length":23,"sequence":"AAAAAAAAAAAAAAAAAAAAAAA","repeatSubunitLength":1}},"object_id":"ga4gh:VA.yi7A2l0uIUMaInQaJnHU_B2Cf_OuZRJg"}'
+    headers:
+      content-length:
+      - '576'
+      content-type:
+      - application/json
+      date:
+      - Mon, 08 Dec 2025 21:07:52 GMT
+      server:
+      - uvicorn
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"id": "ga4gh:VA.d6ru7RcuVO0-v3TtPFX5fZz-GLQDhMVb", "type": "Allele", "digest":
+      "d6ru7RcuVO0-v3TtPFX5fZz-GLQDhMVb", "location": {"id": "ga4gh:SL.JOFKL4nL5mRUlO_xLwQ8VOD1v7mxhs3I",
+      "type": "SequenceLocation", "digest": "JOFKL4nL5mRUlO_xLwQ8VOD1v7mxhs3I", "sequenceReference":
+      {"type": "SequenceReference", "refgetAccession": "SQ.IW78mgV5Cqf6M24hy52hPjyyo5tCCd86"},
+      "start": 36561661, "end": 36561663}, "state": {"type": "ReferenceLengthExpression",
+      "length": 0, "sequence": "", "repeatSubunitLength": 2}}'
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '503'
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.32.5
+    method: PUT
+    uri: http://localhost:8000/vrs_variation
+  response:
+    body:
+      string: '{"messages":[],"object":{"id":"ga4gh:VA.d6ru7RcuVO0-v3TtPFX5fZz-GLQDhMVb","type":"Allele","digest":"d6ru7RcuVO0-v3TtPFX5fZz-GLQDhMVb","location":{"id":"ga4gh:SL.JOFKL4nL5mRUlO_xLwQ8VOD1v7mxhs3I","type":"SequenceLocation","digest":"JOFKL4nL5mRUlO_xLwQ8VOD1v7mxhs3I","sequenceReference":{"type":"SequenceReference","refgetAccession":"SQ.IW78mgV5Cqf6M24hy52hPjyyo5tCCd86"},"start":36561661,"end":36561663},"state":{"type":"ReferenceLengthExpression","length":0,"sequence":"","repeatSubunitLength":2}},"object_id":"ga4gh:VA.d6ru7RcuVO0-v3TtPFX5fZz-GLQDhMVb"}'
+    headers:
+      content-length:
+      - '554'
+      content-type:
+      - application/json
+      date:
+      - Mon, 08 Dec 2025 21:11:25 GMT
+      server:
+      - uvicorn
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"id": "ga4gh:VA.Otc5ovrw906Ack087o1fhegB4jDRqCAe", "type": "Allele", "digest":
+      "Otc5ovrw906Ack087o1fhegB4jDRqCAe", "location": {"id": "ga4gh:SL.nhul5x5P_fKjGEpY9PEkMIekJfZaKom2",
+      "type": "SequenceLocation", "digest": "nhul5x5P_fKjGEpY9PEkMIekJfZaKom2", "sequenceReference":
+      {"type": "SequenceReference", "refgetAccession": "SQ.F-LrLMe1SRpfUZHkQmvkVKFEGaoDeHul"},
+      "start": 140753335, "end": 140753336}, "state": {"type": "LiteralSequenceExpression",
+      "sequence": "T"}}'
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '467'
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.32.5
+    method: PUT
+    uri: http://localhost:8000/vrs_variation
+  response:
+    body:
+      string: '{"messages":[],"object":{"id":"ga4gh:VA.Otc5ovrw906Ack087o1fhegB4jDRqCAe","type":"Allele","digest":"Otc5ovrw906Ack087o1fhegB4jDRqCAe","location":{"id":"ga4gh:SL.nhul5x5P_fKjGEpY9PEkMIekJfZaKom2","type":"SequenceLocation","digest":"nhul5x5P_fKjGEpY9PEkMIekJfZaKom2","sequenceReference":{"type":"SequenceReference","refgetAccession":"SQ.F-LrLMe1SRpfUZHkQmvkVKFEGaoDeHul"},"start":140753335,"end":140753336},"state":{"type":"LiteralSequenceExpression","sequence":"T"}},"object_id":"ga4gh:VA.Otc5ovrw906Ack087o1fhegB4jDRqCAe"}'
+    headers:
+      content-length:
+      - '522'
+      content-type:
+      - application/json
+      date:
+      - Mon, 08 Dec 2025 21:11:25 GMT
+      server:
+      - uvicorn
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"id": "ga4gh:VA.ruQCmfXJrEylHmOQF-1PG6bLwQesDU2g", "type": "Allele", "digest":
+      "ruQCmfXJrEylHmOQF-1PG6bLwQesDU2g", "location": {"id": "ga4gh:SL.JqeJ3V-75edWj03xbzw1gtSw3qPQVV2D",
+      "type": "SequenceLocation", "digest": "JqeJ3V-75edWj03xbzw1gtSw3qPQVV2D", "sequenceReference":
+      {"type": "SequenceReference", "refgetAccession": "SQ.8_liLu1aycC0tPQPFmUaGXJLDs5SbPZ5"},
+      "start": 2781703, "end": 2781704}, "state": {"type": "LiteralSequenceExpression",
+      "sequence": "G"}}'
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '463'
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.32.5
+    method: PUT
+    uri: http://localhost:8000/vrs_variation
+  response:
+    body:
+      string: '{"messages":[],"object":{"id":"ga4gh:VA.ruQCmfXJrEylHmOQF-1PG6bLwQesDU2g","type":"Allele","digest":"ruQCmfXJrEylHmOQF-1PG6bLwQesDU2g","location":{"id":"ga4gh:SL.JqeJ3V-75edWj03xbzw1gtSw3qPQVV2D","type":"SequenceLocation","digest":"JqeJ3V-75edWj03xbzw1gtSw3qPQVV2D","sequenceReference":{"type":"SequenceReference","refgetAccession":"SQ.8_liLu1aycC0tPQPFmUaGXJLDs5SbPZ5"},"start":2781703,"end":2781704},"state":{"type":"LiteralSequenceExpression","sequence":"G"}},"object_id":"ga4gh:VA.ruQCmfXJrEylHmOQF-1PG6bLwQesDU2g"}'
+    headers:
+      content-length:
+      - '518'
+      content-type:
+      - application/json
+      date:
+      - Mon, 08 Dec 2025 21:11:25 GMT
+      server:
+      - uvicorn
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"id": "ga4gh:VA.IM4QyU9D2kTJzeftUBBD4Vcd1peq0dn1", "type": "Allele", "digest":
+      "IM4QyU9D2kTJzeftUBBD4Vcd1peq0dn1", "location": {"id": "ga4gh:SL.sWfeTXwGUkfIuYRAkiFGPjkSk_mIDuXG",
+      "type": "SequenceLocation", "digest": "sWfeTXwGUkfIuYRAkiFGPjkSk_mIDuXG", "sequenceReference":
+      {"type": "SequenceReference", "refgetAccession": "SQ.8_liLu1aycC0tPQPFmUaGXJLDs5SbPZ5"},
+      "start": 2781760, "end": 2781762}, "state": {"type": "LiteralSequenceExpression",
+      "sequence": "CA"}}'
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '464'
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.32.5
+    method: PUT
+    uri: http://localhost:8000/vrs_variation
+  response:
+    body:
+      string: '{"messages":[],"object":{"id":"ga4gh:VA.IM4QyU9D2kTJzeftUBBD4Vcd1peq0dn1","type":"Allele","digest":"IM4QyU9D2kTJzeftUBBD4Vcd1peq0dn1","location":{"id":"ga4gh:SL.sWfeTXwGUkfIuYRAkiFGPjkSk_mIDuXG","type":"SequenceLocation","digest":"sWfeTXwGUkfIuYRAkiFGPjkSk_mIDuXG","sequenceReference":{"type":"SequenceReference","refgetAccession":"SQ.8_liLu1aycC0tPQPFmUaGXJLDs5SbPZ5"},"start":2781760,"end":2781762},"state":{"type":"LiteralSequenceExpression","sequence":"CA"}},"object_id":"ga4gh:VA.IM4QyU9D2kTJzeftUBBD4Vcd1peq0dn1"}'
+    headers:
+      content-length:
+      - '519'
+      content-type:
+      - application/json
+      date:
+      - Mon, 08 Dec 2025 21:11:25 GMT
+      server:
+      - uvicorn
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"id": "ga4gh:VA.xbX035HgURWIUAjn6x3cS26jafP8Q_bk", "type": "Allele", "digest":
+      "xbX035HgURWIUAjn6x3cS26jafP8Q_bk", "location": {"id": "ga4gh:SL.sYiBcbbgF-1CANNCTfQ6zwZOU0iHhymR",
+      "type": "SequenceLocation", "digest": "sYiBcbbgF-1CANNCTfQ6zwZOU0iHhymR", "sequenceReference":
+      {"type": "SequenceReference", "refgetAccession": "SQ.8_liLu1aycC0tPQPFmUaGXJLDs5SbPZ5"},
+      "start": 2781760, "end": 2781761}, "state": {"type": "LiteralSequenceExpression",
+      "sequence": "C"}}'
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '463'
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.32.5
+    method: PUT
+    uri: http://localhost:8000/vrs_variation
+  response:
+    body:
+      string: '{"messages":[],"object":{"id":"ga4gh:VA.xbX035HgURWIUAjn6x3cS26jafP8Q_bk","type":"Allele","digest":"xbX035HgURWIUAjn6x3cS26jafP8Q_bk","location":{"id":"ga4gh:SL.sYiBcbbgF-1CANNCTfQ6zwZOU0iHhymR","type":"SequenceLocation","digest":"sYiBcbbgF-1CANNCTfQ6zwZOU0iHhymR","sequenceReference":{"type":"SequenceReference","refgetAccession":"SQ.8_liLu1aycC0tPQPFmUaGXJLDs5SbPZ5"},"start":2781760,"end":2781761},"state":{"type":"LiteralSequenceExpression","sequence":"C"}},"object_id":"ga4gh:VA.xbX035HgURWIUAjn6x3cS26jafP8Q_bk"}'
+    headers:
+      content-length:
+      - '518'
+      content-type:
+      - application/json
+      date:
+      - Mon, 08 Dec 2025 21:11:25 GMT
+      server:
+      - uvicorn
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"id": "ga4gh:VA.9VDxL0stMBOZwcTKw3yb3UoWQkpaI9OD", "type": "Allele", "digest":
+      "9VDxL0stMBOZwcTKw3yb3UoWQkpaI9OD", "location": {"id": "ga4gh:SL.sYiBcbbgF-1CANNCTfQ6zwZOU0iHhymR",
+      "type": "SequenceLocation", "digest": "sYiBcbbgF-1CANNCTfQ6zwZOU0iHhymR", "sequenceReference":
+      {"type": "SequenceReference", "refgetAccession": "SQ.8_liLu1aycC0tPQPFmUaGXJLDs5SbPZ5"},
+      "start": 2781760, "end": 2781761}, "state": {"type": "LiteralSequenceExpression",
+      "sequence": "A"}}'
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '463'
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.32.5
+    method: PUT
+    uri: http://localhost:8000/vrs_variation
+  response:
+    body:
+      string: '{"messages":[],"object":{"id":"ga4gh:VA.9VDxL0stMBOZwcTKw3yb3UoWQkpaI9OD","type":"Allele","digest":"9VDxL0stMBOZwcTKw3yb3UoWQkpaI9OD","location":{"id":"ga4gh:SL.sYiBcbbgF-1CANNCTfQ6zwZOU0iHhymR","type":"SequenceLocation","digest":"sYiBcbbgF-1CANNCTfQ6zwZOU0iHhymR","sequenceReference":{"type":"SequenceReference","refgetAccession":"SQ.8_liLu1aycC0tPQPFmUaGXJLDs5SbPZ5"},"start":2781760,"end":2781761},"state":{"type":"LiteralSequenceExpression","sequence":"A"}},"object_id":"ga4gh:VA.9VDxL0stMBOZwcTKw3yb3UoWQkpaI9OD"}'
+    headers:
+      content-length:
+      - '518'
+      content-type:
+      - application/json
+      date:
+      - Mon, 08 Dec 2025 21:11:25 GMT
+      server:
+      - uvicorn
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"id": "ga4gh:VA.yi7A2l0uIUMaInQaJnHU_B2Cf_OuZRJg", "type": "Allele", "digest":
+      "yi7A2l0uIUMaInQaJnHU_B2Cf_OuZRJg", "location": {"id": "ga4gh:SL.JsFGLKlUDocinf7oWTXAvVT2WOso7R9u",
+      "type": "SequenceLocation", "digest": "JsFGLKlUDocinf7oWTXAvVT2WOso7R9u", "sequenceReference":
+      {"type": "SequenceReference", "refgetAccession": "SQ.8_liLu1aycC0tPQPFmUaGXJLDs5SbPZ5"},
+      "start": 2781761, "end": 2781785}, "state": {"type": "ReferenceLengthExpression",
+      "length": 23, "sequence": "AAAAAAAAAAAAAAAAAAAAAAA", "repeatSubunitLength":
+      1}}'
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '525'
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.32.5
+    method: PUT
+    uri: http://localhost:8000/vrs_variation
+  response:
+    body:
+      string: '{"messages":[],"object":{"id":"ga4gh:VA.yi7A2l0uIUMaInQaJnHU_B2Cf_OuZRJg","type":"Allele","digest":"yi7A2l0uIUMaInQaJnHU_B2Cf_OuZRJg","location":{"id":"ga4gh:SL.JsFGLKlUDocinf7oWTXAvVT2WOso7R9u","type":"SequenceLocation","digest":"JsFGLKlUDocinf7oWTXAvVT2WOso7R9u","sequenceReference":{"type":"SequenceReference","refgetAccession":"SQ.8_liLu1aycC0tPQPFmUaGXJLDs5SbPZ5"},"start":2781761,"end":2781785},"state":{"type":"ReferenceLengthExpression","length":23,"sequence":"AAAAAAAAAAAAAAAAAAAAAAA","repeatSubunitLength":1}},"object_id":"ga4gh:VA.yi7A2l0uIUMaInQaJnHU_B2Cf_OuZRJg"}'
+    headers:
+      content-length:
+      - '576'
+      content-type:
+      - application/json
+      date:
+      - Mon, 08 Dec 2025 21:11:25 GMT
+      server:
+      - uvicorn
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"id": "ga4gh:VA.d6ru7RcuVO0-v3TtPFX5fZz-GLQDhMVb", "type": "Allele", "digest":
+      "d6ru7RcuVO0-v3TtPFX5fZz-GLQDhMVb", "location": {"id": "ga4gh:SL.JOFKL4nL5mRUlO_xLwQ8VOD1v7mxhs3I",
+      "type": "SequenceLocation", "digest": "JOFKL4nL5mRUlO_xLwQ8VOD1v7mxhs3I", "sequenceReference":
+      {"type": "SequenceReference", "refgetAccession": "SQ.IW78mgV5Cqf6M24hy52hPjyyo5tCCd86"},
+      "start": 36561661, "end": 36561663}, "state": {"type": "ReferenceLengthExpression",
+      "length": 0, "sequence": "", "repeatSubunitLength": 2}}'
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '503'
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.32.5
+    method: PUT
+    uri: http://localhost:8000/vrs_variation
+  response:
+    body:
+      string: '{"messages":[],"object":{"id":"ga4gh:VA.d6ru7RcuVO0-v3TtPFX5fZz-GLQDhMVb","type":"Allele","digest":"d6ru7RcuVO0-v3TtPFX5fZz-GLQDhMVb","location":{"id":"ga4gh:SL.JOFKL4nL5mRUlO_xLwQ8VOD1v7mxhs3I","type":"SequenceLocation","digest":"JOFKL4nL5mRUlO_xLwQ8VOD1v7mxhs3I","sequenceReference":{"type":"SequenceReference","refgetAccession":"SQ.IW78mgV5Cqf6M24hy52hPjyyo5tCCd86"},"start":36561661,"end":36561663},"state":{"type":"ReferenceLengthExpression","length":0,"sequence":"","repeatSubunitLength":2}},"object_id":"ga4gh:VA.d6ru7RcuVO0-v3TtPFX5fZz-GLQDhMVb"}'
+    headers:
+      content-length:
+      - '554'
+      content-type:
+      - application/json
+      date:
+      - Mon, 08 Dec 2025 21:14:23 GMT
+      server:
+      - uvicorn
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"id": "ga4gh:VA.Otc5ovrw906Ack087o1fhegB4jDRqCAe", "type": "Allele", "digest":
+      "Otc5ovrw906Ack087o1fhegB4jDRqCAe", "location": {"id": "ga4gh:SL.nhul5x5P_fKjGEpY9PEkMIekJfZaKom2",
+      "type": "SequenceLocation", "digest": "nhul5x5P_fKjGEpY9PEkMIekJfZaKom2", "sequenceReference":
+      {"type": "SequenceReference", "refgetAccession": "SQ.F-LrLMe1SRpfUZHkQmvkVKFEGaoDeHul"},
+      "start": 140753335, "end": 140753336}, "state": {"type": "LiteralSequenceExpression",
+      "sequence": "T"}}'
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '467'
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.32.5
+    method: PUT
+    uri: http://localhost:8000/vrs_variation
+  response:
+    body:
+      string: '{"messages":[],"object":{"id":"ga4gh:VA.Otc5ovrw906Ack087o1fhegB4jDRqCAe","type":"Allele","digest":"Otc5ovrw906Ack087o1fhegB4jDRqCAe","location":{"id":"ga4gh:SL.nhul5x5P_fKjGEpY9PEkMIekJfZaKom2","type":"SequenceLocation","digest":"nhul5x5P_fKjGEpY9PEkMIekJfZaKom2","sequenceReference":{"type":"SequenceReference","refgetAccession":"SQ.F-LrLMe1SRpfUZHkQmvkVKFEGaoDeHul"},"start":140753335,"end":140753336},"state":{"type":"LiteralSequenceExpression","sequence":"T"}},"object_id":"ga4gh:VA.Otc5ovrw906Ack087o1fhegB4jDRqCAe"}'
+    headers:
+      content-length:
+      - '522'
+      content-type:
+      - application/json
+      date:
+      - Mon, 08 Dec 2025 21:14:23 GMT
+      server:
+      - uvicorn
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"id": "ga4gh:VA.ruQCmfXJrEylHmOQF-1PG6bLwQesDU2g", "type": "Allele", "digest":
+      "ruQCmfXJrEylHmOQF-1PG6bLwQesDU2g", "location": {"id": "ga4gh:SL.JqeJ3V-75edWj03xbzw1gtSw3qPQVV2D",
+      "type": "SequenceLocation", "digest": "JqeJ3V-75edWj03xbzw1gtSw3qPQVV2D", "sequenceReference":
+      {"type": "SequenceReference", "refgetAccession": "SQ.8_liLu1aycC0tPQPFmUaGXJLDs5SbPZ5"},
+      "start": 2781703, "end": 2781704}, "state": {"type": "LiteralSequenceExpression",
+      "sequence": "G"}}'
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '463'
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.32.5
+    method: PUT
+    uri: http://localhost:8000/vrs_variation
+  response:
+    body:
+      string: '{"messages":[],"object":{"id":"ga4gh:VA.ruQCmfXJrEylHmOQF-1PG6bLwQesDU2g","type":"Allele","digest":"ruQCmfXJrEylHmOQF-1PG6bLwQesDU2g","location":{"id":"ga4gh:SL.JqeJ3V-75edWj03xbzw1gtSw3qPQVV2D","type":"SequenceLocation","digest":"JqeJ3V-75edWj03xbzw1gtSw3qPQVV2D","sequenceReference":{"type":"SequenceReference","refgetAccession":"SQ.8_liLu1aycC0tPQPFmUaGXJLDs5SbPZ5"},"start":2781703,"end":2781704},"state":{"type":"LiteralSequenceExpression","sequence":"G"}},"object_id":"ga4gh:VA.ruQCmfXJrEylHmOQF-1PG6bLwQesDU2g"}'
+    headers:
+      content-length:
+      - '518'
+      content-type:
+      - application/json
+      date:
+      - Mon, 08 Dec 2025 21:14:23 GMT
+      server:
+      - uvicorn
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"id": "ga4gh:VA.IM4QyU9D2kTJzeftUBBD4Vcd1peq0dn1", "type": "Allele", "digest":
+      "IM4QyU9D2kTJzeftUBBD4Vcd1peq0dn1", "location": {"id": "ga4gh:SL.sWfeTXwGUkfIuYRAkiFGPjkSk_mIDuXG",
+      "type": "SequenceLocation", "digest": "sWfeTXwGUkfIuYRAkiFGPjkSk_mIDuXG", "sequenceReference":
+      {"type": "SequenceReference", "refgetAccession": "SQ.8_liLu1aycC0tPQPFmUaGXJLDs5SbPZ5"},
+      "start": 2781760, "end": 2781762}, "state": {"type": "LiteralSequenceExpression",
+      "sequence": "CA"}}'
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '464'
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.32.5
+    method: PUT
+    uri: http://localhost:8000/vrs_variation
+  response:
+    body:
+      string: '{"messages":[],"object":{"id":"ga4gh:VA.IM4QyU9D2kTJzeftUBBD4Vcd1peq0dn1","type":"Allele","digest":"IM4QyU9D2kTJzeftUBBD4Vcd1peq0dn1","location":{"id":"ga4gh:SL.sWfeTXwGUkfIuYRAkiFGPjkSk_mIDuXG","type":"SequenceLocation","digest":"sWfeTXwGUkfIuYRAkiFGPjkSk_mIDuXG","sequenceReference":{"type":"SequenceReference","refgetAccession":"SQ.8_liLu1aycC0tPQPFmUaGXJLDs5SbPZ5"},"start":2781760,"end":2781762},"state":{"type":"LiteralSequenceExpression","sequence":"CA"}},"object_id":"ga4gh:VA.IM4QyU9D2kTJzeftUBBD4Vcd1peq0dn1"}'
+    headers:
+      content-length:
+      - '519'
+      content-type:
+      - application/json
+      date:
+      - Mon, 08 Dec 2025 21:14:23 GMT
+      server:
+      - uvicorn
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"id": "ga4gh:VA.xbX035HgURWIUAjn6x3cS26jafP8Q_bk", "type": "Allele", "digest":
+      "xbX035HgURWIUAjn6x3cS26jafP8Q_bk", "location": {"id": "ga4gh:SL.sYiBcbbgF-1CANNCTfQ6zwZOU0iHhymR",
+      "type": "SequenceLocation", "digest": "sYiBcbbgF-1CANNCTfQ6zwZOU0iHhymR", "sequenceReference":
+      {"type": "SequenceReference", "refgetAccession": "SQ.8_liLu1aycC0tPQPFmUaGXJLDs5SbPZ5"},
+      "start": 2781760, "end": 2781761}, "state": {"type": "LiteralSequenceExpression",
+      "sequence": "C"}}'
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '463'
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.32.5
+    method: PUT
+    uri: http://localhost:8000/vrs_variation
+  response:
+    body:
+      string: '{"messages":[],"object":{"id":"ga4gh:VA.xbX035HgURWIUAjn6x3cS26jafP8Q_bk","type":"Allele","digest":"xbX035HgURWIUAjn6x3cS26jafP8Q_bk","location":{"id":"ga4gh:SL.sYiBcbbgF-1CANNCTfQ6zwZOU0iHhymR","type":"SequenceLocation","digest":"sYiBcbbgF-1CANNCTfQ6zwZOU0iHhymR","sequenceReference":{"type":"SequenceReference","refgetAccession":"SQ.8_liLu1aycC0tPQPFmUaGXJLDs5SbPZ5"},"start":2781760,"end":2781761},"state":{"type":"LiteralSequenceExpression","sequence":"C"}},"object_id":"ga4gh:VA.xbX035HgURWIUAjn6x3cS26jafP8Q_bk"}'
+    headers:
+      content-length:
+      - '518'
+      content-type:
+      - application/json
+      date:
+      - Mon, 08 Dec 2025 21:14:23 GMT
+      server:
+      - uvicorn
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"id": "ga4gh:VA.9VDxL0stMBOZwcTKw3yb3UoWQkpaI9OD", "type": "Allele", "digest":
+      "9VDxL0stMBOZwcTKw3yb3UoWQkpaI9OD", "location": {"id": "ga4gh:SL.sYiBcbbgF-1CANNCTfQ6zwZOU0iHhymR",
+      "type": "SequenceLocation", "digest": "sYiBcbbgF-1CANNCTfQ6zwZOU0iHhymR", "sequenceReference":
+      {"type": "SequenceReference", "refgetAccession": "SQ.8_liLu1aycC0tPQPFmUaGXJLDs5SbPZ5"},
+      "start": 2781760, "end": 2781761}, "state": {"type": "LiteralSequenceExpression",
+      "sequence": "A"}}'
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '463'
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.32.5
+    method: PUT
+    uri: http://localhost:8000/vrs_variation
+  response:
+    body:
+      string: '{"messages":[],"object":{"id":"ga4gh:VA.9VDxL0stMBOZwcTKw3yb3UoWQkpaI9OD","type":"Allele","digest":"9VDxL0stMBOZwcTKw3yb3UoWQkpaI9OD","location":{"id":"ga4gh:SL.sYiBcbbgF-1CANNCTfQ6zwZOU0iHhymR","type":"SequenceLocation","digest":"sYiBcbbgF-1CANNCTfQ6zwZOU0iHhymR","sequenceReference":{"type":"SequenceReference","refgetAccession":"SQ.8_liLu1aycC0tPQPFmUaGXJLDs5SbPZ5"},"start":2781760,"end":2781761},"state":{"type":"LiteralSequenceExpression","sequence":"A"}},"object_id":"ga4gh:VA.9VDxL0stMBOZwcTKw3yb3UoWQkpaI9OD"}'
+    headers:
+      content-length:
+      - '518'
+      content-type:
+      - application/json
+      date:
+      - Mon, 08 Dec 2025 21:14:23 GMT
+      server:
+      - uvicorn
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"id": "ga4gh:VA.yi7A2l0uIUMaInQaJnHU_B2Cf_OuZRJg", "type": "Allele", "digest":
+      "yi7A2l0uIUMaInQaJnHU_B2Cf_OuZRJg", "location": {"id": "ga4gh:SL.JsFGLKlUDocinf7oWTXAvVT2WOso7R9u",
+      "type": "SequenceLocation", "digest": "JsFGLKlUDocinf7oWTXAvVT2WOso7R9u", "sequenceReference":
+      {"type": "SequenceReference", "refgetAccession": "SQ.8_liLu1aycC0tPQPFmUaGXJLDs5SbPZ5"},
+      "start": 2781761, "end": 2781785}, "state": {"type": "ReferenceLengthExpression",
+      "length": 23, "sequence": "AAAAAAAAAAAAAAAAAAAAAAA", "repeatSubunitLength":
+      1}}'
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '525'
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.32.5
+    method: PUT
+    uri: http://localhost:8000/vrs_variation
+  response:
+    body:
+      string: '{"messages":[],"object":{"id":"ga4gh:VA.yi7A2l0uIUMaInQaJnHU_B2Cf_OuZRJg","type":"Allele","digest":"yi7A2l0uIUMaInQaJnHU_B2Cf_OuZRJg","location":{"id":"ga4gh:SL.JsFGLKlUDocinf7oWTXAvVT2WOso7R9u","type":"SequenceLocation","digest":"JsFGLKlUDocinf7oWTXAvVT2WOso7R9u","sequenceReference":{"type":"SequenceReference","refgetAccession":"SQ.8_liLu1aycC0tPQPFmUaGXJLDs5SbPZ5"},"start":2781761,"end":2781785},"state":{"type":"ReferenceLengthExpression","length":23,"sequence":"AAAAAAAAAAAAAAAAAAAAAAA","repeatSubunitLength":1}},"object_id":"ga4gh:VA.yi7A2l0uIUMaInQaJnHU_B2Cf_OuZRJg"}'
+    headers:
+      content-length:
+      - '576'
+      content-type:
+      - application/json
+      date:
+      - Mon, 08 Dec 2025 21:14:23 GMT
+      server:
+      - uvicorn
+    status:
+      code: 200
+      message: OK
 version: 1

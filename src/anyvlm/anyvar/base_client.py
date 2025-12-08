@@ -9,16 +9,23 @@ class AnyVarClientError(Exception):
     """Generic client-related exception."""
 
 
+class UnidentifiedObjectError(AnyVarClientError):
+    """Raise if input object lacks an ID property"""
+
+
 class BaseAnyVarClient(abc.ABC):
     """Interface elements for an AnyVar client"""
 
     @abc.abstractmethod
-    def put_objects(self, objects: list[VrsVariation]) -> list[VrsVariation]:
+    def put_objects(self, objects: list[VrsVariation]) -> None:
         """Register objects with AnyVar
 
+        All input objects must have a populated ID field. A validation check for this is
+        performed before any variants are registered.
+
         :param objects: variation objects to register
-        :return: completed VRS objects
         :raise AnyVarClientError: for errors relating to specifics of client interface
+        :raise UnidentifiedObjectError: if *any* provided object lacks a VRS ID
         """
 
     @abc.abstractmethod

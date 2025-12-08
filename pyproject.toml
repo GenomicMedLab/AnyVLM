@@ -44,6 +44,7 @@ dev = [
     "pre-commit>=4.2.0",
     "ipykernel",
     "fastapi[standard]",
+    "seqrepo-rest-service",  # for generating SeqRepo-based tests fixtures
 ]
 
 [project.urls]

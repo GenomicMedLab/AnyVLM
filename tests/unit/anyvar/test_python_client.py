@@ -4,6 +4,7 @@ import pytest
 from anyvar.anyvar import create_storage, create_translator
 from ga4gh.vrs import models
 
+from anyvlm.anyvar.base_client import UnidentifiedObjectError
 from anyvlm.anyvar.python_client import PythonAnyVarClient
 
 
@@ -35,20 +36,17 @@ def test_put_objects(client: PythonAnyVarClient, alleles: dict):
     """Test `put_objects` for a basic test suite of variants"""
     for allele_fixture in alleles.values():
         allele = models.Allele(**allele_fixture["variation"])
-        result = client.put_objects([allele])
-        assert result == [allele]
+        client.put_objects([allele])
 
 
 def test_put_objects_no_ids(client: PythonAnyVarClient, alleles: dict):
     """Test `put_objects` for objects with IDs/digest/etc removed"""
-    for allele_fixture in alleles.values():
-        allele = models.Allele(**allele_fixture["variation"])
-        allele.id = None
-        allele.digest = None
-        allele.location.id = None
-        allele.location.digest = None
-        result = client.put_objects([allele])
-        assert result == [models.Allele(**allele_fixture["variation"])]
+    allele_iter = iter(alleles.values())
+    allele = models.Allele(**next(allele_iter)["variation"])
+    allele.id = None
+    other_allele = models.Allele(**next(allele_iter)["variation"])
+    with pytest.raises(UnidentifiedObjectError):
+        client.put_objects([other_allele, allele])
 
 
 def test_search_by_interval(populated_client: PythonAnyVarClient, alleles: dict):

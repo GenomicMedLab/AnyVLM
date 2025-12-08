@@ -1,11 +1,15 @@
 """Implement AnyVar client interface for direct Python-based access."""
 
-from anyvar import AnyVar
-from anyvar.storage.base_storage import IncompleteVrsObjectError, Storage
-from anyvar.translate.translate import Translator
-from anyvar.utils.types import VrsVariation, recursive_identify
+import logging
 
-from anyvlm.anyvar.base_client import BaseAnyVarClient
+from anyvar import AnyVar
+from anyvar.storage.base_storage import Storage
+from anyvar.translate.translate import Translator
+from anyvar.utils.types import VrsVariation
+
+from anyvlm.anyvar.base_client import BaseAnyVarClient, UnidentifiedObjectError
+
+_logger = logging.getLogger(__name__)
 
 
 class PythonAnyVarClient(BaseAnyVarClient):
@@ -14,21 +18,20 @@ class PythonAnyVarClient(BaseAnyVarClient):
     def __init__(self, translator: Translator, storage: Storage) -> None:  # noqa: D107
         self.av = AnyVar(translator, storage)
 
-    def put_objects(self, objects: list[VrsVariation]) -> list[VrsVariation]:
+    def put_objects(self, objects: list[VrsVariation]) -> None:
         """Register objects with AnyVar
 
+        All input objects must have a populated ID field. A validation check for this is
+        performed before any variants are registered.
+
         :param objects: variation objects to register
-        :return: completed VRS objects
+        :raise UnidentifiedObjectError: if *any* provided object lacks a VRS ID
         """
-        complete_variations = []
-        for variation in objects:
-            try:
-                self.av.put_objects([variation])
-            except IncompleteVrsObjectError:
-                variation = recursive_identify(variation)  # noqa: PLW2901
-                self.av.put_objects([variation])
-            complete_variations.append(variation)
-        return complete_variations
+        for variant in objects:
+            if not variant.id:
+                _logger.error("Provided variant %s has no VRS ID: %s")
+                raise UnidentifiedObjectError
+        self.av.put_objects(objects)  # type: ignore[reportArgumentType]
 
     def search_by_interval(
         self, accession: str, start: int, end: int

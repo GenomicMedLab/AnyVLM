@@ -1,10 +1,18 @@
 """Provide abstraction for a VLM-to-AnyVar connection."""
 
+import logging
+
 import requests
 from anyvar.utils.types import VrsVariation
 from ga4gh.vrs import models
 
-from anyvlm.anyvar.base_client import AnyVarClientError, BaseAnyVarClient
+from anyvlm.anyvar.base_client import (
+    AnyVarClientError,
+    BaseAnyVarClient,
+    UnidentifiedObjectError,
+)
+
+_logger = logging.getLogger(__name__)
 
 
 class HttpAnyVarClient(BaseAnyVarClient):
@@ -21,36 +29,35 @@ class HttpAnyVarClient(BaseAnyVarClient):
         self.hostname = hostname
         self.request_timeout = request_timeout
 
-    def put_objects(self, objects: list[VrsVariation]) -> list[VrsVariation]:
+    def put_objects(self, objects: list[VrsVariation]) -> None:
         """Register objects with AnyVar
 
-        This method is intentionally naive. Future improvements could include
-        * A better way to batch requests together to mitigate HTTP latency
-        * A smarter dispatch for reconstructing variation model instances
+        All input objects must have a populated ID field. A validation check for this is
+        performed before any variants are registered.
 
         :param objects: variation objects to register
         :return: completed VRS objects
         :raise AnyVarClientError: if connection is unsuccessful during registration request
+        :raise UnidentifiedObjectError: if *any* provided object lacks a VRS ID
         """
-        results = []
+        objects_to_submit = []
         for vrs_object in objects:
+            if not vrs_object.id:
+                _logger.error("Provided variant %s has no VRS ID: %s")
+                raise UnidentifiedObjectError
+            objects_to_submit.append(
+                vrs_object.model_dump(exclude_none=True, mode="json")
+            )
+        for vrs_object in objects_to_submit:
             response = requests.put(
                 f"{self.hostname}/vrs_variation",
-                json=vrs_object.model_dump(exclude_none=True, mode="json"),
+                json=vrs_object,
                 timeout=self.request_timeout,
             )
             try:
                 response.raise_for_status()
             except requests.HTTPError as e:
                 raise AnyVarClientError from e
-            result_object = response.json()["object"]
-            if result_object.get("type") == "Allele":
-                results.append(models.Allele(**result_object))
-            else:
-                raise NotImplementedError(
-                    f"Unsupported object type: {result_object.get('type')}"
-                )
-        return results
 
     def search_by_interval(
         self, accession: str, start: int, end: int

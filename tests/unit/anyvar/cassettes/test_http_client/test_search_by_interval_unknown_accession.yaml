@@ -83,4 +83,116 @@ interactions:
     status:
       code: 200
       message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.32.5
+    method: GET
+    uri: http://localhost:8000/search?accession=ga4gh:SQ.ZZZZZu1aycC0tPQPFmUaGXJLDs5SbPZ5&start=2781760&end=2781768
+  response:
+    body:
+      string: '{"variations":[]}'
+    headers:
+      content-length:
+      - '17'
+      content-type:
+      - application/json
+      date:
+      - Mon, 08 Dec 2025 21:07:31 GMT
+      server:
+      - uvicorn
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.32.5
+    method: GET
+    uri: http://localhost:8000/search?accession=ga4gh:SQ.ZZZZZu1aycC0tPQPFmUaGXJLDs5SbPZ5&start=2781760&end=2781768
+  response:
+    body:
+      string: '{"variations":[]}'
+    headers:
+      content-length:
+      - '17'
+      content-type:
+      - application/json
+      date:
+      - Mon, 08 Dec 2025 21:07:52 GMT
+      server:
+      - uvicorn
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.32.5
+    method: GET
+    uri: http://localhost:8000/search?accession=ga4gh:SQ.ZZZZZu1aycC0tPQPFmUaGXJLDs5SbPZ5&start=2781760&end=2781768
+  response:
+    body:
+      string: '{"variations":[]}'
+    headers:
+      content-length:
+      - '17'
+      content-type:
+      - application/json
+      date:
+      - Mon, 08 Dec 2025 21:11:25 GMT
+      server:
+      - uvicorn
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.32.5
+    method: GET
+    uri: http://localhost:8000/search?accession=ga4gh:SQ.ZZZZZu1aycC0tPQPFmUaGXJLDs5SbPZ5&start=2781760&end=2781768
+  response:
+    body:
+      string: '{"variations":[]}'
+    headers:
+      content-length:
+      - '17'
+      content-type:
+      - application/json
+      date:
+      - Mon, 08 Dec 2025 21:14:23 GMT
+      server:
+      - uvicorn
+    status:
+      code: 200
+      message: OK
 version: 1
