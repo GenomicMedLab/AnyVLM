@@ -4,6 +4,6 @@ from pydantic import BaseModel
 
 
 class VlmResponse(BaseModel):
-    """Define response structure for the vlm-query endpoint."""
+    """Define response structure for the variant_counts endpoint."""
 
     # TODO: Fill this in. See Issue #13

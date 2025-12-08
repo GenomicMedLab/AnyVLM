@@ -27,12 +27,12 @@ def ingest_vcf(vcf_path: Path) -> None:
 
 
 @app.get(
-    "/vlm-query",
-    summary="Provides counts of occurrences of a single sequence variant, broken down by zygosity",
-    description="Search for a single sequence variant and receive a count of its observed occurrences broken down by zygosity, in accordance with the Variant-Level Matching protocol",
+    "/variant_counts",
+    summary="Provides allele counts of a single sequence variant, broken down by zygosity",
+    description="Search for a single sequence variant and receive allele counts by zygosity, in accordance with the Variant-Level Matching protocol",
     tags=[EndpointTag.SEARCH],
 )
-def vlm_query(
+def variant_counts(
     request: Request,
     assemblyId: Annotated[  # noqa: N803
         GrcAssemblyId | UscsAssemblyBuild,
@@ -49,7 +49,7 @@ def vlm_query(
         GenomicSequence, Query(..., description="Genomic bases ('T', 'AC', etc.)")
     ],
 ) -> VlmResponse:
-    """Accept a Variant-Level Matching network request and return a count of occurrences of a single sequence variant, broken down by zygosity.
+    """Accept a Variant-Level Matching network request and return allele counts by zygosity.
 
     :param request: FastAPI `Request` object
     :param assemblyId: The genome reference assembly. Must be a GRC assembly identifier (e.g., "GRCh38) or a USCS assembly build (e.g., "hg38")

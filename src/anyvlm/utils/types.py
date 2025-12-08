@@ -68,7 +68,7 @@ def _normalize_chromosome_name(chromosome_name: str) -> str:
     if is_valid_chromosome_name(chromosome_name):
         return chromosome_name
     error_message = (
-        "Invalid chromosome. Must be 1-22, 'X,' or 'Y,' with optional 'chr' prefix."
+        "Invalid chromosome. Must be 1-22, 'X', or 'Y'; with optional 'chr' prefix."
     )
     raise ValueError(error_message)
 
