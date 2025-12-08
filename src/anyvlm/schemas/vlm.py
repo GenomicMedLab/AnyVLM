@@ -7,7 +7,7 @@ from pydantic import BaseModel, Field, model_validator
 from anyvlm import __version__
 from anyvlm.utils.types import Zygosity
 
-# ruff: noqa: N815 (allows camelCase vars instead of snake_case)
+# ruff: noqa: N815 (allows camelCase vars instead of snake_case to align with expected VLM protocol response)
 
 RESULT_ENTITY_TYPE = "genomicVariant"
 
