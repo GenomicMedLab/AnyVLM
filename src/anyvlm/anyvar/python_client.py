@@ -15,7 +15,12 @@ _logger = logging.getLogger(__name__)
 class PythonAnyVarClient(BaseAnyVarClient):
     """A Python-based AnyVar client."""
 
-    def __init__(self, translator: Translator, storage: Storage) -> None:  # noqa: D107
+    def __init__(self, translator: Translator, storage: Storage) -> None:
+        """Initialize directly-connected AnyVar client
+
+        :param translator: AnyVar translator instance
+        :param storage: AnyVar storage instance
+        """
         self.av = AnyVar(translator, storage)
 
     def put_objects(self, objects: list[VrsVariation]) -> None:
