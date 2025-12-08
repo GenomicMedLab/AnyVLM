@@ -85,7 +85,7 @@ class ResponseField(BaseModel):
 
 
 class VlmResponse(BaseModel):
-    """Defines response structure for the vlm-query endpoint."""
+    """Define response structure for the variant_counts endpoint."""
 
     beaconHandovers: list[BeaconHandover] = [BeaconHandover()]
     meta: Meta = Meta()
