@@ -36,3 +36,25 @@ def alleles(test_data_dir: Path):
         for allele in alleles.values():
             assert _AlleleFixture(**allele), f"Not a valid allele fixture: {allele}"
         return alleles
+
+
+def remove_request_headers(request):
+    """Remove all headers from VCR request before recording."""
+    request.headers = {}
+    return request
+
+
+def remove_response_headers(response):
+    """Remove all headers from VCR response before recording."""
+    response["headers"] = {}
+    return response
+
+
+@pytest.fixture(scope="module")
+def vcr_config():
+    """Configure VCR to filter out headers from cassettes."""
+    return {
+        "before_record_request": remove_request_headers,
+        "before_record_response": remove_response_headers,
+        "decode_compressed_response": True,
+    }

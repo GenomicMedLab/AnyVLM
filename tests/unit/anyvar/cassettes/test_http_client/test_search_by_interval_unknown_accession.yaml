@@ -1,29 +1,13 @@
 interactions:
 - request:
     body: null
-    headers:
-      Accept:
-      - '*/*'
-      Accept-Encoding:
-      - gzip, deflate
-      Connection:
-      - keep-alive
-      User-Agent:
-      - python-requests/2.32.5
+    headers: {}
     method: GET
     uri: http://localhost:8000/search?accession=ga4gh:SQ.ZZZZZu1aycC0tPQPFmUaGXJLDs5SbPZ5&start=2781760&end=2781768
   response:
     body:
       string: '{"variations":[]}'
-    headers:
-      content-length:
-      - '17'
-      content-type:
-      - application/json
-      date:
-      - Mon, 08 Dec 2025 21:17:13 GMT
-      server:
-      - uvicorn
+    headers: {}
     status:
       code: 200
       message: OK

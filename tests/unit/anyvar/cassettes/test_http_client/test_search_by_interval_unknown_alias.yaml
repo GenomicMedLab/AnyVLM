@@ -1,29 +1,13 @@
 interactions:
 - request:
     body: null
-    headers:
-      Accept:
-      - '*/*'
-      Accept-Encoding:
-      - gzip, deflate
-      Connection:
-      - keep-alive
-      User-Agent:
-      - python-requests/2.32.5
+    headers: {}
     method: GET
     uri: http://localhost:8000/search?accession=GRCh45.p1:Y&start=2781760&end=2781760
   response:
     body:
       string: '{"detail":"Unable to dereference provided accession ID"}'
-    headers:
-      content-length:
-      - '56'
-      content-type:
-      - application/json
-      date:
-      - Mon, 08 Dec 2025 21:17:13 GMT
-      server:
-      - uvicorn
+    headers: {}
     status:
       code: 404
       message: Not Found
