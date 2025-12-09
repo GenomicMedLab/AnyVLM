@@ -43,7 +43,7 @@ class HttpAnyVarClient(BaseAnyVarClient):
         objects_to_submit = []
         for vrs_object in objects:
             if not vrs_object.id:
-                _logger.error("Provided variant %s has no VRS ID: %s")
+                _logger.error("Provided variant %s has no VRS ID", vrs_object)
                 raise UnidentifiedObjectError
             objects_to_submit.append(
                 vrs_object.model_dump(exclude_none=True, mode="json")

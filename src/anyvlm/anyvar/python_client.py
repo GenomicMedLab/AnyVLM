@@ -34,7 +34,7 @@ class PythonAnyVarClient(BaseAnyVarClient):
         """
         for variant in objects:
             if not variant.id:
-                _logger.error("Provided variant %s has no VRS ID: %s")
+                _logger.error("Provided variant %s has no VRS ID", variant)
                 raise UnidentifiedObjectError
         self.av.put_objects(objects)  # type: ignore[reportArgumentType]
 
