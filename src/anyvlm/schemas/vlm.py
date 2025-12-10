@@ -1,6 +1,6 @@
 """Schemas relating to VLM API."""
 
-from typing import Self
+from typing import Literal, Self
 
 from pydantic import BaseModel, Field, model_validator
 
@@ -35,7 +35,10 @@ class BeaconHandover(BaseModel):
 class ReturnedSchema(BaseModel):
     """Fixed [Beacon Schema](https://github.com/ga4gh-beacon/beacon-v2/blob/c6558bf2e6494df3905f7b2df66e903dfe509500/framework/json/common/beaconCommonComponents.json#L241)"""
 
-    entityType: str = RESULT_ENTITY_TYPE
+    entityType: str = Field(
+        default=RESULT_ENTITY_TYPE,
+        description=f"The type of entity this response describes. Must always be set to '{RESULT_ENTITY_TYPE}'",
+    )
     schema_: str = Field(
         default="ga4gh-beacon-variant-v2.0.0",
         # Alias is required because 'schema' is reserved by Pydantic's BaseModel class,
@@ -67,14 +70,21 @@ class Meta(BaseModel):
 class ResponseSummary(BaseModel):
     """A high-level summary of the results provided in the parent `VlmResponse"""
 
-    exists: bool
-    total: int
+    exists: bool = Field(
+        ..., description="Indicates whether the response contains any results."
+    )
+    numTotalResults: int = Field(
+        ..., description="The total number of results found for the given query"
+    )
 
 
 class ResultSet(BaseModel):
     """A set of cohort allele frequency results. The zygosity of the ResultSet is identified in the `id` field"""
 
-    exists: bool
+    exists: Literal[True] = Field(
+        default=True,
+        description="Indicates whether this ResultSet exists. This must always be `True`, even if `resultsCount` = `0`",
+    )
     id: str = Field(
         ...,
         description="id should be constructed of the `HandoverType.id` + the ResultSet's zygosity. See `validate_resultset_ids` validator in `VlmResponse` class.",
@@ -89,13 +99,18 @@ class ResultSet(BaseModel):
     resultsCount: int = Field(
         ..., description="A count for the zygosity indicated by the ResultSet's `id`"
     )
-    setType: str = RESULT_ENTITY_TYPE
+    setType: str = Field(
+        default=RESULT_ENTITY_TYPE,
+        description=f"The type of entity relevant to these results. Must always be set to '{RESULT_ENTITY_TYPE}'",
+    )
 
 
 class ResponseField(BaseModel):
     """A list of ResultSets"""
 
-    resultSets: list[ResultSet]
+    resultSets: list[ResultSet] = Field(
+        ..., description="A list of ResultSets for the given query."
+    )
 
 
 class VlmResponse(BaseModel):
