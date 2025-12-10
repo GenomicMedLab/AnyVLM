@@ -38,13 +38,13 @@ def is_valid_chromosome_name(chromosome_name: str) -> bool:
     """Checks whether or not a provided chromosome name is valid.
 
     :param chromosome_name: The chromosome name to validate.
-    :return: `True` if the chromosome name is a number between 1-22, or the values "X" or "Y"; else `False`.
+    :return: `True` if the chromosome name is a number between 1-22, or the values "X", "Y", or "MT"; else `False`.
     """
     min_chromosome_number = 1
     max_chromosome_number = 22
     try:
         return (
-            chromosome_name in {"X", "Y"}
+            chromosome_name in {"X", "Y", "MT"}
             or min_chromosome_number <= int(chromosome_name) <= max_chromosome_number
         )
     except ValueError:
@@ -67,9 +67,7 @@ def _normalize_chromosome_name(chromosome_name: str) -> str:
 
     if is_valid_chromosome_name(chromosome_name):
         return chromosome_name
-    error_message = (
-        "Invalid chromosome. Must be 1-22, 'X', or 'Y'; with optional 'chr' prefix."
-    )
+    error_message = "Invalid chromosome. Must be either a number between 1-22, or the values 'X', 'Y', or 'MT'; with optional 'chr' prefix."
     raise ValueError(error_message)
 
 
