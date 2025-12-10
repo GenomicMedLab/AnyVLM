@@ -4,7 +4,6 @@ from typing import Self
 
 from pydantic import BaseModel, Field, model_validator
 
-from anyvlm import __version__
 from anyvlm.utils.types import Zygosity
 
 # ruff: noqa: N815 (allows camelCase vars instead of snake_case to align with expected VLM protocol response)
@@ -50,7 +49,10 @@ class ReturnedSchema(BaseModel):
 class Meta(BaseModel):
     """Relevant metadata about the results provided in the parent `VlmResponse`"""
 
-    apiVersion: str = __version__
+    apiVersion: str = Field(
+        default="v1.0",
+        description="The version of the VLM API that this response conforms to",
+    )
     beaconId: str = Field(
         default="org.gregor.beacon",  # TODO: verify what to use here. In the future this should be set dynamically.
         description="""
