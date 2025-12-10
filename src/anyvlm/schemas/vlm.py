@@ -18,7 +18,7 @@ class HandoverType(BaseModel):
         default="gregor", description="Node-specific identifier"
     )  # TODO: verify what to use here. In the future this should be set dynamically.
     label: str = Field(
-        default="GREGor AnVIL browser", description="Node-specific label"
+        default="GREGoR AnVIL browser", description="Node-specific label"
     )  # TODO: verify what to use here. In the future this should be set dynamically.
 
 
