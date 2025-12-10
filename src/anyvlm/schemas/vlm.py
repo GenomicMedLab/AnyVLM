@@ -33,6 +33,20 @@ class BeaconHandover(BaseModel):
     )
 
 
+class ReturnedSchema(BaseModel):
+    """Fixed [Beacon Schema](https://github.com/ga4gh-beacon/beacon-v2/blob/c6558bf2e6494df3905f7b2df66e903dfe509500/framework/json/common/beaconCommonComponents.json#L241)"""
+
+    entityType: str = RESULT_ENTITY_TYPE
+    schema_: str = Field(
+        default="ga4gh-beacon-variant-v2.0.0",
+        # Alias is required because 'schema' is reserved by Pydantic's BaseModel class,
+        # But VLM expects a field named 'schema'
+        alias="schema",
+    )
+
+    model_config = {"populate_by_name": True}
+
+
 class Meta(BaseModel):
     """Relevant metadata about the results provided in the parent `VlmResponse`"""
 
@@ -45,9 +59,7 @@ class Meta(BaseModel):
             [here](https://github.com/ga4gh-beacon/beacon-v2/blob/c6558bf2e6494df3905f7b2df66e903dfe509500/framework/src/common/beaconCommonComponents.yaml#L26)
         """,
     )
-    returnedSchemas: list[dict[str, str]] = [
-        {"entityType": RESULT_ENTITY_TYPE, "schema": "ga4gh-beacon-variant-v2.0.0"}
-    ]
+    returnedSchemas: list[ReturnedSchema] = [ReturnedSchema()]
 
 
 class ResponseSummary(BaseModel):
