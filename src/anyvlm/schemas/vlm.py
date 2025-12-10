@@ -129,7 +129,12 @@ class VlmResponse(BaseModel):
         ]
 
         for result_set in self.response.resultSets:
-            node_id, zygosity = result_set.id.split(" ")
+            node_id, zygosity = None, None
+            try:
+                node_id, zygosity = result_set.id.split(" ")
+            except ValueError as e:
+                error_message = f"Invalid ResultSet id - ids must be in form '<node_id> <zygosity>', but provided id of {result_set.id} contains invalid formatting"
+                raise ValueError(error_message) from e
 
             if node_id not in handover_ids:
                 error_message = f"Invalid ResultSet id - ids must be in form '<node_id> <zygosity>', but provided node_id of {node_id} does not match any `handoverType.id` provided in `self.beaconHandovers`"
