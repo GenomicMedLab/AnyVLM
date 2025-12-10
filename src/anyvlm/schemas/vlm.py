@@ -16,10 +16,10 @@ class HandoverType(BaseModel):
 
     id: str = Field(
         default="gregor", description="Node-specific identifier"
-    )  # TODO: verify what to use here. In the future this should be set dynamically.
+    )  # TODO: enable configuration of this field. See Issue #27.
     label: str = Field(
         default="GREGoR AnVIL browser", description="Node-specific label"
-    )  # TODO: verify what to use here. In the future this should be set dynamically.
+    )  # TODO: enable configuration of this field. See Issue #27.
 
 
 class BeaconHandover(BaseModel):
@@ -27,7 +27,7 @@ class BeaconHandover(BaseModel):
 
     handoverType: HandoverType = HandoverType()
     url: str = Field(
-        default="https://anvil.terra.bio/#workspaces?filter=GREGoR",  # TODO: verify what to use here. In the future this should be set dynamically.
+        default="https://anvil.terra.bio/#workspaces?filter=GREGoR",  # TODO: enable configuration of this field. See Issue #27.
         description="A url which directs users to more detailed information about the results tabulated by the API (ideally human-readable)",
     )
 
@@ -54,7 +54,7 @@ class Meta(BaseModel):
         description="The version of the VLM API that this response conforms to",
     )
     beaconId: str = Field(
-        default="org.gregor.beacon",  # TODO: verify what to use here. In the future this should be set dynamically.
+        default="org.gregor.beacon",  # TODO: enable configuration of this field. See Issue #27.
         description="""
             The Id of a Beacon. Usually a reversed domain string, but any URI is acceptable. The purpose of this attribute is,
             in the context of a Beacon network, to disambiguate responses coming from different Beacons. See the beacon documentation
