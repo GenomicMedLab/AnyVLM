@@ -1,5 +1,6 @@
 """Central registry for all object mappers."""
 
+from types import MappingProxyType
 from typing import TypeVar
 
 from ga4gh.va_spec.base import CohortAlleleFrequencyStudyResult
@@ -13,15 +14,13 @@ T = TypeVar("T")
 class MapperRegistry:
     """Central registry for all object mappers."""
 
-    def __init__(self) -> None:
-        """Initialize the MapperRegistry with known mappers."""
-        self.anyvlm_to_db_mapping = {
-            CohortAlleleFrequencyStudyResult: orm.AlleleFrequencyData
-        }
+    va_model_to_db_mapping: MappingProxyType = MappingProxyType(
+        {CohortAlleleFrequencyStudyResult: orm.AlleleFrequencyData}
+    )
 
-        self._mappers: dict[type, BaseMapper] = {
-            orm.AlleleFrequencyData: AlleleFrequencyMapper()
-        }
+    _mappers: MappingProxyType[type, BaseMapper] = MappingProxyType(
+        {orm.AlleleFrequencyData: AlleleFrequencyMapper()}
+    )
 
     def get_mapper(self, entity_type: type[T]) -> BaseMapper:
         """Get mapper for the given entity type."""
@@ -37,7 +36,7 @@ class MapperRegistry:
 
     def to_db_entity(self, anyvlm_entity) -> orm.Base:  # noqa: ANN001
         """Convert any VA-Spec model to its corresponding DB entity."""
-        db_type = self.anyvlm_to_db_mapping.get(type(anyvlm_entity))
+        db_type = self.va_model_to_db_mapping.get(type(anyvlm_entity))
         if db_type is None:
             raise ValueError(
                 f"No DB entity type mapped for VRS model: {type(anyvlm_entity)}"
