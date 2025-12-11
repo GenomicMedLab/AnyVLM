@@ -47,6 +47,7 @@ jobs:
         run: uv run pytest
         env:
           ANYVLM_ANYVAR_TEST_STORAGE_URI: postgresql://postgres:postgres@localhost:5432/postgres
+          ANYVLM_TEST_STORAGE_URI: postgresql://postgres:postgres@localhost:5432/postgres
   lint:
     name: lint
     runs-on: ubuntu-latest
