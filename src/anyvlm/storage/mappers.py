@@ -33,7 +33,8 @@ class AlleleFrequencyMapper(BaseMapper):
         """Convert DB Allele Frequency Data to VA-Spec Cohort Allele Frequency Study Result model
 
         :param db_entity: An ORM Allele Frequency Data instance
-        :return: VA-Spec Cohort Allele Frequency Study Result instance
+        :return: VA-Spec Cohort Allele Frequency Study Result instance. Will use
+            iriReference for focusAllele
         """
         return CohortAlleleFrequencyStudyResult(
             focusAllele=iriReference(db_entity.vrs_id),
