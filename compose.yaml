@@ -1,5 +1,4 @@
 services:
-
   anyvlm_db:
     image: postgres:17
     volumes:
@@ -11,19 +10,6 @@ services:
       - POSTGRES_USER=anyvlm
       - POSTGRES_PASSWORD=anyvlm-pw
 
-  anyvlm_test_db:
-    image: postgres:17
-    volumes:
-      - anyvlm_test_vol:/var/lib/postgresql/data
-    ports:
-      - 127.0.0.1:5436:5432
-    environment:
-      - POSTGRES_DB=anyvlm_test
-      - POSTGRES_USER=anyvlm_test
-      - POSTGRES_PASSWORD=anyvlm-test-pw
-
 volumes:
   anyvlm_vol:
-    external: true
-  anyvlm_test_vol:
     external: true

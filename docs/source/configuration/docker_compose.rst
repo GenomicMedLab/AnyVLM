@@ -6,23 +6,20 @@ This page describes how to use the provided ``compose.yaml`` file to start AnyVL
 Overview
 --------
 
-The compose file defines four main services:
+The compose file defines one main service:
 
 * ``anyvlm_db`` - PostgreSQL database for AnyVLM
-* ``anyvlm_test_db`` - PostgreSQL database for AnyVLM Tests
 
-It also defines Docker volumes:
+It also defines a Docker volume:
 
 * ``anyvlm_vol`` - storage for the AnyVLM PostgreSQL data directory
-* ``anyvlm_test_vol`` - storage for the AnyVLM PostgreSQL Test data directory
 
-These volumes are declared as ``external: true``, so it must exist before
+This volume is declared as ``external: true``, so it must exist before
 you run ``docker compose up``. For example:
 
 .. code-block:: bash
 
    docker volume create anyvlm_vol
-   docker volume create anyvlm_test_vol
 
 Running the stack
 -----------------
