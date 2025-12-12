@@ -11,10 +11,6 @@ def input_vcf_path(test_data_dir: Path) -> Path:
     return test_data_dir / "vcf.vcf"
 
 
-@pytest.fixture
-def client() -> HttpAnyVarClient:
-    return HttpAnyVarClient()
-
-
-def test_ingest_vcf(input_vcf_path: Path, client: HttpAnyVarClient):
-    ingest_vcf(input_vcf_path, client)
+@pytest.mark.vcr
+def test_ingest_vcf(input_vcf_path: Path, anyvar_client: HttpAnyVarClient):
+    ingest_vcf(input_vcf_path, anyvar_client)
