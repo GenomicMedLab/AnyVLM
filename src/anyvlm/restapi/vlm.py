@@ -14,7 +14,7 @@ from anyvlm.utils.types import (
     EndpointTag,
     GenomicSequence,
     GrcAssemblyId,
-    UscsAssemblyBuild,
+    UcscAssemblyBuild,
 )
 
 
@@ -35,7 +35,7 @@ def ingest_vcf(vcf_path: Path) -> None:
 def variant_counts(
     request: Request,
     assemblyId: Annotated[  # noqa: N803
-        GrcAssemblyId | UscsAssemblyBuild,
+        GrcAssemblyId | UcscAssemblyBuild,
         Query(..., description="Genome reference assembly"),
     ],
     referenceName: Annotated[  # noqa: N803

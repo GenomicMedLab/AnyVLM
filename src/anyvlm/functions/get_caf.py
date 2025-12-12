@@ -7,13 +7,13 @@ from anyvlm.utils.types import (
     ChromosomeName,
     GenomicSequence,
     GrcAssemblyId,
-    UscsAssemblyBuild,
+    UcscAssemblyBuild,
 )
 
 
 def get_caf(
     anyvar_client: BaseAnyVarClient,
-    assembly_id: GrcAssemblyId | UscsAssemblyBuild,
+    assembly_id: GrcAssemblyId | UcscAssemblyBuild,
     reference_name: ChromosomeName,
     start: int,
     reference_bases: GenomicSequence,
