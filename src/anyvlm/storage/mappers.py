@@ -48,7 +48,7 @@ class AlleleFrequencyMapper(
             focusAllele=iriReference(db_entity.vrs_id),
             focusAlleleCount=ac,
             locusAlleleCount=an,
-            focusAlleleFrequency=ac / an,
+            focusAlleleFrequency=round(ac / an, 9),
             qualityMeasures={"qcFilters": db_entity.filter},
             ancillaryResults={
                 "homozygotes": homozygotes,
