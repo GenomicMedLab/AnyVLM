@@ -30,7 +30,7 @@ class UcscAssemblyBuild(StrEnum):
 GenomicSequence = Annotated[
     str,
     BeforeValidator(str.upper),
-    StringConstraints(pattern=r"^[AGCT]*$"),
+    StringConstraints(pattern=r"^[ACGTURYKMSWBDHVN]*$"),
 ]
 
 
