@@ -99,7 +99,6 @@ def caf_iri():
             "homozygotes": 0,
             "heterozygotes": 1,
             "hemizygotes": 0,
-            "consequence": "intron_variant",
         },
         cohort=StudyGroup(name="rare disease"),
     )

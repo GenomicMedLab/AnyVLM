@@ -40,12 +40,9 @@ def test_add_allele_frequency(
         db_record = rows[0]
 
         assert db_record.vrs_id == "ga4gh:VA.J3Hi64dkKFKdnKIwB2419Qz3STDB2sJq"
-        assert db_record.af == 0.000162232
-        assert db_record.ac == 1
         assert db_record.an == 6164
         assert db_record.ac_het == 1
         assert db_record.ac_hom == 0
-        assert db_record.consequence == "intron_variant"
         assert db_record.filter == ["LowQual", "NO_HQ_GENOTYPES"]
 
     # first insert

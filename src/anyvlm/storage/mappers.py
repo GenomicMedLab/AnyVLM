@@ -36,17 +36,22 @@ class AlleleFrequencyMapper(BaseMapper):
         :return: VA-Spec Cohort Allele Frequency Study Result instance. Will use
             iriReference for focusAllele
         """
+        homozygotes = db_entity.ac_hom
+        heterozygotes = db_entity.ac_het
+        hemizygotes = db_entity.ac_hemi
+        ac = sum((homozygotes, heterozygotes, hemizygotes))
+        an = db_entity.an
+
         return CohortAlleleFrequencyStudyResult(
             focusAllele=iriReference(db_entity.vrs_id),
-            focusAlleleCount=db_entity.ac,
-            locusAlleleCount=db_entity.an,
-            focusAlleleFrequency=db_entity.af,
+            focusAlleleCount=ac,
+            locusAlleleCount=an,
+            focusAlleleFrequency=ac / an,
             qualityMeasures={"qcFilters": db_entity.filter},
             ancillaryResults={
-                "homozygotes": db_entity.ac_hom,
-                "heterozygotes": db_entity.ac_het,
-                "hemizygotes": db_entity.ac_hemi,
-                "consequence": db_entity.consequence,
+                "homozygotes": homozygotes,
+                "heterozygotes": heterozygotes,
+                "hemizygotes": hemizygotes,
             },
             cohort=StudyGroup(name="rare disease"),
         )
@@ -69,12 +74,9 @@ class AlleleFrequencyMapper(BaseMapper):
 
         return orm.AlleleFrequencyData(
             vrs_id=vrs_id,
-            af=va_model.focusAlleleFrequency,
-            ac=va_model.focusAlleleCount,
             an=va_model.locusAlleleCount,
             ac_het=ancillary_results["heterozygotes"],
             ac_hom=ancillary_results["homozygotes"],
             ac_hemi=ancillary_results["hemizygotes"],
-            consequence=ancillary_results["consequence"],
             filter=va_model.qualityMeasures["qcFilters"],
         )
