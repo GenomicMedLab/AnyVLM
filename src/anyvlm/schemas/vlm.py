@@ -46,7 +46,7 @@ class ReturnedSchema(BaseModel):
         alias="schema",
     )
 
-    model_config = {"populate_by_name": True}
+    model_config = ConfigDict(populate_by_name=True)
 
 
 class Meta(BaseModel):
