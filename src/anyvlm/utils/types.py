@@ -20,7 +20,7 @@ class GrcAssemblyId(StrEnum):
     GRCH38 = "GRCh38"
 
 
-class UscsAssemblyBuild(StrEnum):
+class UcscAssemblyBuild(StrEnum):
     """Supported USCS assembly builds"""
 
     HG38 = "hg38"
