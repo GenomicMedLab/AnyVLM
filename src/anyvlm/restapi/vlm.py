@@ -32,33 +32,24 @@ def ingest_vcf(vcf_path: Path) -> None:
     description="Search for a single sequence variant and receive allele counts by zygosity, in accordance with the Variant-Level Matching protocol",
     tags=[EndpointTag.SEARCH],
 )
+# ruff: noqa: D103, N803 (allow camelCase args and don't require docstrings)
 def variant_counts(
     request: Request,
-    assemblyId: Annotated[  # noqa: N803
+    assemblyId: Annotated[
         GrcAssemblyId | UcscAssemblyBuild,
         Query(..., description="Genome reference assembly"),
     ],
-    referenceName: Annotated[  # noqa: N803
+    referenceName: Annotated[
         ChromosomeName, Query(..., description="Chromosome with optional 'chr' prefix")
     ],
     start: Annotated[int, Query(..., description="Variant position")],
-    referenceBases: Annotated[  # noqa: N803
+    referenceBases: Annotated[
         GenomicSequence, Query(..., description="Genomic bases ('T', 'AC', etc.)")
     ],
-    alternateBases: Annotated[  # noqa: N803
+    alternateBases: Annotated[
         GenomicSequence, Query(..., description="Genomic bases ('T', 'AC', etc.)")
     ],
 ) -> VlmResponse:
-    """Accept a Variant-Level Matching network request and return allele counts by zygosity.
-
-    :param request: FastAPI `Request` object
-    :param assemblyId: The genome reference assembly. Must be a GRC assembly identifier (e.g., "GRCh38) or a USCS assembly build (e.g., "hg38")
-    :param referenceName: The name of the reference chromosome, with optional 'chr' prefix
-    :param start: The start of the variant's position
-    :param referenceBases: Genomic bases ('T', 'AC', etc.)
-    :param alternateBases: Genomic bases ('T', 'AC', etc.)
-    :return: A VlmResponse object containing cohort allele frequency data. If no matches are found, endpoint will return a status code of 200 with an empty set of results.
-    """
     anyvar_client: BaseAnyVarClient = request.app.state.anyvar_client
 
     caf_data = get_caf(  # noqa: F841 - TODO: remove this noqa when endpoint is complete. See Issue #16 and Issue #13.
