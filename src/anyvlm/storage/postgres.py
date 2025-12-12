@@ -1,7 +1,7 @@
 """Provide PostgreSQL-based storage implementation."""
 
 from ga4gh.va_spec.base import CohortAlleleFrequencyStudyResult
-from sqlalchemy import create_engine, delete
+from sqlalchemy import create_engine, delete, select
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import sessionmaker
 
@@ -46,3 +46,26 @@ class PostgresObjectStore(Storage):
 
         with self.session_factory() as session, session.begin():
             session.execute(stmt, db_entity.to_dict())
+
+    def get_caf_by_vrs_ids(
+        self, vrs_ids: list[str]
+    ) -> list[CohortAlleleFrequencyStudyResult]:
+        """Retrieve cohort allele frequency study results by VRS IDs
+
+        :param vrs_ids: List of VRS variation IDs
+        :return: List of cohort allele frequency study results matching given VRS
+            variation IDs. Will use iriReference for focusAllele
+        """
+        cafs: list[CohortAlleleFrequencyStudyResult] = []
+        with self.session_factory() as session:
+            stmt = (
+                select(orm.AlleleFrequencyData)
+                .where(orm.AlleleFrequencyData.vrs_id.in_(vrs_ids))
+                .limit(self.MAX_ROWS)
+            )
+            db_objects = session.scalars(stmt).all()
+
+            for db_object in db_objects:
+                caf = mapper_registry.from_db_entity(db_object)
+                cafs.append(caf)
+        return cafs

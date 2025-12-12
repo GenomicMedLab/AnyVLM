@@ -6,10 +6,12 @@ from tests.conftest import return_cafs
 from anyvlm.storage.postgres import PostgresObjectStore
 
 
-def test_db_lifecycle(postgres_uri: str, caf_iri: CohortAlleleFrequencyStudyResult):
+def test_db_lifecycle(
+    anyvlm_postgres_uri: str, caf_iri: CohortAlleleFrequencyStudyResult
+):
     """Test that DB lifecycle works correctly"""
     # set up and populate DB
-    storage = PostgresObjectStore(postgres_uri)
+    storage = PostgresObjectStore(anyvlm_postgres_uri)
     caf_rows = return_cafs(storage)
     assert caf_rows == []
 

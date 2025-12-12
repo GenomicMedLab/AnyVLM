@@ -7,6 +7,7 @@ from ga4gh.core.models import iriReference
 from ga4gh.va_spec.base import CohortAlleleFrequencyStudyResult, StudyGroup
 
 from anyvlm.storage import orm
+from anyvlm.utils.types import AncillaryResults, QualityMeasures
 
 V = TypeVar("V")  # VA-Spec entity type
 D = TypeVar("D")  # DB entity type
@@ -49,12 +50,12 @@ class AlleleFrequencyMapper(
             focusAlleleCount=ac,
             locusAlleleCount=an,
             focusAlleleFrequency=round(ac / an, 9),
-            qualityMeasures={"qcFilters": db_entity.filter},
-            ancillaryResults={
-                "homozygotes": homozygotes,
-                "heterozygotes": heterozygotes,
-                "hemizygotes": hemizygotes,
-            },
+            qualityMeasures=QualityMeasures(qcFilters=db_entity.filter).model_dump(),
+            ancillaryResults=AncillaryResults(
+                homozygotes=homozygotes,
+                heterozygotes=heterozygotes,
+                hemizygotes=hemizygotes,
+            ).model_dump(),
             cohort=StudyGroup(name=db_entity.cohort),
         )
 
@@ -66,7 +67,8 @@ class AlleleFrequencyMapper(
         :param va_model: VA-Spec Cohort Allele Frequency Study Result instance
         :return: ORM Allele Frequency Data instance
         """
-        ancillary_results = va_model.ancillaryResults
+        ancillary_results = AncillaryResults(**va_model.ancillaryResults)
+        filter_ = QualityMeasures(**va_model.qualityMeasures)
         focus_allele = va_model.focusAllele
 
         if isinstance(focus_allele, iriReference):
@@ -77,9 +79,9 @@ class AlleleFrequencyMapper(
         return orm.AlleleFrequencyData(
             vrs_id=vrs_id,
             an=va_model.locusAlleleCount,
-            ac_het=ancillary_results["heterozygotes"],
-            ac_hom=ancillary_results["homozygotes"],
-            ac_hemi=ancillary_results["hemizygotes"],
-            filter=va_model.qualityMeasures["qcFilters"],
+            ac_het=ancillary_results.heterozygotes,
+            ac_hom=ancillary_results.homozygotes,
+            ac_hemi=ancillary_results.hemizygotes,
+            filter=filter_.qcFilters,
             cohort=va_model.cohort.name,
         )

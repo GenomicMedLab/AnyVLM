@@ -34,3 +34,14 @@ class Storage(ABC):
 
         :param caf: Cohort allele frequency study result object to insert into the DB
         """
+
+    @abstractmethod
+    def get_caf_by_vrs_ids(
+        self, vrs_ids: list[str]
+    ) -> list[CohortAlleleFrequencyStudyResult]:
+        """Retrieve cohort allele frequency study results by VRS IDs
+
+        :param vrs_ids: List of VRS variation IDs
+        :return: List of cohort allele frequency study results matching given VRS
+            variation IDs. Will use iriReference for focusAllele
+        """
