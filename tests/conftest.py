@@ -6,6 +6,8 @@ from dotenv import load_dotenv
 from ga4gh.vrs import models
 from pydantic import BaseModel
 
+from anyvlm.anyvar.http_client import HttpAnyVarClient
+
 
 @pytest.fixture(scope="session", autouse=True)
 def load_env():
@@ -58,3 +60,12 @@ def vcr_config():
         "before_record_response": remove_response_headers,
         "decode_compressed_response": True,
     }
+
+
+@pytest.fixture
+def anyvar_client() -> HttpAnyVarClient:
+    """Provide AnyVar client fixture for tests.
+
+    Uses HTTP because that's auto-mockable with pytest-record
+    """
+    return HttpAnyVarClient()
