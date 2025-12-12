@@ -84,4 +84,4 @@ def ingest_vcf(vcf_path: Path, av: BaseAnyVarClient, assembly: str = "GRCh38") -
         variants = [v for v, _ in batch]
         av.put_objects(variants)
         for variant, af in batch:  # noqa: B007
-            pass  # make a call to a storage class to store frequency data
+            pass  # make a call to a storage class to store frequency data -- see issue 23
