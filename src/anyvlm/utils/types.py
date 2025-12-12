@@ -58,12 +58,7 @@ def _normalize_chromosome_name(chromosome_name: str) -> str:
     :param chromosome_name: The name of the chromosome to normalize, following the rules stated above.
     :return: The chromosome name, stripped of it's 'chr' prefix if it was added
     """
-    # strip the 'chr' prefix if it was included
-    chromosome_name = (
-        chromosome_name[3:]
-        if chromosome_name.lower().startswith("chr")
-        else chromosome_name
-    ).upper()
+    chromosome_name = chromosome_name.upper().removeprefix("CHR")
 
     if is_valid_chromosome_name(chromosome_name):
         return chromosome_name
