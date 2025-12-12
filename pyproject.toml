@@ -38,6 +38,7 @@ test = [
     "jsonschema",
     "pyyaml",
     "pytest-recording",
+    "deepdiff",
 ]
 dev = [
     "ruff==0.12.8",
