@@ -27,7 +27,7 @@ class UcscAssemblyBuild(StrEnum):
     HG19 = "hg19"
 
 
-GenomicSequence = Annotated[
+NucleotideSequence = Annotated[
     str,
     BeforeValidator(str.upper),
     StringConstraints(pattern=r"^[ACGTURYKMSWBDHVN]*$"),

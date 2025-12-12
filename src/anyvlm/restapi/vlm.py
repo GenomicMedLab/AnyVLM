@@ -12,8 +12,8 @@ from anyvlm.schemas.vlm import VlmResponse
 from anyvlm.utils.types import (
     ChromosomeName,
     EndpointTag,
-    GenomicSequence,
     GrcAssemblyId,
+    NucleotideSequence,
     UcscAssemblyBuild,
 )
 
@@ -44,10 +44,10 @@ def variant_counts(
     ],
     start: Annotated[int, Query(..., description="Variant position")],
     referenceBases: Annotated[
-        GenomicSequence, Query(..., description="Genomic bases ('T', 'AC', etc.)")
+        NucleotideSequence, Query(..., description="Genomic bases ('T', 'AC', etc.)")
     ],
     alternateBases: Annotated[
-        GenomicSequence, Query(..., description="Genomic bases ('T', 'AC', etc.)")
+        NucleotideSequence, Query(..., description="Genomic bases ('T', 'AC', etc.)")
     ],
 ) -> VlmResponse:
     anyvar_client: BaseAnyVarClient = request.app.state.anyvar_client

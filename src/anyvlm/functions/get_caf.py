@@ -5,8 +5,8 @@ from ga4gh.va_spec.base.core import CohortAlleleFrequencyStudyResult
 from anyvlm.anyvar.base_client import BaseAnyVarClient
 from anyvlm.utils.types import (
     ChromosomeName,
-    GenomicSequence,
     GrcAssemblyId,
+    NucleotideSequence,
     UcscAssemblyBuild,
 )
 
@@ -16,8 +16,8 @@ def get_caf(
     assembly_id: GrcAssemblyId | UcscAssemblyBuild,
     reference_name: ChromosomeName,
     start: int,
-    reference_bases: GenomicSequence,
-    alternate_bases: GenomicSequence,
+    reference_bases: NucleotideSequence,
+    alternate_bases: NucleotideSequence,
 ) -> list[CohortAlleleFrequencyStudyResult]:
     """Retrieve Cohort Allele Frequency data for all known variants matching provided search params
 
