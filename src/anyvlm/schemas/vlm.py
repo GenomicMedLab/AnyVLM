@@ -1,6 +1,6 @@
 """Schemas relating to VLM API."""
 
-from typing import Literal, Self
+from typing import ClassVar, Literal, Self
 
 from pydantic import BaseModel, Field, model_validator
 
@@ -121,6 +121,10 @@ class VlmResponse(BaseModel):
     responseSummary: ResponseSummary
     response: ResponseField
 
+    resultset_id_error_message_base: ClassVar[str] = (
+        "Invalid ResultSet id - ids must be in form '<node_id> <zygosity>'"
+    )
+
     @model_validator(mode="after")
     def validate_resultset_ids(self) -> Self:
         """Ensure each ResultSet.id is correctly constructed."""
@@ -133,18 +137,18 @@ class VlmResponse(BaseModel):
             try:
                 node_id, zygosity = result_set.id.split(" ")
             except ValueError as e:
-                error_message = f"Invalid ResultSet id - ids must be in form '<node_id> <zygosity>', but provided id of {result_set.id} contains invalid formatting"
+                error_message = f"{self.resultset_id_error_message_base}, but provided id of {result_set.id} contains invalid formatting"
                 raise ValueError(error_message) from e
 
             if node_id not in handover_ids:
-                error_message = f"Invalid ResultSet id - ids must be in form '<node_id> <zygosity>', but provided node_id of {node_id} does not match any `handoverType.id` provided in `self.beaconHandovers`"
+                error_message = f"{self.resultset_id_error_message_base}, but provided node_id of {node_id} does not match any `handoverType.id` provided in `self.beaconHandovers`"
                 raise ValueError(error_message)
 
             try:
                 Zygosity(zygosity)
             except ValueError as e:
                 valid_zygosity_values = {zygosity.value for zygosity in Zygosity}
-                error_message = f"Invalid ResultSet id - ids must be in form '<node_id> <zygosity>', but provided zygosity of {zygosity} is not found in allowable value set of: {', '.join(valid_zygosity_values)}"
+                error_message = f"{self.resultset_id_error_message_base}, but provided zygosity of {zygosity} is not found in allowable value set of: {', '.join(valid_zygosity_values)}"
                 raise ValueError(error_message) from e
 
         return self

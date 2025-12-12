@@ -1,5 +1,7 @@
 """Test schema validation functionality"""
 
+import re
+
 import pytest
 
 from anyvlm.schemas.vlm import (
@@ -84,6 +86,6 @@ def test_invalid_resultset_ids(response_summary, responses_with_invalid_resultse
     for response in responses_with_invalid_resultset_ids:
         with pytest.raises(
             ValueError,
-            match=r"^Invalid ResultSet id - ids must be in form '<node_id> <zygosity>'",
+            match=re.escape(VlmResponse.resultset_id_error_message_base),
         ):
             VlmResponse(responseSummary=response_summary, response=response)
