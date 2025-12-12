@@ -1,0 +1,11 @@
+services:
+  anyvlm_test_db:
+    image: postgres:17
+    tmpfs:
+      - /var/lib/postgresql/data
+    ports:
+      - 127.0.0.1:5436:5432
+    environment:
+      - POSTGRES_DB=anyvlm_test
+      - POSTGRES_USER=anyvlm_test
+      - POSTGRES_PASSWORD=anyvlm-test-pw
