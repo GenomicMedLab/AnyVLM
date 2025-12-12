@@ -1,4 +1,4 @@
-"""Test HTTP-based AnyVar client
+"""Test HTTP-based and Python AnyVar clients
 
 These tests use VCR-style recordings for HTTP calls. In practice, there's obviously no
 'true' behavior for search results, since it depends on what the AnyVar instance does
@@ -7,20 +7,67 @@ variants deposited by the `put_objects` test are all that's in there (i.e. use a
 AnyVar DB to record new test cassettes)
 """
 
+import os
+
 import pytest
+from anyvar.anyvar import create_storage, create_translator
 from ga4gh.vrs import models
 
-from anyvlm.anyvar.base_client import UnidentifiedObjectError
+from anyvlm.anyvar.base_client import BaseAnyVarClient, UnidentifiedObjectError
 from anyvlm.anyvar.http_client import HttpAnyVarClient
+from anyvlm.anyvar.python_client import PythonAnyVarClient
+
+
+@pytest.fixture(scope="session")
+def anyvar_postgres_uri():
+    uri = os.environ.get(
+        "ANYVLM_ANYVAR_TEST_STORAGE_URI",
+        "postgresql://postgres:postgres@localhost:5432/anyvlm_anyvar_test",
+    )
+    return uri
 
 
 @pytest.fixture
-def client() -> HttpAnyVarClient:
+def anyvar_python_client(anyvar_postgres_uri: str) -> PythonAnyVarClient:
+    storage = create_storage(anyvar_postgres_uri)
+    storage.wipe_db()
+    translator = create_translator()
+    return PythonAnyVarClient(translator, storage)
+
+
+@pytest.fixture
+def anyvar_http_client() -> HttpAnyVarClient:
     return HttpAnyVarClient()
 
 
+@pytest.fixture
+def anyvar_populated_python_client(
+    anyvar_python_client: PythonAnyVarClient, alleles: dict
+):
+    for allele_fixture in alleles.values():
+        anyvar_python_client.put_objects([models.Allele(**allele_fixture["variation"])])
+    return anyvar_python_client
+
+
+@pytest.fixture
+def client(request):
+    return request.getfixturevalue(request.param)
+
+
+UNPOPULATED_CLIENTS = [
+    "anyvar_python_client",
+    "anyvar_http_client",
+]
+
+POPULATED_CLIENTS = [
+    "anyvar_populated_python_client",
+    "anyvar_http_client",
+]
+
+
 @pytest.mark.vcr
-def test_put_objects(client: HttpAnyVarClient, alleles: dict):
+@pytest.mark.parametrize("client", UNPOPULATED_CLIENTS, indirect=True)
+def test_put_objects(client: BaseAnyVarClient, alleles: dict):
     """Test `put_objects` for a basic test suite of variants"""
     for allele_fixture in alleles.values():
         allele = models.Allele(**allele_fixture["variation"])
@@ -28,7 +75,8 @@ def test_put_objects(client: HttpAnyVarClient, alleles: dict):
 
 
 @pytest.mark.vcr
-def test_put_objects_no_ids(client: HttpAnyVarClient, alleles: dict):
+@pytest.mark.parametrize("client", UNPOPULATED_CLIENTS, indirect=True)
+def test_put_objects_no_ids(client: BaseAnyVarClient, alleles: dict):
     """Test `put_objects` for objects with IDs/digest/etc removed"""
     allele_iter = iter(alleles.values())
     allele = models.Allele(**next(allele_iter)["variation"])
@@ -39,7 +87,8 @@ def test_put_objects_no_ids(client: HttpAnyVarClient, alleles: dict):
 
 
 @pytest.mark.vcr
-def test_search_by_interval(client: HttpAnyVarClient, alleles: dict):
+@pytest.mark.parametrize("client", POPULATED_CLIENTS, indirect=True)
+def test_search_by_interval(client: BaseAnyVarClient, alleles: dict):
     """Test `search_by_interval` for a couple of basic cases"""
     results = client.search_by_interval(
         "ga4gh:SQ.8_liLu1aycC0tPQPFmUaGXJLDs5SbPZ5", 2781760, 2781760
@@ -75,7 +124,8 @@ def test_search_by_interval(client: HttpAnyVarClient, alleles: dict):
 
 
 @pytest.mark.vcr
-def test_search_by_interval_with_alias(client: HttpAnyVarClient, alleles: dict):
+@pytest.mark.parametrize("client", POPULATED_CLIENTS, indirect=True)
+def test_search_by_interval_with_alias(client: BaseAnyVarClient, alleles: dict):
     """Test use of sequence alias"""
     results = client.search_by_interval("GRCh38.p1:Y", 2781760, 2781760)
     assert sorted(results, key=lambda r: r.id) == [
@@ -92,13 +142,15 @@ def test_search_by_interval_with_alias(client: HttpAnyVarClient, alleles: dict):
 
 
 @pytest.mark.vcr
-def test_search_by_interval_unknown_alias(client: HttpAnyVarClient):
+@pytest.mark.parametrize("client", POPULATED_CLIENTS, indirect=True)
+def test_search_by_interval_unknown_alias(client: BaseAnyVarClient):
     """Test handling response when sequence alias isn't recognized."""
     assert client.search_by_interval("GRCh45.p1:Y", 2781760, 2781760) == []
 
 
 @pytest.mark.vcr
-def test_search_by_interval_unknown_accession(client: HttpAnyVarClient):
+@pytest.mark.parametrize("client", POPULATED_CLIENTS, indirect=True)
+def test_search_by_interval_unknown_accession(client: BaseAnyVarClient):
     """Test handling response when accession ID isn't recognized"""
     results = client.search_by_interval(
         "ga4gh:SQ.ZZZZZu1aycC0tPQPFmUaGXJLDs5SbPZ5", 2781760, 2781768
@@ -107,7 +159,8 @@ def test_search_by_interval_unknown_accession(client: HttpAnyVarClient):
 
 
 @pytest.mark.vcr
-def test_search_by_interval_not_found(client: HttpAnyVarClient):
+@pytest.mark.parametrize("client", POPULATED_CLIENTS, indirect=True)
+def test_search_by_interval_not_found(client: BaseAnyVarClient):
     """Test handling response when no matching variants are found"""
     results = client.search_by_interval(
         "ga4gh:SQ.8_liLu1aycC0tPQPFmUaGXJLDs5SbPZ5", 1, 100
