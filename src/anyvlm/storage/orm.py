@@ -42,13 +42,13 @@ class AlleleFrequencyData(Base):
         return "allele_frequency_data"
 
     vrs_id: Mapped[str] = mapped_column(String, primary_key=True)
+    consequence: Mapped[str] = mapped_column(String, primary_key=True)
     af: Mapped[float] = mapped_column(Float)
     ac: Mapped[int] = mapped_column(Integer)
     an: Mapped[int] = mapped_column(Integer)
     ac_het: Mapped[int] = mapped_column(Integer)
     ac_hom: Mapped[int] = mapped_column(Integer)
     ac_hemi: Mapped[int] = mapped_column(Integer)
-    consequence: Mapped[str] = mapped_column(String)
     filter: Mapped[list[str]] = mapped_column(ARRAY(String))
 
 
