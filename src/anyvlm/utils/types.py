@@ -34,36 +34,28 @@ GenomicSequence = Annotated[
 ]
 
 
-def is_valid_chromosome_name(chromosome_name: str) -> bool:
-    """Checks whether or not a provided chromosome name is valid.
-
-    :param chromosome_name: The chromosome name to validate.
-    :return: `True` if the chromosome name is a number between 1-22, or the values "X", "Y", or "MT"; else `False`.
-    """
-    min_chromosome_number = 1
-    max_chromosome_number = 22
-    try:
-        return (
-            chromosome_name in {"X", "Y", "MT"}
-            or min_chromosome_number <= int(chromosome_name) <= max_chromosome_number
-        )
-    except ValueError:
-        return False
-
-
 def _normalize_chromosome_name(chromosome_name: str) -> str:
     """Normalize a chromosome name. Input must be a string consisting of either a number between 1-22,
-    or 'X' or 'Y'; optionally prefixed with 'chr'.
+    or one of the values 'X', 'Y', or 'MT'; optionally prefixed with 'chr'.
 
     :param chromosome_name: The name of the chromosome to normalize, following the rules stated above.
     :return: The chromosome name, stripped of it's 'chr' prefix if it was added
     """
     chromosome_name = chromosome_name.upper().removeprefix("CHR")
 
-    if is_valid_chromosome_name(chromosome_name):
+    min_chromosome_number = 1
+    max_chromosome_number = 22
+
+    if chromosome_name in {"X", "Y", "MT"} or (
+        chromosome_name.isdigit()
+        and min_chromosome_number <= int(chromosome_name) <= max_chromosome_number
+    ):
         return chromosome_name
-    error_message = "Invalid chromosome. Must be either a number between 1-22, or the values 'X', 'Y', or 'MT'; with optional 'chr' prefix."
-    raise ValueError(error_message)
+
+    raise ValueError(
+        "Invalid chromosome. Must be either a number between 1-22, or "
+        "'one of the values 'X', 'Y', or 'MT'; optionally prefixed with 'chr'."
+    )
 
 
 ChromosomeName = Annotated[str, BeforeValidator(_normalize_chromosome_name)]
