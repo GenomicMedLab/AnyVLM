@@ -34,16 +34,14 @@ class MapperRegistry:
         mapper = self.get_mapper(type(db_entity))
         return mapper.from_db_entity(db_entity)
 
-    def to_db_entity(self, anyvlm_entity) -> orm.Base:  # noqa: ANN001
+    def to_db_entity(self, va_model) -> orm.Base:  # noqa: ANN001
         """Convert any VA-Spec model to its corresponding DB entity."""
-        db_type = self.va_model_to_db_mapping.get(type(anyvlm_entity))
+        db_type = self.va_model_to_db_mapping.get(type(va_model))
         if db_type is None:
-            raise ValueError(
-                f"No DB entity type mapped for VRS model: {type(anyvlm_entity)}"
-            )
+            raise ValueError(f"No DB entity type mapped for VA model: {type(va_model)}")
 
         mapper = self.get_mapper(db_type)
-        return mapper.to_db_entity(anyvlm_entity)
+        return mapper.to_db_entity(va_model)
 
 
 # Global registry instance

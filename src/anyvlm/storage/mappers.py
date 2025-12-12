@@ -24,7 +24,9 @@ class BaseMapper(Generic[V, D], ABC):
         """Convert VA-Spec model to DB entity."""
 
 
-class AlleleFrequencyMapper(BaseMapper):
+class AlleleFrequencyMapper(
+    BaseMapper[CohortAlleleFrequencyStudyResult, orm.AlleleFrequencyData]
+):
     """Maps between Allele Frequency Entities"""
 
     def from_db_entity(
@@ -53,7 +55,7 @@ class AlleleFrequencyMapper(BaseMapper):
                 "heterozygotes": heterozygotes,
                 "hemizygotes": hemizygotes,
             },
-            cohort=StudyGroup(name="rare disease"),
+            cohort=StudyGroup(name=db_entity.cohort),
         )
 
     def to_db_entity(
@@ -79,4 +81,5 @@ class AlleleFrequencyMapper(BaseMapper):
             ac_hom=ancillary_results["homozygotes"],
             ac_hemi=ancillary_results["hemizygotes"],
             filter=va_model.qualityMeasures["qcFilters"],
+            cohort=va_model.cohort.name,
         )

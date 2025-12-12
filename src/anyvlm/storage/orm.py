@@ -41,6 +41,7 @@ class AlleleFrequencyData(Base):
         return "allele_frequency_data"
 
     vrs_id: Mapped[str] = mapped_column(String, primary_key=True)
+    cohort: Mapped[str] = mapped_column(String, index=True)
     an: Mapped[int] = mapped_column(Integer)
     ac_het: Mapped[int] = mapped_column(Integer)
     ac_hom: Mapped[int] = mapped_column(Integer)

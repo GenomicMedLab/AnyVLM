@@ -9,6 +9,10 @@ class StorageError(Exception):
     """Base AnyLM storage error."""
 
 
+class IncompleteVAObjectError(StorageError):
+    """Raise if provided VA object is missing fully-materialized properties required for storage"""
+
+
 class Storage(ABC):
     """Abstract base class for interacting with storage backends."""
 
