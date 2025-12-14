@@ -42,9 +42,12 @@ def test_put_allele_expressions(client: HttpAnyVarClient, alleles: dict):
 #     assert results == [None, allele_fixture["variation"]["id"]]
 
 
-@pytest.mark.vcr
 def test_put_allele_expressions_catch_httperror():
-    """Test handling HTTP failure"""
+    """Test handling HTTP failure
+
+    DO NOT wrap this with pyVCR -- as far as I can tell, it won't write a cassette for the
+    HTTP timeout, but will still call a failure in `--record-mode=None`
+    """
     client = HttpAnyVarClient("http://localhost:4321")  # use a currently-inactive port
     with pytest.raises(AnyVarClientError):
         client.put_allele_expressions(["1-1000000-A-T"])
