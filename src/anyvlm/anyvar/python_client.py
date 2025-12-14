@@ -43,7 +43,7 @@ class PythonAnyVarClient(BaseAnyVarClient):
                 )
             except TranslationError:
                 _logger.exception("Failed to translate expression: %s", expression)
-                self.av.put_objects([translated_variation])  # type: ignore
+            self.av.put_objects([translated_variation])  # type: ignore
             results.append(translated_variation.id)  # type: ignore
         return results
 
