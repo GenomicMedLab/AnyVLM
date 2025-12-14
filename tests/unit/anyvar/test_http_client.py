@@ -10,7 +10,7 @@ AnyVar DB to record new test cassettes)
 import pytest
 from ga4gh.vrs import models
 
-from anyvlm.anyvar.base_client import UnidentifiedObjectError
+from anyvlm.anyvar.base_client import AnyVarClientError
 from anyvlm.anyvar.http_client import HttpAnyVarClient
 
 
@@ -20,22 +20,45 @@ def client() -> HttpAnyVarClient:
 
 
 @pytest.mark.vcr
-def test_put_objects(client: HttpAnyVarClient, alleles: dict):
-    """Test `put_objects` for a basic test suite of variants"""
+def test_put_allele_expressions(client: HttpAnyVarClient, alleles: dict):
+    """Test `put_allele_expressions` for a basic test suite of variants"""
     for allele_fixture in alleles.values():
-        allele = models.Allele(**allele_fixture["variation"])
-        client.put_objects([allele])
+        if "vcf_expression" not in allele_fixture:
+            continue
+        results = client.put_allele_expressions([allele_fixture["vcf_expression"]])
+        assert results == [allele_fixture["variation"]["id"]]
+
+
+@pytest.mark.vcf
+def test_put_allele_expressions_handle_invalid(client: HttpAnyVarClient, alleles: dict):
+    results = client.put_allele_expressions(["Y-2781761-A-C"])  # wrong REF
+    assert results == [None]
+
+    allele_fixture = alleles["ga4gh:VA.yi7A2l0uIUMaInQaJnHU_B2Cf_OuZRJg"]
+    results = client.put_allele_expressions(
+        ["Y-2781761-A-C", allele_fixture["vcf_expression"]]
+    )
+    assert results == [None, allele_fixture["variation"]["id"]]
 
 
 @pytest.mark.vcr
-def test_put_objects_no_ids(client: HttpAnyVarClient, alleles: dict):
-    """Test `put_objects` for objects with IDs/digest/etc removed"""
-    allele_iter = iter(alleles.values())
-    allele = models.Allele(**next(allele_iter)["variation"])
-    allele.id = None
-    other_allele = models.Allele(**next(allele_iter)["variation"])
-    with pytest.raises(UnidentifiedObjectError):
-        client.put_objects([other_allele, allele])
+def test_put_allele_expressions_catch_httperror():
+    """Test handling HTTP failure"""
+    client = HttpAnyVarClient("http://localhost:4321")  # use a currently-inactive port
+    with pytest.raises(AnyVarClientError):
+        client.put_allele_expressions(["1-1000000-A-T"])
+
+
+@pytest.mark.vcr
+def test_put_allele_expressions_invalid_assembly(
+    client: HttpAnyVarClient, alleles: dict
+):
+    # TODO this fails for now until anyvar #355
+    with pytest.raises(AnyVarClientError):
+        client.put_allele_expressions(
+            alleles["ga4gh:VA.yi7A2l0uIUMaInQaJnHU_B2Cf_OuZRJg"]["vcf_expression"],
+            assembly="GRCh30000",
+        )
 
 
 @pytest.mark.vcr
@@ -51,9 +74,6 @@ def test_search_by_interval(client: HttpAnyVarClient, alleles: dict):
         models.Allele(
             **alleles["ga4gh:VA.IM4QyU9D2kTJzeftUBBD4Vcd1peq0dn1"]["variation"]
         ),
-        models.Allele(
-            **alleles["ga4gh:VA.xbX035HgURWIUAjn6x3cS26jafP8Q_bk"]["variation"]
-        ),
     ]
     results = client.search_by_interval(
         "ga4gh:SQ.8_liLu1aycC0tPQPFmUaGXJLDs5SbPZ5", 2781760, 2781768
@@ -64,9 +84,6 @@ def test_search_by_interval(client: HttpAnyVarClient, alleles: dict):
         ),
         models.Allele(
             **alleles["ga4gh:VA.IM4QyU9D2kTJzeftUBBD4Vcd1peq0dn1"]["variation"]
-        ),
-        models.Allele(
-            **alleles["ga4gh:VA.xbX035HgURWIUAjn6x3cS26jafP8Q_bk"]["variation"]
         ),
         models.Allele(
             **alleles["ga4gh:VA.yi7A2l0uIUMaInQaJnHU_B2Cf_OuZRJg"]["variation"]
@@ -84,9 +101,6 @@ def test_search_by_interval_with_alias(client: HttpAnyVarClient, alleles: dict):
         ),
         models.Allele(
             **alleles["ga4gh:VA.IM4QyU9D2kTJzeftUBBD4Vcd1peq0dn1"]["variation"]
-        ),
-        models.Allele(
-            **alleles["ga4gh:VA.xbX035HgURWIUAjn6x3cS26jafP8Q_bk"]["variation"]
         ),
     ]
 
@@ -113,3 +127,7 @@ def test_search_by_interval_not_found(client: HttpAnyVarClient):
         "ga4gh:SQ.8_liLu1aycC0tPQPFmUaGXJLDs5SbPZ5", 1, 100
     )
     assert results == []
+
+
+# other stuff to try
+# invalid assembly name

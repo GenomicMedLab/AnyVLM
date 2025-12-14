@@ -43,7 +43,8 @@
         },
         "state": { "type": "LiteralSequenceExpression", "sequence": "T" }
       },
-      "comment": "BRAF V600E (genomic)"
+      "comment": "BRAF V600E (genomic)",
+      "vcf_expression": "7-140753336-A-T"
     },
     "ga4gh:VA.ruQCmfXJrEylHmOQF-1PG6bLwQesDU2g": {
       "variation": {
@@ -66,30 +67,30 @@
           "sequence": "G"
         }
       },
-      "comment": "Y-2781704-G-G"
+      "vcf_expression": "Y-2781704-G-G"
     },
     "ga4gh:VA.IM4QyU9D2kTJzeftUBBD4Vcd1peq0dn1": {
       "variation": {
-        "id": "ga4gh:VA.IM4QyU9D2kTJzeftUBBD4Vcd1peq0dn1",
-        "digest": "IM4QyU9D2kTJzeftUBBD4Vcd1peq0dn1",
+        "id": "ga4gh:VA.xbX035HgURWIUAjn6x3cS26jafP8Q_bk",
         "type": "Allele",
+        "digest": "xbX035HgURWIUAjn6x3cS26jafP8Q_bk",
         "location": {
-          "id": "ga4gh:SL.sWfeTXwGUkfIuYRAkiFGPjkSk_mIDuXG",
-          "digest": "sWfeTXwGUkfIuYRAkiFGPjkSk_mIDuXG",
+          "id": "ga4gh:SL.sYiBcbbgF-1CANNCTfQ6zwZOU0iHhymR",
           "type": "SequenceLocation",
-          "start": 2781760,
-          "end": 2781762,
+          "digest": "sYiBcbbgF-1CANNCTfQ6zwZOU0iHhymR",
           "sequenceReference": {
             "type": "SequenceReference",
             "refgetAccession": "SQ.8_liLu1aycC0tPQPFmUaGXJLDs5SbPZ5"
-          }
+          },
+          "start": 2781760,
+          "end": 2781761
         },
         "state": {
           "type": "LiteralSequenceExpression",
-          "sequence": "CA"
+          "sequence": "C"
         }
       },
-      "comment": "Y-2781761-C-C"
+      "vcf_expression": "Y-2781761-C-C"
     },
     "ga4gh:VA.xbX035HgURWIUAjn6x3cS26jafP8Q_bk": {
       "variation": {
@@ -109,7 +110,7 @@
         },
         "state": { "type": "LiteralSequenceExpression", "sequence": "C" }
       },
-      "comment": "Y-2781761-C-C"
+      "vcf_expression": "Y-2781761-C-C"
     },
     "ga4gh:VA.9VDxL0stMBOZwcTKw3yb3UoWQkpaI9OD": {
       "variation": {
@@ -129,7 +130,7 @@
         },
         "state": { "type": "LiteralSequenceExpression", "sequence": "A" }
       },
-      "comment": "Y-2781761-C-A"
+      "vcf_expression": "Y-2781761-C-A"
     },
     "ga4gh:VA.yi7A2l0uIUMaInQaJnHU_B2Cf_OuZRJg": {
       "variation": {
@@ -154,7 +155,7 @@
           "repeatSubunitLength": 1
         }
       },
-      "comment": "Y-2781761-CA-C"
+      "vcf_expression": "Y-2781761-CA-C"
     }
   }
 }

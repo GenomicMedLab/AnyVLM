@@ -1,13 +1,14 @@
 """Implement AnyVar client interface for direct Python-based access."""
 
 import logging
+from collections.abc import Iterable
 
 from anyvar import AnyVar
 from anyvar.storage.base_storage import Storage
-from anyvar.translate.translate import Translator
+from anyvar.translate.translate import TranslationError, Translator
 from anyvar.utils.types import VrsVariation
 
-from anyvlm.anyvar.base_client import BaseAnyVarClient, UnidentifiedObjectError
+from anyvlm.anyvar.base_client import BaseAnyVarClient
 
 _logger = logging.getLogger(__name__)
 
@@ -23,20 +24,28 @@ class PythonAnyVarClient(BaseAnyVarClient):
         """
         self.av = AnyVar(translator, storage)
 
-    def put_objects(self, objects: list[VrsVariation]) -> None:
-        """Register objects with AnyVar
+    def put_allele_expressions(
+        self, expressions: Iterable[str], assembly: str = "GRCh38"
+    ) -> list[str | None]:
+        """Submit allele expressions to an AnyVar instance and retrieve corresponding VRS IDs
 
-        All input objects must have a populated ID field. A validation check for this is
-        performed before any variants are registered.
-
-        :param objects: variation objects to register
-        :raise UnidentifiedObjectError: if *any* provided object lacks a VRS ID
+        :param expressions: variation expressions to register
+        :param assembly: reference assembly used in expressions
+        :return: list where the i'th item is either the VRS ID if translation succeeds,
+            else `None`, for the i'th expression
         """
-        for variant in objects:
-            if not variant.id:
-                _logger.error("Provided variant %s has no VRS ID", variant)
-                raise UnidentifiedObjectError
-        self.av.put_objects(objects)  # type: ignore[reportArgumentType]
+        results = []
+        for expression in expressions:
+            translated_variation = None
+            try:
+                translated_variation = self.av.translator.translate_variation(
+                    expression, assembly=assembly
+                )
+            except TranslationError:
+                _logger.exception("Failed to translate expression: %s", expression)
+                self.av.put_objects([translated_variation])  # type: ignore
+            results.append(translated_variation.id)  # type: ignore
+        return results
 
     def search_by_interval(
         self, accession: str, start: int, end: int
