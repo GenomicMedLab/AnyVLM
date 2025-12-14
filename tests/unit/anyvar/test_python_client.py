@@ -33,6 +33,7 @@ def populated_client(client: PythonAnyVarClient, alleles: dict):
     return client
 
 
+@pytest.mark.vcr
 def test_put_allele_expressions(client: PythonAnyVarClient, alleles: dict):
     """Test `put_allele_expressions` for a basic test suite of variants"""
     for allele_fixture in alleles.values():
@@ -41,6 +42,7 @@ def test_put_allele_expressions(client: PythonAnyVarClient, alleles: dict):
         client.put_allele_expressions([allele_fixture["vcf_expression"]])
 
 
+@pytest.mark.vcr
 def test_search_by_interval(populated_client: PythonAnyVarClient, alleles: dict):
     """Test `search_by_interval` for a couple of basic cases"""
     results = populated_client.search_by_interval(
