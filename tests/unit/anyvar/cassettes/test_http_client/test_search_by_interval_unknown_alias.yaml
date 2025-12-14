@@ -155,4 +155,16 @@ interactions:
     status:
       code: 404
       message: Not Found
+- request:
+    body: null
+    headers: {}
+    method: GET
+    uri: http://localhost:8000/search?accession=GRCh45.p1:Y&start=2781760&end=2781760
+  response:
+    body:
+      string: '{"detail":"Unable to dereference provided accession ID"}'
+    headers: {}
+    status:
+      code: 404
+      message: Not Found
 version: 1
