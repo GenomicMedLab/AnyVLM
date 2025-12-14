@@ -131,4 +131,16 @@ interactions:
     status:
       code: 200
       message: OK
+- request:
+    body: null
+    headers: {}
+    method: GET
+    uri: http://localhost:8000/search?accession=ga4gh:SQ.8_liLu1aycC0tPQPFmUaGXJLDs5SbPZ5&start=1&end=100
+  response:
+    body:
+      string: '{"variations":[]}'
+    headers: {}
+    status:
+      code: 200
+      message: OK
 version: 1

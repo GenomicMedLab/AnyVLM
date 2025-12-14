@@ -94,6 +94,7 @@ def test_search_by_interval_unknown_alias(populated_client: PythonAnyVarClient):
     assert populated_client.search_by_interval("GRCh45.p1:Y", 2781760, 2781760) == []
 
 
+@pytest.mark.vcr
 def test_search_by_interval_unknown_accession(populated_client: PythonAnyVarClient):
     """Test handling response when accession ID isn't recognized"""
     results = populated_client.search_by_interval(
@@ -102,6 +103,7 @@ def test_search_by_interval_unknown_accession(populated_client: PythonAnyVarClie
     assert results == []
 
 
+@pytest.mark.vcr
 def test_search_by_interval_not_found(populated_client: PythonAnyVarClient):
     """Test handling response when no matching variants are found"""
     results = populated_client.search_by_interval(
