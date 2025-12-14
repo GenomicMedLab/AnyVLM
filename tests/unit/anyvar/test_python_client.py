@@ -42,6 +42,20 @@ def test_put_allele_expressions(client: PythonAnyVarClient, alleles: dict):
         client.put_allele_expressions([allele_fixture["vcf_expression"]])
 
 
+@pytest.mark.vcf
+def test_put_allele_expressions_handle_invalid(
+    client: PythonAnyVarClient, alleles: dict
+):
+    results = client.put_allele_expressions(["Y-2781761-A-C"])  # wrong REF
+    assert results == [None]
+
+    allele_fixture = alleles["ga4gh:VA.yi7A2l0uIUMaInQaJnHU_B2Cf_OuZRJg"]
+    results = client.put_allele_expressions(
+        ["Y-2781761-A-C", allele_fixture["vcf_expression"]]
+    )
+    assert results == [None, allele_fixture["variation"]["id"]]
+
+
 @pytest.mark.vcr
 def test_search_by_interval(populated_client: PythonAnyVarClient, alleles: dict):
     """Test `search_by_interval` for a couple of basic cases"""

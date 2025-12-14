@@ -14,3 +14,8 @@ def input_vcf_path(test_data_dir: Path) -> Path:
 @pytest.mark.vcr
 def test_ingest_vcf(input_vcf_path: Path, anyvar_client: HttpAnyVarClient):
     ingest_vcf(input_vcf_path, anyvar_client)
+
+
+# GRCh37 VCF
+# nonexistent path
+# once storage exists, think about how to validate that AFs are stored

@@ -3,6 +3,7 @@
 import abc
 from collections.abc import Iterable
 
+from anyvar.utils.liftover_utils import ReferenceAssembly
 from anyvar.utils.types import VrsVariation
 
 
@@ -22,7 +23,9 @@ class BaseAnyVarClient(abc.ABC):
 
     @abc.abstractmethod
     def put_allele_expressions(
-        self, expressions: Iterable[str], assembly: str = "GRCh38"
+        self,
+        expressions: Iterable[str],
+        assembly: ReferenceAssembly = ReferenceAssembly.GRCH38,
     ) -> list[str | None]:
         """Submit allele expressions to an AnyVar instance and retrieve corresponding VRS IDs
 

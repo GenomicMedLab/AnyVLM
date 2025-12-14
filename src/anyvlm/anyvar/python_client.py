@@ -6,7 +6,9 @@ from collections.abc import Iterable
 from anyvar import AnyVar
 from anyvar.storage.base_storage import Storage
 from anyvar.translate.translate import TranslationError, Translator
+from anyvar.utils.liftover_utils import ReferenceAssembly
 from anyvar.utils.types import VrsVariation
+from ga4gh.vrs.dataproxy import DataProxyValidationError
 
 from anyvlm.anyvar.base_client import BaseAnyVarClient
 
@@ -25,7 +27,9 @@ class PythonAnyVarClient(BaseAnyVarClient):
         self.av = AnyVar(translator, storage)
 
     def put_allele_expressions(
-        self, expressions: Iterable[str], assembly: str = "GRCh38"
+        self,
+        expressions: Iterable[str],
+        assembly: ReferenceAssembly = ReferenceAssembly.GRCH38,
     ) -> list[str | None]:
         """Submit allele expressions to an AnyVar instance and retrieve corresponding VRS IDs
 
@@ -39,12 +43,17 @@ class PythonAnyVarClient(BaseAnyVarClient):
             translated_variation = None
             try:
                 translated_variation = self.av.translator.translate_variation(
-                    expression, assembly=assembly
+                    expression, assembly=assembly.value
                 )
+            except DataProxyValidationError:
+                _logger.exception("Found invalid base in expression %s", expression)
             except TranslationError:
                 _logger.exception("Failed to translate expression: %s", expression)
-            self.av.put_objects([translated_variation])  # type: ignore
-            results.append(translated_variation.id)  # type: ignore
+            if translated_variation:
+                self.av.put_objects([translated_variation])  # type: ignore
+                results.append(translated_variation.id)  # type: ignore
+            else:
+                results.append(None)
         return results
 
     def search_by_interval(

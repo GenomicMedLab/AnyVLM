@@ -54,17 +54,6 @@ def test_put_allele_expressions_catch_httperror():
 
 
 @pytest.mark.vcr
-def test_put_allele_expressions_invalid_assembly(
-    client: HttpAnyVarClient, alleles: dict
-):
-    with pytest.raises(AnyVarClientError):
-        client.put_allele_expressions(
-            alleles["ga4gh:VA.yi7A2l0uIUMaInQaJnHU_B2Cf_OuZRJg"]["vcf_expression"],
-            assembly="GRCh30000",
-        )
-
-
-@pytest.mark.vcr
 def test_search_by_interval(client: HttpAnyVarClient, alleles: dict):
     """Test `search_by_interval` for a couple of basic cases"""
     results = client.search_by_interval(

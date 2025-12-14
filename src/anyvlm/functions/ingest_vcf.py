@@ -6,6 +6,7 @@ from collections.abc import Iterator
 from pathlib import Path
 
 import pysam
+from anyvar.utils.liftover_utils import ReferenceAssembly
 from ga4gh.va_spec.base import CohortAlleleFrequencyStudyResult
 
 from anyvlm.anyvar.base_client import BaseAnyVarClient
@@ -50,7 +51,11 @@ def _yield_expression_af_batches(
         yield batch
 
 
-def ingest_vcf(vcf_path: Path, av: BaseAnyVarClient, assembly: str = "GRCh38") -> None:
+def ingest_vcf(
+    vcf_path: Path,
+    av: BaseAnyVarClient,
+    assembly: ReferenceAssembly = ReferenceAssembly.GRCH38,
+) -> None:
     """Extract variant and frequency information from a single VCF
 
     Current assumptions (subject to change):
@@ -74,4 +79,4 @@ def ingest_vcf(vcf_path: Path, av: BaseAnyVarClient, assembly: str = "GRCh38") -
         for variant_id, af in zip(variant_ids, afs, strict=True):  # noqa: B007
             if variant_id is None:
                 continue
-            # put af object here
+            # make call to object store method for putting CAF here

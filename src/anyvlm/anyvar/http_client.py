@@ -4,6 +4,7 @@ import logging
 from collections.abc import Iterable
 
 import requests
+from anyvar.utils.liftover_utils import ReferenceAssembly
 from anyvar.utils.types import VrsVariation
 from ga4gh.vrs import models
 
@@ -32,7 +33,9 @@ class HttpAnyVarClient(BaseAnyVarClient):
         self.request_timeout = request_timeout
 
     def put_allele_expressions(
-        self, expressions: Iterable[str], assembly: str = "GRCh38"
+        self,
+        expressions: Iterable[str],
+        assembly: ReferenceAssembly = ReferenceAssembly.GRCH38,
     ) -> list[str | None]:
         """Submit allele expressions to an AnyVar instance and retrieve corresponding VRS IDs
 
@@ -47,7 +50,7 @@ class HttpAnyVarClient(BaseAnyVarClient):
             url = f"{self.hostname}/variation"
             payload = {
                 "definition": expression,
-                "assembly_name": assembly,
+                "assembly_name": assembly.value,
                 "input_type": "Allele",
             }
             try:
