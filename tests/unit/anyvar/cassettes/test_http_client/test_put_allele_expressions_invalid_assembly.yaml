@@ -97,4 +97,18 @@ interactions:
     status:
       code: 422
       message: Unprocessable Entity
+- request:
+    body: '{"definition": "Y", "assembly_name": "GRCh30000", "input_type": "Allele"}'
+    headers: {}
+    method: PUT
+    uri: http://localhost:8000/variation
+  response:
+    body:
+      string: '{"detail":[{"type":"enum","loc":["body","assembly_name"],"msg":"Input
+        should be ''GRCh37'' or ''GRCh38''","input":"GRCh30000","ctx":{"expected":"''GRCh37''
+        or ''GRCh38''"}}]}'
+    headers: {}
+    status:
+      code: 422
+      message: Unprocessable Entity
 version: 1
