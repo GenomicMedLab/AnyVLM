@@ -119,7 +119,3 @@ def test_search_by_interval_not_found(client: HttpAnyVarClient):
         "ga4gh:SQ.8_liLu1aycC0tPQPFmUaGXJLDs5SbPZ5", 1, 100
     )
     assert results == []
-
-
-# other stuff to try
-# invalid assembly name
