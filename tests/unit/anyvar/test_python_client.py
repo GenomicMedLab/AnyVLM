@@ -42,7 +42,7 @@ def test_put_allele_expressions(client: PythonAnyVarClient, alleles: dict):
         client.put_allele_expressions([allele_fixture["vcf_expression"]])
 
 
-@pytest.mark.vcf
+@pytest.mark.vcr
 def test_put_allele_expressions_handle_invalid(
     client: PythonAnyVarClient, alleles: dict
 ):
