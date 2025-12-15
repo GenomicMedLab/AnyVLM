@@ -54,7 +54,7 @@ def anyvar_populated_python_client(
 
 
 @pytest.fixture
-def client(request):
+def anyvar_client(request):
     """Create test fixture for AnyVar Python or HTTP client"""
     return request.getfixturevalue(request.param)
 
