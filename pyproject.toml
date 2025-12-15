@@ -17,7 +17,7 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    "ga4gh.va_spec",
+    "ga4gh.va_spec~=0.4.2",
     "biocommons.anyvar@git+https://github.com/biocommons/anyvar.git@storage-refactor-epic",
     "fastapi>=0.95.0",
     "python-multipart",  # required for fastapi file uploads
@@ -26,6 +26,7 @@ dependencies = [
     "anyio",
     "python-dotenv",
     "pydantic-settings",
+    "requests",
 ]
 dynamic = ["version"]
 
@@ -36,12 +37,14 @@ test = [
     "httpx",
     "jsonschema",
     "pyyaml",
+    "pytest-recording",
 ]
 dev = [
     "ruff==0.12.8",
     "pre-commit>=4.2.0",
     "ipykernel",
     "fastapi[standard]",
+    "seqrepo-rest-service",  # for generating SeqRepo-based tests fixtures
 ]
 
 [project.urls]

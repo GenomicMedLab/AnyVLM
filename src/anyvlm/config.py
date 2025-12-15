@@ -22,6 +22,7 @@ class Settings(BaseSettings):
     )
 
     env: ServiceEnvironment = ServiceEnvironment.LOCAL
+    anyvar_uri: str = "http://localhost:8000"
 
 
 @cache
