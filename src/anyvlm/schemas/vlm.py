@@ -2,7 +2,7 @@
 
 from typing import ClassVar, Literal, Self
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from anyvlm.utils.types import Zygosity
 
