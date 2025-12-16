@@ -67,8 +67,8 @@ class AlleleFrequencyMapper(
         :param va_model: VA-Spec Cohort Allele Frequency Study Result instance
         :return: ORM Allele Frequency Data instance
         """
-        ancillary_results = AncillaryResults(**va_model.ancillaryResults)
-        filter_ = QualityMeasures(**va_model.qualityMeasures)
+        ancillary_results = AncillaryResults(**va_model.ancillaryResults or {})
+        filter_ = QualityMeasures(**va_model.qualityMeasures or {})
         focus_allele = va_model.focusAllele
 
         if isinstance(focus_allele, iriReference):
@@ -79,6 +79,7 @@ class AlleleFrequencyMapper(
         return orm.AlleleFrequencyData(
             vrs_id=vrs_id,
             an=va_model.locusAlleleCount,
+            ac=va_model.focusAlleleCount,
             ac_het=ancillary_results.heterozygotes,
             ac_hom=ancillary_results.homozygotes,
             ac_hemi=ancillary_results.hemizygotes,

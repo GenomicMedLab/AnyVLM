@@ -45,7 +45,7 @@ def populated_postgres_storage(
     for variation in alleles_to_add:
         caf_copy = caf_iri.model_copy(deep=True)
         caf_copy.focusAllele = iriReference(root=variation["id"])
-        postgres_storage.add_allele_frequency(caf_copy)
+        postgres_storage.add_allele_frequencies(caf_copy)
     return postgres_storage
 
 

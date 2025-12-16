@@ -41,12 +41,13 @@ class AlleleFrequencyData(Base):
         return "allele_frequency_data"
 
     vrs_id: Mapped[str] = mapped_column(String, primary_key=True)
-    cohort: Mapped[str] = mapped_column(String, index=True)
-    an: Mapped[int] = mapped_column(Integer)
-    ac_het: Mapped[int] = mapped_column(Integer)
-    ac_hom: Mapped[int] = mapped_column(Integer)
-    ac_hemi: Mapped[int] = mapped_column(Integer)
-    filter: Mapped[list[str]] = mapped_column(ARRAY(String))
+    cohort: Mapped[str] = mapped_column(String, index=True, nullable=False)
+    an: Mapped[int] = mapped_column(Integer, nullable=False)
+    ac: Mapped[int] = mapped_column(Integer, nullable=False)
+    ac_het: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    ac_hom: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    ac_hemi: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    filter: Mapped[list[str] | None] = mapped_column(ARRAY(String), nullable=True)
 
 
 def create_tables(db_url: str) -> None:

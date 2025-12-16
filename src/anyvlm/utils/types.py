@@ -6,12 +6,12 @@ from pydantic import BaseModel
 class AncillaryResults(BaseModel):
     """Define model for Ancillary Results"""
 
-    homozygotes: int
-    heterozygotes: int
-    hemizygotes: int
+    homozygotes: int | None = None
+    heterozygotes: int | None = None
+    hemizygotes: int | None = None
 
 
 class QualityMeasures(BaseModel):
     """Define model for Quality Measures"""
 
-    qcFilters: list[str]  # noqa: N815
+    qcFilters: list[str] | None = None  # noqa: N815

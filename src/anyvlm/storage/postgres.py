@@ -36,7 +36,7 @@ class PostgresObjectStore(Storage):
         with self.session_factory() as session, session.begin():
             session.execute(delete(orm.AlleleFrequencyData))
 
-    def add_allele_frequency(self, caf: CohortAlleleFrequencyStudyResult) -> None:
+    def add_allele_frequencies(self, caf: CohortAlleleFrequencyStudyResult) -> None:
         """Add allele frequency data to the database. Will skip conflicts.
 
         :param caf: Cohort allele frequency study result object to insert into the DB
