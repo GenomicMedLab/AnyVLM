@@ -77,8 +77,9 @@ def postgres_uri():
 def postgres_storage(postgres_uri: str):
     """Reset storage state after each test case"""
     storage = PostgresObjectStore(postgres_uri)
-    storage.wipe_db()
-    return storage
+    storage.wipe_db()  # Ensure clean state before test
+    yield storage
+    storage.wipe_db()  # Clean up after test
 
 
 @pytest.fixture
