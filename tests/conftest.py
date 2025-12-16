@@ -9,8 +9,6 @@ from ga4gh.va_spec.base import CohortAlleleFrequencyStudyResult, StudyGroup
 from ga4gh.vrs import models
 from pydantic import BaseModel
 
-from anyvlm.storage import orm
-from anyvlm.storage.base_storage import Storage
 from anyvlm.storage.postgres import PostgresObjectStore
 
 
@@ -79,13 +77,13 @@ def postgres_uri():
 def postgres_storage(postgres_uri: str):
     """Reset storage state after each test case"""
     storage = PostgresObjectStore(postgres_uri)
-    yield storage
     storage.wipe_db()
+    return storage
 
 
 @pytest.fixture
 def caf_iri():
-    """Create test fixture for CAF object that uses iriRference for focusAllele
+    """Create test fixture for CAF object that uses iriReference for focusAllele
 
     This is a GREGoR example from issue #23 description
     """
@@ -100,11 +98,5 @@ def caf_iri():
             "heterozygotes": 1,
             "hemizygotes": 0,
         },
-        cohort=StudyGroup(name="rare disease"),
-    )
-
-
-def return_cafs(storage: Storage):
-    """Return allele frequency data in db"""
-    with storage.session_factory() as session:
-        return session.query(orm.AlleleFrequencyData).all()
+        cohort=StudyGroup(name="rare disease"),  # type: ignore
+    )  # type: ignore

@@ -9,10 +9,6 @@ class StorageError(Exception):
     """Base AnyLM storage error."""
 
 
-class IncompleteVAObjectError(StorageError):
-    """Raise if provided VA object is missing fully-materialized properties required for storage"""
-
-
 class Storage(ABC):
     """Abstract base class for interacting with storage backends."""
 
@@ -29,7 +25,7 @@ class Storage(ABC):
         """Wipe all data from the storage backend."""
 
     @abstractmethod
-    def add_allele_frequency(self, caf: CohortAlleleFrequencyStudyResult) -> None:
+    def add_allele_frequencies(self, caf: CohortAlleleFrequencyStudyResult) -> None:
         """Add allele frequency data to the database. Will skip conflicts.
 
         :param caf: Cohort allele frequency study result object to insert into the DB

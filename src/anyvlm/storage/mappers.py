@@ -55,8 +55,8 @@ class AlleleFrequencyMapper(
                 "heterozygotes": heterozygotes,
                 "hemizygotes": hemizygotes,
             },
-            cohort=StudyGroup(name=db_entity.cohort),
-        )
+            cohort=StudyGroup(name=db_entity.cohort),  # type: ignore
+        )  # type: ignore
 
     def to_db_entity(
         self, va_model: CohortAlleleFrequencyStudyResult
@@ -66,7 +66,8 @@ class AlleleFrequencyMapper(
         :param va_model: VA-Spec Cohort Allele Frequency Study Result instance
         :return: ORM Allele Frequency Data instance
         """
-        ancillary_results = va_model.ancillaryResults
+        ancillary_results = va_model.ancillaryResults or {}
+        quality_filters = va_model.qualityMeasures or {}
         focus_allele = va_model.focusAllele
 
         if isinstance(focus_allele, iriReference):
@@ -77,9 +78,10 @@ class AlleleFrequencyMapper(
         return orm.AlleleFrequencyData(
             vrs_id=vrs_id,
             an=va_model.locusAlleleCount,
-            ac_het=ancillary_results["heterozygotes"],
-            ac_hom=ancillary_results["homozygotes"],
-            ac_hemi=ancillary_results["hemizygotes"],
-            filter=va_model.qualityMeasures["qcFilters"],
+            ac=va_model.focusAlleleCount,
+            ac_het=ancillary_results.get("heterozygotes"),
+            ac_hom=ancillary_results.get("homozygotes"),
+            ac_hemi=ancillary_results.get("hemizygotes"),
+            filter=quality_filters.get("qcFilters"),
             cohort=va_model.cohort.name,
         )
