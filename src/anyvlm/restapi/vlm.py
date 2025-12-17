@@ -4,11 +4,15 @@ from pathlib import Path
 from typing import Annotated
 
 from fastapi import Query, Request
+from ga4gh.va_spec.base.core import CohortAlleleFrequencyStudyResult
 
 from anyvlm.anyvar.base_client import BaseAnyVarClient
+from anyvlm.functions.build_vlm_response import build_vlm_response_from_caf_data
 from anyvlm.functions.get_caf import get_caf
 from anyvlm.main import app
-from anyvlm.schemas.vlm import VlmResponse
+from anyvlm.schemas.vlm import (
+    VlmResponse,
+)
 from anyvlm.utils.types import (
     ChromosomeName,
     EndpointTag,
@@ -51,9 +55,7 @@ def variant_counts(
     ],
 ) -> VlmResponse:
     anyvar_client: BaseAnyVarClient = request.app.state.anyvar_client
-
-    caf_data = get_caf(  # noqa: F841 - TODO: remove this noqa when endpoint is complete. See Issue #16 and Issue #13.
+    caf_data: list[CohortAlleleFrequencyStudyResult] = get_caf(
         anyvar_client, assemblyId, referenceName, start, referenceBases, alternateBases
     )
-
-    return VlmResponse()  # TODO: fill this out. See Issue #16 and Issue #13
+    return build_vlm_response_from_caf_data(caf_data)
