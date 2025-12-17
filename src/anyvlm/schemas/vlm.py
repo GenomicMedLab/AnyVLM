@@ -1,35 +1,70 @@
 """Schemas relating to VLM API."""
 
-from typing import ClassVar, Literal, Self
+from collections.abc import Callable
+from typing import Any, ClassVar, Literal, Self
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from anyvlm.utils.types import Zygosity
 
-# ruff: noqa: N815 (allows camelCase vars instead of snake_case to align with expected VLM protocol response)
+# ruff: noqa: N815, D107 (allow camelCase vars instead of snake_case to align with expected VLM protocol response + don't require init docstrings)
 
 RESULT_ENTITY_TYPE = "genomicVariant"
 
 
-class HandoverType(BaseModel):
+def forbid_env_override(field_name: str) -> Callable[..., Any]:
+    """Returns a Pydantic field validator that forbids explicitly
+    passing a value for `field_name`. The value must come from env.
+    """
+
+    @field_validator(field_name, mode="before")
+    @classmethod
+    def _forbid_override(cls, value: Any) -> Any:  # noqa: ARG001, ANN401, ANN001
+        if value is not None:
+            raise TypeError(f"{field_name} must be set via environment variable only")
+        return value
+
+    return _forbid_override
+
+
+class HandoverType(BaseSettings):
     """The type of handover the parent `BeaconHandover` represents."""
 
-    id: str = Field(
-        default="gregor", description="Node-specific identifier"
-    )  # TODO: enable configuration of this field. See Issue #27.
-    label: str = Field(
-        default="GREGoR AnVIL browser", description="Node-specific label"
-    )  # TODO: enable configuration of this field. See Issue #27.
+    id: str = Field(..., description="Node-specific identifier")
+    label: str = Field(..., description="Node-specific label")
+
+    model_config = SettingsConfigDict(env_prefix="HANDOVER_TYPE_", extra="forbid")
+
+    # These validators prevent instantiation of this class with values that would override `id` or `label`
+    _forbid_id_override = forbid_env_override("id")
+    _forbid_label_override = forbid_env_override("label")
+
+    # Allows `HandoverType` to be instantiated without providing values for the
+    # any required fields, since both are pulled from environment variables instead
+    def __init__(self) -> None:
+        super().__init__()
 
 
-class BeaconHandover(BaseModel):
+class BeaconHandover(BaseSettings):
     """Describes how users can get more information about the results provided in the parent `VlmResponse`"""
 
-    handoverType: HandoverType = HandoverType()
+    handoverType: HandoverType = Field(default=HandoverType())
     url: str = Field(
-        default="https://anvil.terra.bio/#workspaces?filter=GREGoR",  # TODO: enable configuration of this field. See Issue #27.
+        ...,
         description="A url which directs users to more detailed information about the results tabulated by the API (ideally human-readable)",
     )
+
+    model_config = SettingsConfigDict(env_prefix="BEACON_HANDOVER_", extra="forbid")
+
+    # These validators prevent instantiation of this class with values that would override `handoverType` or `url`
+    _forbid_handoverType_override = forbid_env_override("handoverType")
+    _forbid_url_override = forbid_env_override("url")
+
+    # Allows `BeaconHandover` to be instantiated without providing values
+    # for any required fields, since both are generated statically
+    def __init__(self) -> None:
+        super().__init__()
 
 
 class ReturnedSchema(BaseModel):
@@ -49,7 +84,7 @@ class ReturnedSchema(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
 
-class Meta(BaseModel):
+class Meta(BaseSettings):
     """Relevant metadata about the results provided in the parent `VlmResponse`"""
 
     apiVersion: str = Field(
@@ -57,7 +92,8 @@ class Meta(BaseModel):
         description="The version of the VLM API that this response conforms to",
     )
     beaconId: str = Field(
-        default="org.gregor.beacon",  # TODO: enable configuration of this field. See Issue #27.
+        ...,
+        alias="BEACON_NODE_ID",
         description="""
             The Id of a Beacon. Usually a reversed domain string, but any URI is acceptable. The purpose of this attribute is,
             in the context of a Beacon network, to disambiguate responses coming from different Beacons. See the beacon documentation
@@ -65,6 +101,18 @@ class Meta(BaseModel):
         """,
     )
     returnedSchemas: list[ReturnedSchema] = [ReturnedSchema()]
+
+    model_config = SettingsConfigDict(
+        env_prefix="", populate_by_name=False, extra="forbid"
+    )
+
+    # This validator prevents instantiation of this class with values that would override `handoverType` or `url`
+    _forbid_beaconId_override = forbid_env_override("beaconId")
+
+    # Allows `Meta` to be instantiated without providing values
+    # for any required fields, since all are generated statically
+    def __init__(self) -> None:
+        super().__init__()
 
 
 class ResponseSummary(BaseModel):
