@@ -52,7 +52,10 @@ class BeaconHandover(BaseSettings):
     handoverType: HandoverType = Field(default=HandoverType())
     url: str = Field(
         ...,
-        description="A url which directs users to more detailed information about the results tabulated by the API (ideally human-readable)",
+        description="""
+            A url which directs users to more detailed information about the results tabulated by the API. Must be human-readable.
+            Ideally links directly to the variant specified in the query, but can be a generic search page if necessary.
+        """,
     )
 
     model_config = SettingsConfigDict(env_prefix="BEACON_HANDOVER_", extra="forbid")
@@ -77,7 +80,7 @@ class ReturnedSchema(BaseModel):
     schema_: str = Field(
         default="ga4gh-beacon-variant-v2.0.0",
         # Alias is required because 'schema' is reserved by Pydantic's BaseModel class,
-        # But VLM expects a field named 'schema'
+        # But VLM protocol expects a field named 'schema'
         alias="schema",
     )
 
