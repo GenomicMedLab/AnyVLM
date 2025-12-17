@@ -14,9 +14,8 @@ def get_caf(
     anyvar_client: BaseAnyVarClient,
     anyvlm_storage: Storage,
     assembly_id: GrcAssemblyId | UcscAssemblyBuild,
-    chromosome_name: ChromosomeName,
+    reference_name: ChromosomeName,
     start: int,
-    end: int,
 ) -> list[CohortAlleleFrequencyStudyResult]:
     """Retrieve Cohort Allele Frequency data for all known variants matching provided
     search params
@@ -25,17 +24,15 @@ def get_caf(
     :param anyvlm_storage: AnyVLM Storage (CAF storage and retrieval)
     :param assembly_id: The reference assembly to utilize - must be one of: "GRCh37",
         "GRCh38", "hg38", "hg19"
-    :param chromosome_name: The chromosome to search on, with an optional "chr" prefix
+    :param reference_name: The chromosome to search on, with an optional "chr" prefix
         - e.g., "1", "chr22", "X", "chrY", etc.
-    :param start: Inclusive, inter-residue genomic start position of the interval to
-        search
-    :param end: Inclusive, inter-residue genomic end position of the interval to search
+    :param start: start of range search. Uses residue coordinates (1-based)
     :param reference_bases: Genomic bases ('T', 'AC', etc.)
     :param alternate_bases: Genomic bases ('T', 'AC', etc.)
     :return: list of CAFs contained in search interval
     """
     vrs_variations: list[VrsVariation] = anyvar_client.search_by_interval(
-        f"{assembly_id}:{chromosome_name}", start, end
+        f"{assembly_id}:{reference_name}", start - 1, start
     )
     vrs_variations_map: dict[str, Allele] = {
         vrs_variation.id: vrs_variation

@@ -10,7 +10,7 @@ from anyvlm.functions.get_caf import get_caf
 from anyvlm.storage.postgres import PostgresObjectStore
 from anyvlm.utils.types import GrcAssemblyId
 
-POSITION = 2781760
+POSITION = 2781761
 ASSEMBLY = GrcAssemblyId.GRCH38
 CHROMOSOME = "chrY"
 CHROMOSOME_IDENTIFIER = f"{ASSEMBLY}:{CHROMOSOME}"
@@ -76,7 +76,6 @@ def test_get_caf_results_returned(
         ASSEMBLY,
         CHROMOSOME,
         POSITION,
-        POSITION,
     )
     diff = DeepDiff(
         [caf.model_dump(exclude_none=True) for caf in cafs],
@@ -97,7 +96,6 @@ def test_get_caf_no_results(
         populated_postgres_storage,
         GrcAssemblyId.GRCH37,
         "Y",
-        POSITION,
         POSITION,
     )
     assert cafs == []
