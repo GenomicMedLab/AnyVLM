@@ -31,30 +31,24 @@ def responses_with_invalid_resultset_ids(valid_handover_id) -> list[ResponseFiel
         ResponseField(
             resultSets=[
                 ResultSet(
-                    exists=True,
                     id=f"invalid_handover_id {Zygosity.HOMOZYGOUS}",
                     resultsCount=0,
-                    setType=RESULT_ENTITY_TYPE,
                 )
             ]
         ),
         ResponseField(
             resultSets=[
                 ResultSet(
-                    exists=True,
                     id=f"{valid_handover_id} invalid_zygosity",
                     resultsCount=0,
-                    setType=RESULT_ENTITY_TYPE,
                 )
             ]
         ),
         ResponseField(
             resultSets=[
                 ResultSet(
-                    exists=True,
                     id=f"{Zygosity.HOMOZYGOUS}-{valid_handover_id}",  # incorrect order/formatting
                     resultsCount=0,
-                    setType=RESULT_ENTITY_TYPE,
                 )
             ]
         ),
