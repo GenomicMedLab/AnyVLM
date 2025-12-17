@@ -5,6 +5,7 @@ from typing import Generic, TypeVar
 
 from ga4gh.core.models import iriReference
 from ga4gh.va_spec.base import CohortAlleleFrequencyStudyResult, StudyGroup
+from pydantic import ValidationError
 
 from anyvlm.storage import orm
 from anyvlm.utils.types import AncillaryResults, QualityMeasures
@@ -42,21 +43,27 @@ class AlleleFrequencyMapper(
         homozygotes = db_entity.ac_hom
         heterozygotes = db_entity.ac_het
         hemizygotes = db_entity.ac_hemi
-        ac = sum((homozygotes, heterozygotes, hemizygotes))
+        ac = sum(x or 0 for x in (homozygotes, heterozygotes, hemizygotes))
+
         an = db_entity.an
+
+        if filter_ := db_entity.filter:
+            filter_ = QualityMeasures(qcFilters=db_entity.filter).model_dump()
+        else:
+            filter_ = None
 
         return CohortAlleleFrequencyStudyResult(
             focusAllele=iriReference(db_entity.vrs_id),
             focusAlleleCount=ac,
             locusAlleleCount=an,
             focusAlleleFrequency=round(ac / an, 9),
-            qualityMeasures=QualityMeasures(qcFilters=db_entity.filter).model_dump(),
+            qualityMeasures=filter_,
             ancillaryResults=AncillaryResults(
                 homozygotes=homozygotes,
                 heterozygotes=heterozygotes,
                 hemizygotes=hemizygotes,
             ).model_dump(),
-            cohort=StudyGroup(name=db_entity.cohort),
+            cohort=StudyGroup(name=db_entity.cohort),  # type: ignore
         )
 
     def to_db_entity(
@@ -66,9 +73,18 @@ class AlleleFrequencyMapper(
 
         :param va_model: VA-Spec Cohort Allele Frequency Study Result instance
         :return: ORM Allele Frequency Data instance
+        :raises ValueError: if ancillaryResults or qualityMeasures are invalid
         """
-        ancillary_results = AncillaryResults(**va_model.ancillaryResults or {})
-        filter_ = QualityMeasures(**va_model.qualityMeasures or {})
+        try:
+            ancillary_results = AncillaryResults(**va_model.ancillaryResults or {})
+        except ValidationError as e:
+            raise ValueError("Invalid ancillaryResults data") from e
+
+        try:
+            filter_ = QualityMeasures(**va_model.qualityMeasures or {})
+        except ValidationError as e:
+            raise ValueError("Invalid qualityMeasures data") from e
+
         focus_allele = va_model.focusAllele
 
         if isinstance(focus_allele, iriReference):

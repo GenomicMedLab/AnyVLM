@@ -6,11 +6,10 @@ from ga4gh.core.models import iriReference
 from ga4gh.va_spec.base import CohortAlleleFrequencyStudyResult
 
 from anyvlm.anyvar.python_client import PythonAnyVarClient
-from anyvlm.anyvlm import AnyVLM
 from anyvlm.functions.get_caf import get_caf
 from anyvlm.storage.postgres import PostgresObjectStore
 
-POS = 2781760
+POSITION = 2781760
 REFGET_AC = "SQ.8_liLu1aycC0tPQPFmUaGXJLDs5SbPZ5"
 GA4GH_SEQ_ID = f"ga4gh:{REFGET_AC}"
 
@@ -32,7 +31,8 @@ def alleles_in_range(alleles_to_add):
     return [
         variation
         for variation in alleles_to_add
-        if variation["location"]["start"] <= POS and variation["location"]["end"] >= POS
+        if variation["location"]["start"] <= POSITION
+        and variation["location"]["end"] >= POSITION
     ]
 
 
@@ -42,17 +42,12 @@ def populated_postgres_storage(
     alleles_to_add: list[dict],
     caf_iri: CohortAlleleFrequencyStudyResult,
 ):
+    """Create test fixture for Postgres storage populated with CAFs for alleles_to_add"""
     for variation in alleles_to_add:
         caf_copy = caf_iri.model_copy(deep=True)
         caf_copy.focusAllele = iriReference(root=variation["id"])
         postgres_storage.add_allele_frequencies(caf_copy)
     return postgres_storage
-
-
-@pytest.fixture
-def anyvlm_populated_client(populated_postgres_storage):
-    """Define test fixture for anyvlm"""
-    return AnyVLM(populated_postgres_storage)
 
 
 @pytest.fixture
@@ -68,16 +63,16 @@ def expected_cafs(caf_iri, alleles_in_range):
 @pytest.mark.vcr
 def test_get_caf_results_returned(
     anyvar_populated_python_client: PythonAnyVarClient,
-    anyvlm_populated_client: AnyVLM,
+    populated_postgres_storage: PostgresObjectStore,
     expected_cafs: list[CohortAlleleFrequencyStudyResult],
 ):
     """Test get_caf when results are expected"""
     cafs = get_caf(
         anyvar_populated_python_client,
-        anyvlm_populated_client,
+        populated_postgres_storage,
         GA4GH_SEQ_ID,
-        POS,
-        POS,
+        POSITION,
+        POSITION,
     )
     diff = DeepDiff(
         [caf.model_dump(exclude_none=True) for caf in cafs],
@@ -90,14 +85,14 @@ def test_get_caf_results_returned(
 @pytest.mark.vcr
 def test_get_caf_no_results(
     anyvar_populated_python_client: PythonAnyVarClient,
-    anyvlm_populated_client: AnyVLM,
+    populated_postgres_storage: PostgresObjectStore,
 ):
     """Test get_caf when no results are expected"""
     cafs = get_caf(
         anyvar_populated_python_client,
-        anyvlm_populated_client,
+        populated_postgres_storage,
         "GRCh45.p1:Y",
-        POS,
-        POS,
+        POSITION,
+        POSITION,
     )
     assert cafs == []

@@ -7,9 +7,9 @@ from anyvlm.storage import orm
 from anyvlm.storage.postgres import PostgresObjectStore
 
 
-def return_cafs(storage: PostgresObjectStore):
+def return_cafs(postgres_storage: PostgresObjectStore):
     """Integration-test helper: Get all CAF rows from the DB"""
-    with storage.session_factory() as session:
+    with postgres_storage.session_factory() as session:
         return session.execute(select(orm.AlleleFrequencyData)).scalars().all()
 
 
