@@ -1,0 +1,63 @@
+"""Tests for types and validator functions found in src/anyvlm/utils/types.py"""
+
+from pydantic import TypeAdapter, ValidationError
+import pytest
+from anyvlm.utils.types import ChromosomeName, _normalize_chromosome_name
+
+
+@pytest.fixture
+def valid_chromosomes():
+    return [
+        ("1", "1"),
+        ("22", "22"),
+        ("X", "X"),
+        ("Y", "Y"),
+        ("MT", "MT"),
+        ("chr1", "1"),
+        ("Chr22", "22"),
+        ("cHrX", "X"),
+        ("chrMT", "MT"),
+    ]
+
+@pytest.fixture
+def invalid_chromosomes():
+    return [
+        "0",
+        "23",
+        "chr23",
+        "M",
+        "chrM",
+        "XY",
+        "",
+        "chr",
+        "1a",
+        None
+    ]
+
+@pytest.fixture
+def chromosome_adapter():
+    return TypeAdapter(ChromosomeName)
+
+
+### Test chromosome name normalization function ###
+def test_normalize_chromosome_name_valid(valid_chromosomes):
+    for unnormalized_name, expected_name in valid_chromosomes:
+        assert _normalize_chromosome_name(unnormalized_name) == expected_name
+
+
+def test_normalize_chromosome_name_invalid(invalid_chromosomes):
+    for chromosome_name in invalid_chromosomes:
+        with pytest.raises(ValueError):
+            _normalize_chromosome_name(chromosome_name)
+
+
+### Test ChromosomeName annotated type ###
+def test_chromosome_name_adapter_valid(chromosome_adapter, valid_chromosomes):
+    for raw, expected in valid_chromosomes:
+        assert chromosome_adapter.validate_python(raw) == expected
+
+
+def test_chromosome_name_adapter_invalid(chromosome_adapter, invalid_chromosomes):
+    for chromosome_name in invalid_chromosomes:
+        with pytest.raises(ValidationError):
+            chromosome_adapter.validate_python(chromosome_name)
