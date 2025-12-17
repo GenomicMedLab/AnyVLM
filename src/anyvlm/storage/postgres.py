@@ -47,14 +47,14 @@ class PostgresObjectStore(Storage):
         with self.session_factory() as session, session.begin():
             session.execute(stmt, db_entity.to_dict())
 
-    def get_caf_by_vrs_ids(
+    def get_caf_by_vrs_allele_ids(
         self, vrs_ids: list[str]
     ) -> list[CohortAlleleFrequencyStudyResult]:
-        """Retrieve cohort allele frequency study results by VRS IDs
+        """Retrieve cohort allele frequency study results by VRS Allele IDs
 
-        :param vrs_ids: List of VRS variation IDs
+        :param vrs_allele_ids: List of VRS Allele IDs
         :return: List of cohort allele frequency study results matching given VRS
-            variation IDs. Will use iriReference for focusAllele
+            Allele IDs. Will use iriReference for focusAllele
         """
         cafs: list[CohortAlleleFrequencyStudyResult] = []
         with self.session_factory() as session:

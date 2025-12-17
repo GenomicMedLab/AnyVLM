@@ -8,20 +8,23 @@ from ga4gh.va_spec.base import CohortAlleleFrequencyStudyResult
 from anyvlm.anyvar.python_client import PythonAnyVarClient
 from anyvlm.functions.get_caf import get_caf
 from anyvlm.storage.postgres import PostgresObjectStore
+from anyvlm.utils.types import GrcAssemblyId
 
 POSITION = 2781760
-REFGET_AC = "SQ.8_liLu1aycC0tPQPFmUaGXJLDs5SbPZ5"
-GA4GH_SEQ_ID = f"ga4gh:{REFGET_AC}"
+ASSEMBLY = GrcAssemblyId.GRCH38
+CHROMOSOME = "chrY"
+CHROMOSOME_IDENTIFIER = f"{ASSEMBLY}:{CHROMOSOME}"
+GA4GH_SEQ_ID = f"ga4gh:{CHROMOSOME_IDENTIFIER}"
 
 
 @pytest.fixture
 def alleles_to_add(alleles: dict):
-    """Create test fixture for alleles whose sequence reference matches REFGET_AC"""
+    """Create test fixture for alleles whose sequence reference matches CHROMOSOME_IDENTIFIER"""
     return [
         value["variation"]
         for value in alleles.values()
         if value["variation"]["location"]["sequenceReference"]["refgetAccession"]
-        == REFGET_AC
+        == CHROMOSOME_IDENTIFIER
     ]
 
 
@@ -70,7 +73,8 @@ def test_get_caf_results_returned(
     cafs = get_caf(
         anyvar_populated_python_client,
         populated_postgres_storage,
-        GA4GH_SEQ_ID,
+        ASSEMBLY,
+        CHROMOSOME,
         POSITION,
         POSITION,
     )
@@ -91,7 +95,8 @@ def test_get_caf_no_results(
     cafs = get_caf(
         anyvar_populated_python_client,
         populated_postgres_storage,
-        "GRCh45.p1:Y",
+        GrcAssemblyId.GRCH37,
+        "Y",
         POSITION,
         POSITION,
     )

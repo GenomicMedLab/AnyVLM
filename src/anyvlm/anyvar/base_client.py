@@ -35,8 +35,10 @@ class BaseAnyVarClient(abc.ABC):
         """Get all variation IDs located within the specified range
 
         :param accession: sequence accession
-        :param start: start position for genomic region
-        :param end: end position for genomic region
+        :param start: Inclusive, inter-residue genomic start position of the interval
+            to search
+        :param end: Inclusive, inter-residue genomic end position of the interval to
+            search
         :return: list of matching variant objects
         :raise AnyVarClientError: if connection is unsuccessful during search query
         """

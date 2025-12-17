@@ -7,27 +7,35 @@ from ga4gh.vrs.models import Allele
 
 from anyvlm.anyvar.base_client import BaseAnyVarClient
 from anyvlm.storage.base_storage import Storage
+from anyvlm.utils.types import ChromosomeName, GrcAssemblyId, UcscAssemblyBuild
 
 
 def get_caf(
-    anyvar: BaseAnyVarClient,
+    anyvar_client: BaseAnyVarClient,
     anyvlm_storage: Storage,
-    accession_id: str,
+    assembly_id: GrcAssemblyId | UcscAssemblyBuild,
+    chromosome_name: ChromosomeName,
     start: int,
     end: int,
 ) -> list[CohortAlleleFrequencyStudyResult]:
-    """Retrieve Cohort Allele Frequency data for all known variants matching provided search params
+    """Retrieve Cohort Allele Frequency data for all known variants matching provided
+    search params
 
-    :param anyvar: AnyVar client (variant lookup)
+    :param anyvar_client: AnyVar client (variant lookup)
     :param anyvlm_storage: AnyVLM Storage (CAF storage and retrieval)
-    :param accession_id: ID for sequence to search upon
-    :param start: start of range search
+    :param assembly_id: The reference assembly to utilize - must be one of: "GRCh37",
+        "GRCh38", "hg38", "hg19"
+    :param chromosome_name: The chromosome to search on, with an optional "chr" prefix
+        - e.g., "1", "chr22", "X", "chrY", etc.
+    :param start: Inclusive, inter-residue genomic start position of the interval to
+        search
+    :param end: Inclusive, inter-residue genomic end position of the interval to search
     :param reference_bases: Genomic bases ('T', 'AC', etc.)
     :param alternate_bases: Genomic bases ('T', 'AC', etc.)
     :return: list of CAFs contained in search interval
     """
-    vrs_variations: list[VrsVariation] = anyvar.search_by_interval(
-        accession_id, start, end
+    vrs_variations: list[VrsVariation] = anyvar_client.search_by_interval(
+        f"{assembly_id}:{chromosome_name}", start, end
     )
     vrs_variations_map: dict[str, Allele] = {
         vrs_variation.id: vrs_variation
@@ -35,8 +43,8 @@ def get_caf(
         if vrs_variation.id and isinstance(vrs_variation, Allele)
     }
 
-    cafs: list[CohortAlleleFrequencyStudyResult] = anyvlm_storage.get_caf_by_vrs_ids(
-        list(vrs_variations_map)
+    cafs: list[CohortAlleleFrequencyStudyResult] = (
+        anyvlm_storage.get_caf_by_vrs_allele_ids(list(vrs_variations_map))
     )
 
     for caf in cafs:
