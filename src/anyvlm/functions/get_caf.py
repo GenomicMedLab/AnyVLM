@@ -22,7 +22,8 @@ def get_caf(
     :param anyvlm_storage: AnyVLM Storage (CAF storage and retrieval)
     :param accession_id: ID for sequence to search upon
     :param start: start of range search
-    :param end: end of range to search
+    :param reference_bases: Genomic bases ('T', 'AC', etc.)
+    :param alternate_bases: Genomic bases ('T', 'AC', etc.)
     :return: list of CAFs contained in search interval
     """
     vrs_variations: list[VrsVariation] = anyvar.search_by_interval(
