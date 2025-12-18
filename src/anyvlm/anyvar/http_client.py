@@ -2,6 +2,7 @@
 
 import logging
 from collections.abc import Iterable
+from http import HTTPStatus
 
 import requests
 from anyvar.utils.liftover_utils import ReferenceAssembly
@@ -73,17 +74,12 @@ class HttpAnyVarClient(BaseAnyVarClient):
                     payload,
                     url,
                 )
-                raise AnyVarClientError from e
-            response_json = response.json()
-            if messages := response_json.get("messages"):
-                _logger.warning(
-                    "Variant expression `%s` seems to have failed to translate: %s",
-                    expression,
-                    messages,
-                )
-                results.append(None)
+                if response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY:
+                    results.append(None)
+                else:
+                    raise AnyVarClientError from e
             else:
-                results.append(response_json["object_id"])
+                results.append(response.json()["object_id"])
         return results
 
     def search_by_interval(

@@ -86,16 +86,15 @@ def test_put_allele_expressions(anyvar_client: BaseAnyVarClient, alleles: dict):
 
 
 @pytest.mark.vcr
+@pytest.mark.parametrize("anyvar_client", POPULATED_CLIENTS, indirect=True)
 def test_put_allele_expressions_handle_invalid(
-    anyvar_python_client: PythonAnyVarClient, alleles: dict
+    anyvar_client: BaseAnyVarClient, alleles: dict
 ):
-    results = anyvar_python_client.put_allele_expressions(
-        ["Y-2781761-A-C"]
-    )  # wrong REF
+    results = anyvar_client.put_allele_expressions(["Y-2781761-A-C"])  # wrong REF
     assert results == [None]
 
     allele_fixture = alleles["ga4gh:VA.yi7A2l0uIUMaInQaJnHU_B2Cf_OuZRJg"]
-    results = anyvar_python_client.put_allele_expressions(
+    results = anyvar_client.put_allele_expressions(
         ["Y-2781761-A-C", allele_fixture["vcf_expression"]]
     )
     assert results == [None, allele_fixture["variation"]["id"]]

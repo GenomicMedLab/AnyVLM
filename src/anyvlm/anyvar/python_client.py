@@ -83,4 +83,5 @@ class PythonAnyVarClient(BaseAnyVarClient):
 
     def close(self) -> None:
         """Clean up AnyVar instance."""
+        _logger.info("Closing AnyVar client.")
         self.av.object_store.close()
