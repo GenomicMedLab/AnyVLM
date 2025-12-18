@@ -7,7 +7,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from anyvlm.utils.types import Zygosity
 
-# ruff: noqa: N815, D107 (allow camelCase vars instead of snake_case to align with expected VLM protocol response + don't require init docstrings)
+# ruff: noqa: N815, N803, D107 (allow camelCase instead of snake_case to align with expected VLM protocol response + don't require init docstrings)
 
 RESULT_ENTITY_TYPE = "genomicVariant"
 
@@ -133,6 +133,9 @@ class ResultSet(BaseModel):
         default=RESULT_ENTITY_TYPE,
         description=f"The type of entity relevant to these results. Must always be set to '{RESULT_ENTITY_TYPE}'",
     )
+
+    def __init__(self, resultset_id: str, resultsCount: int) -> None:
+        super().__init__(id=resultset_id, resultsCount=resultsCount)
 
 
 class ResponseField(BaseModel):

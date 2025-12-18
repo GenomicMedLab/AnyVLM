@@ -5,7 +5,6 @@ import re
 import pytest
 
 from anyvlm.schemas.vlm import (
-    RESULT_ENTITY_TYPE,
     HandoverType,
     ResponseField,
     ResponseSummary,
@@ -59,10 +58,8 @@ def test_valid_resultset_id(response_summary, valid_handover_id):
     response = ResponseField(
         resultSets=[
             ResultSet(
-                exists=True,
                 id=f"{valid_handover_id} {Zygosity.HOMOZYGOUS}",
                 resultsCount=0,
-                setType=RESULT_ENTITY_TYPE,
             )
         ]
     )
