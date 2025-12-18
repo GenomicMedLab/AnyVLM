@@ -1,7 +1,7 @@
 """Implement AnyVar client interface for direct Python-based access."""
 
 import logging
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 
 from anyvar import AnyVar
 from anyvar.storage.base_storage import Storage
@@ -30,7 +30,7 @@ class PythonAnyVarClient(BaseAnyVarClient):
         self,
         expressions: Iterable[str],
         assembly: ReferenceAssembly = ReferenceAssembly.GRCH38,
-    ) -> list[str | None]:
+    ) -> Sequence[str | None]:
         """Submit allele expressions to an AnyVar instance and retrieve corresponding VRS IDs
 
         :param expressions: variation expressions to register

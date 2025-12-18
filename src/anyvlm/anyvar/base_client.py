@@ -1,7 +1,7 @@
 """Provide abstraction for a AnyVLM-to-AnyVar connection."""
 
 import abc
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 
 from anyvar.utils.liftover_utils import ReferenceAssembly
 from anyvar.utils.types import VrsVariation
@@ -26,7 +26,7 @@ class BaseAnyVarClient(abc.ABC):
         self,
         expressions: Iterable[str],
         assembly: ReferenceAssembly = ReferenceAssembly.GRCH38,
-    ) -> list[str | None]:
+    ) -> Sequence[str | None]:
         """Submit allele expressions to an AnyVar instance and retrieve corresponding VRS IDs
 
         :param expressions: variation expressions to register

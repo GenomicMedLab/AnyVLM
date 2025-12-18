@@ -1,7 +1,7 @@
 """Provide abstraction for a VLM-to-AnyVar connection."""
 
 import logging
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from http import HTTPStatus
 
 import requests
@@ -37,7 +37,7 @@ class HttpAnyVarClient(BaseAnyVarClient):
         self,
         expressions: Iterable[str],
         assembly: ReferenceAssembly = ReferenceAssembly.GRCH38,
-    ) -> list[str | None]:
+    ) -> Sequence[str | None]:
         """Submit allele expressions to an AnyVar instance and retrieve corresponding VRS IDs
 
         :param expressions: variation expressions to register
