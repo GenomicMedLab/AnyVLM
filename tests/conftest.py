@@ -6,14 +6,15 @@ from dotenv import load_dotenv
 from ga4gh.vrs import models
 from pydantic import BaseModel
 
+load_dotenv()
 
-@pytest.fixture(scope="session", autouse=True)
-def load_env():
-    """Load `.env` file.
+# @pytest.fixture(scope="session", autouse=True)
+# def load_env():
+#     """Load `.env` file.
 
-    Must set `autouse=True` to run before other fixtures or test cases.
-    """
-    load_dotenv()
+#     Must set `autouse=True` to run before other fixtures or test cases.
+#     """
+#     print("LOADING DOTENV")
 
 
 @pytest.fixture(scope="session")
