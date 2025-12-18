@@ -28,10 +28,12 @@ class HandoverType(BaseModel):
     """The type of handover the parent `BeaconHandover` represents."""
 
     id: str = Field(
-        _get_environment_var("HANDOVER_TYPE_ID"), description="Node-specific identifier"
+        default_factory=lambda: _get_environment_var("HANDOVER_TYPE_ID"),
+        description="Node-specific identifier",
     )
     label: str = Field(
-        _get_environment_var("HANDOVER_TYPE_LABEL"), description="Node-specific label"
+        default_factory=lambda: _get_environment_var("HANDOVER_TYPE_LABEL"),
+        description="Node-specific label",
     )
 
     # override __init__ to prevent the ability to override attributes that are set via environment variables
@@ -44,7 +46,7 @@ class BeaconHandover(BaseModel):
 
     handoverType: HandoverType = Field(default=HandoverType())
     url: str = Field(
-        _get_environment_var("BEACON_HANDOVER_URL"),
+        default_factory=lambda: _get_environment_var("BEACON_HANDOVER_URL"),
         description="""
             A url which directs users to more detailed information about the results tabulated by the API. Must be human-readable.
             Ideally links directly to the variant specified in the query, but can be a generic search page if necessary.
@@ -81,7 +83,7 @@ class Meta(BaseModel):
         description="The version of the VLM API that this response conforms to",
     )
     beaconId: str = Field(
-        _get_environment_var("BEACON_NODE_ID"),
+        default_factory=lambda: _get_environment_var("BEACON_NODE_ID"),
         description="""
             The Id of a Beacon. Usually a reversed domain string, but any URI is acceptable. The purpose of this attribute is,
             in the context of a Beacon network, to disambiguate responses coming from different Beacons. See the beacon documentation
