@@ -36,7 +36,7 @@ class HandoverType(BaseModel):
         description="Node-specific label",
     )
 
-    # override __init__ to prevent the ability to override attributes that are set via environment variables
+    # custom __init__ to prevent overriding attributes that are set via environment variables
     def __init__(self) -> None:
         super().__init__()
 
@@ -53,7 +53,7 @@ class BeaconHandover(BaseModel):
         """,
     )
 
-    # override __init__ to prevent the ability to override attributes that are set via environment variables
+    # custom __init__ to prevent overriding attributes that are static/set via environment variables
     def __init__(self) -> None:
         super().__init__()
 
@@ -92,7 +92,7 @@ class Meta(BaseModel):
     )
     returnedSchemas: list[ReturnedSchema] = [ReturnedSchema()]
 
-    # override __init__ to prevent the ability to override attributes that are set via environment variables
+    # custom __init__ to prevent overriding attributes that are static or set via environment variables
     def __init__(self) -> None:
         super().__init__()
 
@@ -134,6 +134,7 @@ class ResultSet(BaseModel):
         description=f"The type of entity relevant to these results. Must always be set to '{RESULT_ENTITY_TYPE}'",
     )
 
+    # custom __init__ to prevent inadvertently overriding static fields
     def __init__(self, resultset_id: str, resultsCount: int) -> None:
         super().__init__(id=resultset_id, resultsCount=resultsCount)
 
