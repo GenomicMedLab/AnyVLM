@@ -19,3 +19,4 @@ def test_ingest_vcf(input_vcf_path: Path, anyvar_client: HttpAnyVarClient):
 # GRCh37 VCF
 # nonexistent path
 # once storage exists, think about how to validate that AFs are stored
+# handle invalid ref
