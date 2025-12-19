@@ -17,6 +17,7 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
+    "ga4gh.vrs>=2.2.0, <3",
     "ga4gh.va_spec~=0.4.2",
     "biocommons.anyvar@git+https://github.com/biocommons/anyvar.git@main",
     "fastapi>=0.95.0",
