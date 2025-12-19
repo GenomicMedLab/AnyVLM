@@ -112,7 +112,7 @@ def test_search_by_interval(anyvar_client: BaseAnyVarClient, alleles: dict):
             **alleles["ga4gh:VA.9VDxL0stMBOZwcTKw3yb3UoWQkpaI9OD"]["variation"]
         ),
         models.Allele(
-            **alleles["ga4gh:VA.IM4QyU9D2kTJzeftUBBD4Vcd1peq0dn1"]["variation"]
+            **alleles["ga4gh:VA.R4kbmdsn5VldGrBiAaByO5N9zM3qCSFw"]["variation"]
         ),
     ]
     results = anyvar_client.search_by_interval(
@@ -123,7 +123,7 @@ def test_search_by_interval(anyvar_client: BaseAnyVarClient, alleles: dict):
             **alleles["ga4gh:VA.9VDxL0stMBOZwcTKw3yb3UoWQkpaI9OD"]["variation"]
         ),
         models.Allele(
-            **alleles["ga4gh:VA.IM4QyU9D2kTJzeftUBBD4Vcd1peq0dn1"]["variation"]
+            **alleles["ga4gh:VA.R4kbmdsn5VldGrBiAaByO5N9zM3qCSFw"]["variation"]
         ),
         models.Allele(
             **alleles["ga4gh:VA.yi7A2l0uIUMaInQaJnHU_B2Cf_OuZRJg"]["variation"]
@@ -141,7 +141,7 @@ def test_search_by_interval_with_alias(anyvar_client: BaseAnyVarClient, alleles:
             **alleles["ga4gh:VA.9VDxL0stMBOZwcTKw3yb3UoWQkpaI9OD"]["variation"]
         ),
         models.Allele(
-            **alleles["ga4gh:VA.IM4QyU9D2kTJzeftUBBD4Vcd1peq0dn1"]["variation"]
+            **alleles["ga4gh:VA.R4kbmdsn5VldGrBiAaByO5N9zM3qCSFw"]["variation"]
         ),
     ]
 
