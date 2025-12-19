@@ -11,6 +11,11 @@ def input_grch38_vcf_path(test_data_dir: Path) -> Path:
     return test_data_dir / "vcf" / "grch38_vcf.vcf"
 
 
+@pytest.fixture(scope="session")
+def input_grch37_vcf_path(test_data_dir: Path) -> Path:
+    return test_data_dir / "vcf" / "grch37_vcf.vcf"
+
+
 @pytest.mark.vcr
 def test_ingest_vcf_grch38(
     input_grch38_vcf_path: Path, anyvar_client: HttpAnyVarClient
