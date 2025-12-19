@@ -1,9 +1,9 @@
 """Schemas relating to VLM API."""
 
-import os
 from typing import ClassVar, Literal, Self
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from anyvlm.utils.types import Zygosity
 
@@ -12,33 +12,59 @@ from anyvlm.utils.types import Zygosity
 RESULT_ENTITY_TYPE = "genomicVariant"
 
 
-class MissingEnvironmentVariableError(Exception):
-    """Raised when a required environment variable is not set."""
+class HandoverSettings(BaseSettings):
+    """Settings for 'HandoverType' class"""
+
+    id: str
+    label: str
+
+    model_config = SettingsConfigDict(
+        env_prefix="HANDOVER_TYPE_",
+        extra="ignore",
+    )
 
 
-def _get_environment_var(key: str) -> str:
-    value: str | None = os.environ.get(key)
-    if not value:
-        message = f"Missing required environment variable: {key}"
-        raise MissingEnvironmentVariableError(message)
-    return value
+handover_type_settings = HandoverSettings()  # type: ignore
 
 
 class HandoverType(BaseModel):
     """The type of handover the parent `BeaconHandover` represents."""
 
     id: str = Field(
-        default_factory=lambda: _get_environment_var("HANDOVER_TYPE_ID"),
+        "",
         description="Node-specific identifier",
+        frozen=True,
     )
     label: str = Field(
-        default_factory=lambda: _get_environment_var("HANDOVER_TYPE_LABEL"),
+        "",
         description="Node-specific label",
+        frozen=True,
     )
 
-    # custom __init__ to prevent overriding attributes that are set via environment variables
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+
+    # custom __init__ to prevent overriding attributes that are static/set via environment variables
     def __init__(self) -> None:
-        super().__init__()
+        super().__init__(
+            id=handover_type_settings.id,
+            label=handover_type_settings.label,
+        )
+
+
+class BeaconHandoverSettings(BaseSettings):
+    """Settings for 'BeaconHandover' class"""
+
+    url: str
+
+    model_config = SettingsConfigDict(
+        env_prefix="BEACON_HANDOVER_",
+        extra="ignore",
+    )
+
+
+beacon_handover_settings = BeaconHandoverSettings()  # type: ignore
 
 
 class BeaconHandover(BaseModel):
@@ -46,7 +72,7 @@ class BeaconHandover(BaseModel):
 
     handoverType: HandoverType = Field(default=HandoverType())
     url: str = Field(
-        default_factory=lambda: _get_environment_var("BEACON_HANDOVER_URL"),
+        "",
         description="""
             A url which directs users to more detailed information about the results tabulated by the API. Must be human-readable.
             Ideally links directly to the variant specified in the query, but can be a generic search page if necessary.
@@ -55,7 +81,7 @@ class BeaconHandover(BaseModel):
 
     # custom __init__ to prevent overriding attributes that are static/set via environment variables
     def __init__(self) -> None:
-        super().__init__()
+        super().__init__(url=beacon_handover_settings.url)
 
 
 class ReturnedSchema(BaseModel):
@@ -75,6 +101,20 @@ class ReturnedSchema(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
 
+class MetaSettings(BaseSettings):
+    """Settings for 'Meta' class"""
+
+    beaconId: str = Field(..., alias="BEACON_NODE_ID")
+
+    model_config = SettingsConfigDict(
+        env_prefix="",
+        extra="ignore",
+    )
+
+
+meta_settings = MetaSettings()  # type: ignore
+
+
 class Meta(BaseModel):
     """Relevant metadata about the results provided in the parent `VlmResponse`"""
 
@@ -83,7 +123,7 @@ class Meta(BaseModel):
         description="The version of the VLM API that this response conforms to",
     )
     beaconId: str = Field(
-        default_factory=lambda: _get_environment_var("BEACON_NODE_ID"),
+        default="",
         description="""
             The Id of a Beacon. Usually a reversed domain string, but any URI is acceptable. The purpose of this attribute is,
             in the context of a Beacon network, to disambiguate responses coming from different Beacons. See the beacon documentation
@@ -94,7 +134,7 @@ class Meta(BaseModel):
 
     # custom __init__ to prevent overriding attributes that are static or set via environment variables
     def __init__(self) -> None:
-        super().__init__()
+        super().__init__(beaconId=meta_settings.beaconId)
 
 
 class ResponseSummary(BaseModel):
