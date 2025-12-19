@@ -1,0 +1,68 @@
+##fileformat=VCFv4.2
+##FILTER=<ID=PASS,Description="All filters passed">
+##5UTR_annotation=Variant annotation from UTRAnnotator
+##5UTR_consequence=Variant consequence from UTRAnnotator
+##CADD_PHRED=PHRED-like scaled CADD score. CADD is only available here for non-commercial use. See CADD website for more information.
+##CADD_RAW=Raw CADD score. CADD is only available here for non-commercial use. See CADD website for more information.
+##Existing_InFrame_oORFs=The number of existing inFrame overlapping ORFs (inFrame oORF) at the 5 prime UTR
+##Existing_OutOfFrame_oORFs=The number of existing out-of-frame overlapping ORFs (OutOfFrame oORF) at the 5 prime UTR
+##Existing_uORFs=The number of existing uORFs with a stop codon within the 5 prime UTR
+##FILTER=<ID=EXCESS_ALLELES,Description="Site has an excess of alternate alleles based on the input threshold">
+##FILTER=<ID=ExcessHet,Description="Site has excess het value larger than the threshold">
+##FILTER=<ID=LowQual,Description="Low quality">
+##FILTER=<ID=NO_HQ_GENOTYPES,Description="Site has no high quality variant genotypes">
+##FORMAT=<ID=AD,Number=R,Type=Integer,Description="Allelic depths for the ref and alt alleles in the order listed">
+##FORMAT=<ID=FT,Number=.,Type=String,Description="Genotype-level filter">
+##FORMAT=<ID=GQ,Number=1,Type=Integer,Description="Genotype Quality">
+##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
+##FORMAT=<ID=PGT,Number=1,Type=String,Description="Physical phasing haplotype information, describing how the alternate alleles are phased in relation to one another; will always be heterozygous and is not intended to describe called alleles">
+##FORMAT=<ID=PID,Number=1,Type=String,Description="Physical phasing ID information, where each unique ID within a given sample (but not across samples) connects records within a phasing group">
+##FORMAT=<ID=PS,Number=1,Type=Integer,Description="Phasing set (typically the position of the first variant in the set)">
+##FORMAT=<ID=RGQ,Number=1,Type=Integer,Description="Unconditional reference genotype confidence, encoded as a phred quality -10*log10 p(genotype call is wrong)">
+##INFO=<ID=AC,Number=A,Type=Integer,Description="Allele count in genotypes, for each ALT allele, in the same order as listed">
+##INFO=<ID=AC_Hemi,Number=A,Type=Integer,Description="Allele counts in hemizygous genotypes">
+##INFO=<ID=AC_Het,Number=A,Type=Integer,Description="Allele counts in heterozygous genotypes">
+##INFO=<ID=AC_Hom,Number=A,Type=Integer,Description="Allele counts in homozygous genotypes">
+##INFO=<ID=AF,Number=A,Type=Float,Description="Allele Frequency, for each ALT allele, in the same order as listed">
+##INFO=<ID=AN,Number=1,Type=Integer,Description="Total number of alleles in called genotypes">
+##INFO=<ID=AS_QUALapprox,Number=1,Type=String,Description="Allele-specific QUAL approximations">
+##INFO=<ID=CALIBRATION_SENSITIVITY,Number=A,Type=String,Description="Calibration sensitivity corresponding to the value of SCORE">
+##INFO=<ID=CSQ,Number=.,Type=String,Description="Consequence annotations from Ensembl VEP. Format: Allele|Consequence|IMPACT|SYMBOL|Gene|Feature_type|Feature|BIOTYPE|EXON|INTRON|HGVSc|HGVSp|cDNA_position|CDS_position|Protein_position|Amino_acids|Codons|Existing_variation|DISTANCE|STRAND|FLAGS|SYMBOL_SOURCE|HGNC_ID|CANONICAL|GENE_PHENO|NEAREST|HGVS_OFFSET|AF|CLIN_SIG|SOMATIC|PHENO|REVEL|SpliceRegion|CADD_PHRED|CADD_RAW|5UTR_annotation|5UTR_consequence|Existing_InFrame_oORFs|Existing_OutOfFrame_oORFs|Existing_uORFs|SpliceAI_pred_DP_AG|SpliceAI_pred_DP_AL|SpliceAI_pred_DP_DG|SpliceAI_pred_DP_DL|SpliceAI_pred_DS_AG|SpliceAI_pred_DS_AL|SpliceAI_pred_DS_DG|SpliceAI_pred_DS_DL|SpliceAI_pred_SYMBOL">
+##INFO=<ID=DP,Number=1,Type=Integer,Description="Approximate read depth; some reads may have been filtered">
+##INFO=<ID=F_MISSING,Number=.,Type=Float,Description="Added by +fill-tags expression F_MISSING=F_MISSING">
+##INFO=<ID=OLD_MULTIALLELIC,Number=1,Type=String,Description="Original chr:pos:ref:alt encoding">
+##INFO=<ID=OLD_VARIANT,Number=.,Type=String,Description="Original chr:pos:ref:alt encoding">
+##INFO=<ID=QUALapprox,Number=1,Type=Integer,Description="Sum of PL[0] values; used to approximate the QUAL score">
+##INFO=<ID=SCORE,Number=A,Type=String,Description="Score according to the model applied by ScoreVariantAnnotations">
+##INFO=<ID=TYPE,Number=.,Type=String,Description="Variant type">
+##REVEL=Rare Exome Variant Ensemble Learner
+##SpliceAI_pred_DP_AG=SpliceAI predicted effect on splicing. Delta position for acceptor gain
+##SpliceAI_pred_DP_AL=SpliceAI predicted effect on splicing. Delta position for acceptor loss
+##SpliceAI_pred_DP_DG=SpliceAI predicted effect on splicing. Delta position for donor gain
+##SpliceAI_pred_DP_DL=SpliceAI predicted effect on splicing. Delta position for donor loss
+##SpliceAI_pred_DS_AG=SpliceAI predicted effect on splicing. Delta score for acceptor gain
+##SpliceAI_pred_DS_AL=SpliceAI predicted effect on splicing. Delta score for acceptor loss
+##SpliceAI_pred_DS_DG=SpliceAI predicted effect on splicing. Delta score for donor gain
+##SpliceAI_pred_DS_DL=SpliceAI predicted effect on splicing. Delta score for donor loss
+##SpliceAI_pred_SYMBOL=SpliceAI gene symbol
+##SpliceRegion=SpliceRegion predictions
+##contig=<ID=chr14,length=107043718>
+##high_CALIBRATION_SENSITIVITY_INDEL=Sample Genotype FT filter value indicating that the genotyped allele failed INDEL model calibration sensitivity cutoff (0.99)
+##high_CALIBRATION_SENSITIVITY_SNP=Sample Genotype FT filter value indicating that the genotyped allele failed SNP model calibration sensitivity cutoff (0.997)
+##source=SelectVariants
+##INFO=<ID=VRS_Allele_IDs,Number=R,Type=String,Description="The computed identifiers for the GA4GH VRS Alleles corresponding to the GT indexes of the REF and ALT alleles">
+##INFO=<ID=VRS_Error,Number=.,Type=String,Description="If an error occurred computing a VRS Identifier, the error message">
+##INFO=<ID=VRS_Starts,Number=R,Type=String,Description="Interresidue coordinates used as the location starts for the GA4GH VRS Alleles corresponding to the GT indexes of the REF and ALT alleles">
+##INFO=<ID=VRS_Ends,Number=R,Type=String,Description="Interresidue coordinates used as the location ends for the GA4GH VRS Alleles corresponding to the GT indexes of the REF and ALT alleles">
+##INFO=<ID=VRS_States,Number=R,Type=String,Description="The literal sequence states used for the GA4GH VRS Alleles corresponding to the GT indexes of the REF and ALT alleles">
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
+chr14	18223529	.	C	A	.	LowQual;NO_HQ_GENOTYPES	AC=1;AC_Hemi=0;AC_Het=1;AC_Hom=0;AF=0.000278707;AN=3588;AS_QUALapprox=0|55;CALIBRATION_SENSITIVITY=.;CSQ=A|intergenic_variant|MODIFIER|||||||||||||||rs1294420531||||||||OR11H12||||||||3.503|0.321010||||||||||||||;F_MISSING=0.23692;QUALapprox=55;SCORE=.;TYPE=SNP;VRS_Allele_IDs=ga4gh:VA.8OSPHYmhyg9hJTpFQ8aNcmLgYMR77ZyJ,ga4gh:VA.slgr2fnRKaUnQrJZvYNDGMrfZHw6QCr6;VRS_Starts=18223528,18223528;VRS_Ends=18223529,18223529;VRS_States=C,A
+chr14	18223557	.	C	T	.	.	AC=2;AC_Hemi=0;AC_Het=2;AC_Hom=0;AF=0.000449236;AN=4452;AS_QUALapprox=0|118;CALIBRATION_SENSITIVITY=0.9951;CSQ=T|intergenic_variant|MODIFIER|||||||||||||||rs201056409||||||||OR11H12||||||||4.169|0.380250||||||||||||||;F_MISSING=0.0531689;QUALapprox=62;SCORE=-0.6499;TYPE=SNP;VRS_Allele_IDs=ga4gh:VA.W2CUxon4uJMb3B7txw-Ok4Kc7L6Y6_U6,ga4gh:VA.6Vh1yfYyljQHm6_qLTKqzi1URy8MfcGe;VRS_Starts=18223556,18223556;VRS_Ends=18223557,18223557;VRS_States=C,T
+chr14	18223583	.	C	G	.	ExcessHet	AC=1268;AC_Hemi=0;AC_Het=1262;AC_Hom=6;AF=0.3916;AN=3238;AS_QUALapprox=0|83543;CALIBRATION_SENSITIVITY=.;CSQ=G|intergenic_variant|MODIFIER|||||||||||||||rs28973059||||||||OR11H12||0.3067||||||3.687|0.337395||||||||||||||;F_MISSING=0.311357;QUALapprox=67;SCORE=.;TYPE=SNP;VRS_Allele_IDs=ga4gh:VA.J2UbTk_frk4EJ884PUZ3q0jyhOhmO6Nb,ga4gh:VA.7RhOJ6GlTAnbiwEcfvl9ZKSzrJl47Emg;VRS_Starts=18223582,18223582;VRS_Ends=18223583,18223583;VRS_States=C,G
+chr14	18223586	.	T	C	.	LowQual;NO_HQ_GENOTYPES	AC=1;AC_Hemi=0;AC_Het=1;AC_Hom=0;AF=0.000214041;AN=4672;AS_QUALapprox=0|50;CALIBRATION_SENSITIVITY=.;CSQ=C|intergenic_variant|MODIFIER|||||||||||||||rs987931840||||||||OR11H12||||||||5.409|0.494757||||||||||||||;F_MISSING=0.00638026;QUALapprox=50;SCORE=.;TYPE=SNP;VRS_Allele_IDs=ga4gh:VA.mp2_nBqnYfP1qh9lVEcstg1ZihTojgJF,ga4gh:VA.srLXVmS7-JU1hLfxMZkkgFMy64GS7D8H;VRS_Starts=18223585,18223585;VRS_Ends=18223586,18223586;VRS_States=T,C
+chr14	18223591	.	G	A	.	.	AC=2;AC_Hemi=0;AC_Het=2;AC_Hom=0;AF=0.0004329;AN=4620;AS_QUALapprox=0|112;CALIBRATION_SENSITIVITY=0.9968;CSQ=A|intergenic_variant|MODIFIER|||||||||||||||rs913251146||||||||OR11H12||||||||3.844|0.351386||||||||||||||;F_MISSING=0.0174394;QUALapprox=65;SCORE=-0.6961;TYPE=SNP;VRS_Allele_IDs=ga4gh:VA.TyLqDjEF7ZqV8OuoIvbbqSlobvRN08j4,ga4gh:VA.1ra1LoRvuvAhbeKl4YgbdrGkXWjc8Lpc;VRS_Starts=18223590,18223590;VRS_Ends=18223591,18223591;VRS_States=G,A
+chr14	18223619	.	G	A	.	.	AC=1;AC_Hemi=0;AC_Het=1;AC_Hom=0;AF=0.000214133;AN=4670;AS_QUALapprox=0|70;CALIBRATION_SENSITIVITY=0.991;CSQ=A|intergenic_variant|MODIFIER|||||||||||||||rs532880059||||||||OR11H12||||||||4.296|0.391602||||||||||||||;F_MISSING=0.00680561;QUALapprox=70;SCORE=-0.5695;TYPE=SNP;VRS_Allele_IDs=ga4gh:VA.Vhl_snU0aXt19dt489glUvO0PST_0wRk,ga4gh:VA.pJSWmaP-F6h3wjCGI_4yabfBimi_sjA-;VRS_Starts=18223618,18223618;VRS_Ends=18223619,18223619;VRS_States=G,A
+chr14	18223631	.	T	C	.	.	AC=2;AC_Hemi=0;AC_Het=2;AC_Hom=0;AF=0.000426985;AN=4684;AS_QUALapprox=0|93;CALIBRATION_SENSITIVITY=0.9931;CSQ=C|intergenic_variant|MODIFIER|||||||||||||||rs1014016126||||||||OR11H12||||||||5.744|0.527593||||||||||||||;F_MISSING=0.00382816;QUALapprox=55;SCORE=-0.6068;TYPE=SNP;VRS_Allele_IDs=ga4gh:VA.FHtteSI82g2J0S4SJ-OlJf9Z7VTIGbbR,ga4gh:VA.oM-HQuKXd2dD-pF-GnSLjbvRGPn0kVoe;VRS_Starts=18223630,18223630;VRS_Ends=18223631,18223631;VRS_States=T,C
+chr14	18223638	.	T	G	.	.	AC=4;AC_Hemi=0;AC_Het=4;AC_Hom=0;AF=0.000859845;AN=4652;AS_QUALapprox=0|231;CALIBRATION_SENSITIVITY=0.9945;CSQ=G|intergenic_variant|MODIFIER|||||||||||||||rs569534039||||||||OR11H12||0.0024||||||5.508|0.504341||||||||||||||;F_MISSING=0.0106338;QUALapprox=64;SCORE=-0.6368;TYPE=SNP;VRS_Allele_IDs=ga4gh:VA.KrXdgsjb8NOp8K0YSKCq5nah_b3_fqiX,ga4gh:VA.D6ER6alwYKPWe_8eQO5N15BZdqXHCT9D;VRS_Starts=18223637,18223637;VRS_Ends=18223638,18223638;VRS_States=T,G
+chr14	18223644	.	G	T	.	.	AC=19;AC_Hemi=0;AC_Het=19;AC_Hom=0;AF=0.00405809;AN=4682;AS_QUALapprox=0|1089;CALIBRATION_SENSITIVITY=0.9937;CSQ=T|intergenic_variant|MODIFIER|||||||||||||||rs1016546371||||||||OR11H12||||||||3.785|0.346182||||||||||||||;F_MISSING=0.00425351;QUALapprox=56;SCORE=-0.62;TYPE=SNP;VRS_Allele_IDs=ga4gh:VA._9meXYg_vU3HetGTMANgvwrZKbocQEgQ,ga4gh:VA.nKKZQhf3-Fq-wdSihMJ6aDo4BLaL9lWb;VRS_Starts=18223643,18223643;VRS_Ends=18223644,18223644;VRS_States=G,T
+chr14	18223645	.	G	T	.	LowQual;NO_HQ_GENOTYPES	AC=1;AC_Hemi=0;AC_Het=1;AC_Hom=0;AF=0.000213767;AN=4678;AS_QUALapprox=0|53;CALIBRATION_SENSITIVITY=.;CSQ=T|intergenic_variant|MODIFIER|||||||||||||||rs1244872946||||||||OR11H12||||||||3.733|0.341555||||||||||||||;F_MISSING=0.00510421;QUALapprox=53;SCORE=.;TYPE=SNP;VRS_Allele_IDs=ga4gh:VA._Xpr4n6WQ2PJETuGQe2tsnKa9ZoBSyb-,ga4gh:VA.j3bdlz2W_udb5DnBnoNkSMoEbhrE9hcl;VRS_Starts=18223644,18223644;VRS_Ends=18223645,18223645;VRS_States=G,T

@@ -59,7 +59,7 @@ def ingest_vcf(
     """Extract variant and frequency information from a single VCF
 
     Current assumptions (subject to change):
-    * It's a gVCF, annotations for cohort are provided in 1 file
+    * annotations for cohort are provided in 1 file
     * INFO fields are named in conformance with convention used here:
       * AC (type: A)
       * AN (type: 1)
