@@ -75,6 +75,9 @@ class HttpAnyVarClient(BaseAnyVarClient):
                     url,
                 )
                 if response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY:
+                    _logger.debug(
+                        "Translation failed for variant expression '%s'", expression
+                    )
                     results.append(None)
                 else:
                     raise AnyVarClientError from e

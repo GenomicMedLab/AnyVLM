@@ -33,7 +33,7 @@ def _yield_expression_af_batches(
     for record in vcf:
         for i, alt in enumerate(record.alts or []):
             if record.ref is None or "*" in record.ref or "*" in alt:
-                _logger.warning("Skipping missing allele at %s", record)
+                _logger.info("Skipping missing allele at %s", record)
                 continue
             expression = f"{record.chrom}-{record.pos}-{record.ref}-{alt}"
             af = AfData(
@@ -45,10 +45,12 @@ def _yield_expression_af_batches(
             )
             batch.append((expression, af))
             if len(batch) >= batch_size:
+                _logger.debug("Yielding next batch")
                 yield batch
                 batch = []
     if batch:
         yield batch
+    _logger.debug("Expression/AF generator exhausted")
 
 
 def ingest_vcf(
@@ -80,3 +82,6 @@ def ingest_vcf(
             if variant_id is None:
                 continue
             # make call to object store method for putting CAF here
+            # presumably build the CAF object here + call the insert method with it
+            # may need to alter zip() if the insert method expects a full variation
+            # instead of just the ID
