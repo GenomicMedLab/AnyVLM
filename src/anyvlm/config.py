@@ -23,6 +23,7 @@ class Settings(BaseSettings):
 
     env: ServiceEnvironment = ServiceEnvironment.LOCAL
     anyvar_uri: str = "http://localhost:8000"
+    storage_uri: str = "postgresql://postgres@localhost:5432/anyvlm"
 
 
 @cache
