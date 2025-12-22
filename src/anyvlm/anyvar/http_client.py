@@ -1,15 +1,18 @@
 """Provide abstraction for a VLM-to-AnyVar connection."""
 
 import logging
+from collections.abc import Iterable, Sequence
+from http import HTTPStatus
 
 import requests
+from anyvar.utils.liftover_utils import ReferenceAssembly
 from anyvar.utils.types import VrsVariation
-from ga4gh.vrs import models
+from ga4gh.vrs import VrsType, models
 
 from anyvlm.anyvar.base_client import (
+    AnyVarClientConnectionError,
     AnyVarClientError,
     BaseAnyVarClient,
-    UnidentifiedObjectError,
 )
 
 _logger = logging.getLogger(__name__)
@@ -26,38 +29,65 @@ class HttpAnyVarClient(BaseAnyVarClient):
         :param hostname: service API root
         :param request_timeout: timeout value, in seconds, for HTTP requests
         """
+        _logger.info("Initializing HTTP-based AnyVar client with hostname %s", hostname)
         self.hostname = hostname
         self.request_timeout = request_timeout
 
-    def put_objects(self, objects: list[VrsVariation]) -> None:
-        """Register objects with AnyVar
+    def put_allele_expressions(
+        self,
+        expressions: Iterable[str],
+        assembly: ReferenceAssembly = ReferenceAssembly.GRCH38,
+    ) -> Sequence[str | None]:
+        """Submit allele expressions to an AnyVar instance and retrieve corresponding VRS IDs
 
-        All input objects must have a populated ID field. A validation check for this is
-        performed before any variants are registered.
+        Currently, only expressions supported by the VRS-Python translator are supported.
+        This could change depending on the AnyVar implementation, though, and probably
+        can't be validated on the AnyVLM side.
 
-        :param objects: variation objects to register
-        :return: completed VRS objects
-        :raise AnyVarClientError: if connection is unsuccessful during registration request
-        :raise UnidentifiedObjectError: if *any* provided object lacks a VRS ID
+        :param expressions: variation expressions to register
+        :param assembly: reference assembly used in expressions
+        :return: list where the i'th item is either the VRS ID if translation succeeds,
+            else `None`, for the i'th expression
+        :raise AnyVarClientError: for unexpected errors relating to specifics of client interface
         """
-        objects_to_submit = []
-        for vrs_object in objects:
-            if not vrs_object.id:
-                _logger.error("Provided variant %s has no VRS ID", vrs_object)
-                raise UnidentifiedObjectError
-            objects_to_submit.append(
-                vrs_object.model_dump(exclude_none=True, mode="json")
-            )
-        for vrs_object in objects_to_submit:
-            response = requests.put(
-                f"{self.hostname}/vrs_variation",
-                json=vrs_object,
-                timeout=self.request_timeout,
-            )
+        results = []
+        url = f"{self.hostname}/variation"
+        for expression in expressions:
+            payload = {
+                "definition": expression,
+                "assembly_name": assembly.value,
+                "input_type": VrsType.ALLELE.value,
+            }
+            try:
+                response = requests.put(
+                    url,
+                    json=payload,
+                    timeout=self.request_timeout,
+                )
+            except requests.ConnectionError as e:
+                _logger.exception(
+                    "Unable to establish connection using AnyVar configured at %s",
+                    self.hostname,
+                )
+                raise AnyVarClientConnectionError from e
             try:
                 response.raise_for_status()
             except requests.HTTPError as e:
-                raise AnyVarClientError from e
+                _logger.exception(
+                    "Encountered HTTP exception submitting payload %s to %s",
+                    payload,
+                    url,
+                )
+                if response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY:
+                    _logger.debug(
+                        "Translation failed for variant expression '%s'", expression
+                    )
+                    results.append(None)
+                else:
+                    raise AnyVarClientError from e
+            else:
+                results.append(response.json()["object_id"])
+        return results
 
     def search_by_interval(
         self, accession: str, start: int, end: int
@@ -89,3 +119,6 @@ class HttpAnyVarClient(BaseAnyVarClient):
 
         This is a no-op for this class.
         """
+        _logger.info(
+            "Closing HTTP-based AnyVar client class. This requires no further action."
+        )

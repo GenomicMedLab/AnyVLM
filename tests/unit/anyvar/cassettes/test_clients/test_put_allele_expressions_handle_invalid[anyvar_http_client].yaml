@@ -1,0 +1,43 @@
+interactions:
+- request:
+    body: '{"definition": "Y-2781761-A-C", "assembly_name": "GRCh38", "input_type":
+      "Allele"}'
+    headers: {}
+    method: PUT
+    uri: http://localhost:8000/variation
+  response:
+    body:
+      string: '{"detail":"Reference mismatch at GRCh38:Y position 2781760-2781761
+        (input gave ''A'' but correct ref is ''C'')"}'
+    headers: {}
+    status:
+      code: 422
+      message: Unprocessable Entity
+- request:
+    body: '{"definition": "Y-2781761-A-C", "assembly_name": "GRCh38", "input_type":
+      "Allele"}'
+    headers: {}
+    method: PUT
+    uri: http://localhost:8000/variation
+  response:
+    body:
+      string: '{"detail":"Reference mismatch at GRCh38:Y position 2781760-2781761
+        (input gave ''A'' but correct ref is ''C'')"}'
+    headers: {}
+    status:
+      code: 422
+      message: Unprocessable Entity
+- request:
+    body: '{"definition": "Y-2781761-CA-C", "assembly_name": "GRCh38", "input_type":
+      "Allele"}'
+    headers: {}
+    method: PUT
+    uri: http://localhost:8000/variation
+  response:
+    body:
+      string: '{"messages":[],"object":{"id":"ga4gh:VA.yi7A2l0uIUMaInQaJnHU_B2Cf_OuZRJg","type":"Allele","digest":"yi7A2l0uIUMaInQaJnHU_B2Cf_OuZRJg","location":{"id":"ga4gh:SL.JsFGLKlUDocinf7oWTXAvVT2WOso7R9u","type":"SequenceLocation","digest":"JsFGLKlUDocinf7oWTXAvVT2WOso7R9u","sequenceReference":{"type":"SequenceReference","refgetAccession":"SQ.8_liLu1aycC0tPQPFmUaGXJLDs5SbPZ5"},"start":2781761,"end":2781785},"state":{"type":"ReferenceLengthExpression","length":23,"sequence":"AAAAAAAAAAAAAAAAAAAAAAA","repeatSubunitLength":1}},"object_id":"ga4gh:VA.yi7A2l0uIUMaInQaJnHU_B2Cf_OuZRJg"}'
+    headers: {}
+    status:
+      code: 200
+      message: OK
+version: 1

@@ -13,7 +13,7 @@ import pytest
 from anyvar.anyvar import create_storage, create_translator
 from ga4gh.vrs import models
 
-from anyvlm.anyvar.base_client import BaseAnyVarClient, UnidentifiedObjectError
+from anyvlm.anyvar.base_client import BaseAnyVarClient
 from anyvlm.anyvar.http_client import HttpAnyVarClient
 from anyvlm.anyvar.python_client import PythonAnyVarClient
 
@@ -49,7 +49,9 @@ def anyvar_populated_python_client(
 ):
     """Create test fixture for populated AnyVar Python client"""
     for allele_fixture in alleles.values():
-        anyvar_python_client.put_objects([models.Allele(**allele_fixture["variation"])])
+        if "vcf_expression" not in allele_fixture:
+            continue
+        anyvar_python_client.put_allele_expressions([allele_fixture["vcf_expression"]])
     return anyvar_python_client
 
 
@@ -72,23 +74,30 @@ POPULATED_CLIENTS = [
 
 @pytest.mark.vcr
 @pytest.mark.parametrize("anyvar_client", UNPOPULATED_CLIENTS, indirect=True)
-def test_put_objects(anyvar_client: BaseAnyVarClient, alleles: dict):
+def test_put_allele_expressions(anyvar_client: BaseAnyVarClient, alleles: dict):
     """Test `put_objects` for a basic test suite of variants"""
     for allele_fixture in alleles.values():
-        allele = models.Allele(**allele_fixture["variation"])
-        anyvar_client.put_objects([allele])
+        if "vcf_expression" not in allele_fixture:
+            continue
+        results = anyvar_client.put_allele_expressions(
+            [allele_fixture["vcf_expression"]]
+        )
+        assert results == [allele_fixture["variation"]["id"]]
 
 
 @pytest.mark.vcr
-@pytest.mark.parametrize("anyvar_client", UNPOPULATED_CLIENTS, indirect=True)
-def test_put_objects_no_ids(anyvar_client: BaseAnyVarClient, alleles: dict):
-    """Test `put_objects` for objects with IDs/digest/etc removed"""
-    allele_iter = iter(alleles.values())
-    allele = models.Allele(**next(allele_iter)["variation"])
-    allele.id = None
-    other_allele = models.Allele(**next(allele_iter)["variation"])
-    with pytest.raises(UnidentifiedObjectError):
-        anyvar_client.put_objects([other_allele, allele])
+@pytest.mark.parametrize("anyvar_client", POPULATED_CLIENTS, indirect=True)
+def test_put_allele_expressions_handle_invalid(
+    anyvar_client: BaseAnyVarClient, alleles: dict
+):
+    results = anyvar_client.put_allele_expressions(["Y-2781761-A-C"])  # wrong REF
+    assert results == [None]
+
+    allele_fixture = alleles["ga4gh:VA.yi7A2l0uIUMaInQaJnHU_B2Cf_OuZRJg"]
+    results = anyvar_client.put_allele_expressions(
+        ["Y-2781761-A-C", allele_fixture["vcf_expression"]]
+    )
+    assert results == [None, allele_fixture["variation"]["id"]]
 
 
 @pytest.mark.vcr
@@ -103,10 +112,7 @@ def test_search_by_interval(anyvar_client: BaseAnyVarClient, alleles: dict):
             **alleles["ga4gh:VA.9VDxL0stMBOZwcTKw3yb3UoWQkpaI9OD"]["variation"]
         ),
         models.Allele(
-            **alleles["ga4gh:VA.IM4QyU9D2kTJzeftUBBD4Vcd1peq0dn1"]["variation"]
-        ),
-        models.Allele(
-            **alleles["ga4gh:VA.xbX035HgURWIUAjn6x3cS26jafP8Q_bk"]["variation"]
+            **alleles["ga4gh:VA.R4kbmdsn5VldGrBiAaByO5N9zM3qCSFw"]["variation"]
         ),
     ]
     results = anyvar_client.search_by_interval(
@@ -117,10 +123,7 @@ def test_search_by_interval(anyvar_client: BaseAnyVarClient, alleles: dict):
             **alleles["ga4gh:VA.9VDxL0stMBOZwcTKw3yb3UoWQkpaI9OD"]["variation"]
         ),
         models.Allele(
-            **alleles["ga4gh:VA.IM4QyU9D2kTJzeftUBBD4Vcd1peq0dn1"]["variation"]
-        ),
-        models.Allele(
-            **alleles["ga4gh:VA.xbX035HgURWIUAjn6x3cS26jafP8Q_bk"]["variation"]
+            **alleles["ga4gh:VA.R4kbmdsn5VldGrBiAaByO5N9zM3qCSFw"]["variation"]
         ),
         models.Allele(
             **alleles["ga4gh:VA.yi7A2l0uIUMaInQaJnHU_B2Cf_OuZRJg"]["variation"]
@@ -138,10 +141,7 @@ def test_search_by_interval_with_alias(anyvar_client: BaseAnyVarClient, alleles:
             **alleles["ga4gh:VA.9VDxL0stMBOZwcTKw3yb3UoWQkpaI9OD"]["variation"]
         ),
         models.Allele(
-            **alleles["ga4gh:VA.IM4QyU9D2kTJzeftUBBD4Vcd1peq0dn1"]["variation"]
-        ),
-        models.Allele(
-            **alleles["ga4gh:VA.xbX035HgURWIUAjn6x3cS26jafP8Q_bk"]["variation"]
+            **alleles["ga4gh:VA.R4kbmdsn5VldGrBiAaByO5N9zM3qCSFw"]["variation"]
         ),
     ]
 
