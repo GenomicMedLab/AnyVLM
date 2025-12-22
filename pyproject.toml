@@ -17,8 +17,9 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
+    "ga4gh.vrs>=2.2.0,<3.0",
     "ga4gh.va_spec~=0.4.2",
-    "biocommons.anyvar@git+https://github.com/biocommons/anyvar.git@storage-refactor-epic",
+    "biocommons.anyvar@git+https://github.com/biocommons/anyvar.git@main",
     "fastapi>=0.95.0",
     "python-multipart",  # required for fastapi file uploads
     "uvicorn",
@@ -27,6 +28,7 @@ dependencies = [
     "python-dotenv",
     "pydantic-settings",
     "requests",
+    "pysam==0.23.0",  # see https://github.com/ga4gh/vrs-python/issues/560
 ]
 dynamic = ["version"]
 

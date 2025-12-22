@@ -1,7 +1,9 @@
 """Provide abstraction for a AnyVLM-to-AnyVar connection."""
 
 import abc
+from collections.abc import Iterable, Sequence
 
+from anyvar.utils.liftover_utils import ReferenceAssembly
 from anyvar.utils.types import VrsVariation
 
 
@@ -9,23 +11,32 @@ class AnyVarClientError(Exception):
     """Generic client-related exception."""
 
 
-class UnidentifiedObjectError(AnyVarClientError):
-    """Raise if input object lacks an ID property"""
+class AnyVarClientConnectionError(AnyVarClientError):
+    """Raise for failure to connect to AnyVar client.
+
+    Likely relevant only for HTTP-based implementation.
+    """
 
 
 class BaseAnyVarClient(abc.ABC):
     """Interface elements for an AnyVar client"""
 
     @abc.abstractmethod
-    def put_objects(self, objects: list[VrsVariation]) -> None:
-        """Register objects with AnyVar
+    def put_allele_expressions(
+        self,
+        expressions: Iterable[str],
+        assembly: ReferenceAssembly = ReferenceAssembly.GRCH38,
+    ) -> Sequence[str | None]:
+        """Submit allele expressions to an AnyVar instance and retrieve corresponding VRS IDs
 
-        All input objects must have a populated ID field. A validation check for this is
-        performed before any variants are registered.
+        Currently, only expressions supported by the VRS-Python translator are supported.
+        This could change depending on the AnyVar implementation, though, and probably
+        can't be validated on the AnyVLM side.
 
-        :param objects: variation objects to register
-        :raise AnyVarClientError: for errors relating to specifics of client interface
-        :raise UnidentifiedObjectError: if *any* provided object lacks a VRS ID
+        :param expressions: variation expressions to register
+        :param assembly: reference assembly used in variation expressions
+        :return: list where the i'th item is either the VRS ID if translation succeeds,
+            else `None`, for the i'th expression
         """
 
     @abc.abstractmethod
@@ -38,7 +49,7 @@ class BaseAnyVarClient(abc.ABC):
         :param start: start position for genomic region
         :param end: end position for genomic region
         :return: list of matching variant objects
-        :raise AnyVarClientError: if connection is unsuccessful during search query
+        :raise AnyVarClientConnectionError: if connection is unsuccessful during search query
         """
 
     @abc.abstractmethod
