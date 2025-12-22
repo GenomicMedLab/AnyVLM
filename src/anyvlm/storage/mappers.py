@@ -44,7 +44,6 @@ class AlleleFrequencyMapper(
         heterozygotes = db_entity.ac_het
         hemizygotes = db_entity.ac_hemi
         ac = sum(x or 0 for x in (homozygotes, heterozygotes, hemizygotes))
-
         an = db_entity.an
 
         if filter_ := db_entity.filter:
