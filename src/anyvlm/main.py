@@ -3,7 +3,6 @@
 import logging
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from os import environ
 from urllib.parse import urlparse
 
 from anyvar.anyvar import create_storage, create_translator
@@ -20,7 +19,6 @@ from anyvlm.schemas.common import (
     ServiceOrganization,
     ServiceType,
 )
-from anyvlm.storage import DEFAULT_STORAGE_URI
 from anyvlm.storage.base_storage import Storage
 from anyvlm.utils.types import (
     EndpointTag,
@@ -68,7 +66,7 @@ def create_anyvlm_storage(uri: str | None = None) -> Storage:
     :return: AnyVLM storage instance
     """
     if not uri:
-        uri = environ.get("ANYVLM_STORAGE_URI", DEFAULT_STORAGE_URI)
+        uri = get_config().storage_uri
 
     parsed_uri = urlparse(uri)
     if parsed_uri.scheme == "postgresql":
