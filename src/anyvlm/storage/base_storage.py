@@ -24,6 +24,11 @@ class Storage(ABC):
     def wipe_db(self) -> None:
         """Wipe all data from the storage backend."""
 
+    @property
+    @abstractmethod
+    def sanitized_url(self) -> str:
+        """Return a sanitized URL (password masked) of the database connection string."""
+
     @abstractmethod
     def add_allele_frequencies(self, caf: CohortAlleleFrequencyStudyResult) -> None:
         """Add allele frequency data to the database. Will skip conflicts.
@@ -34,8 +39,3 @@ class Storage(ABC):
 
         :param caf: Cohort allele frequency study result object to insert into the DB
         """
-
-    @property
-    @abstractmethod
-    def sanitized_url(self) -> str:
-        """Return a sanitized URL (password masked) of the database connection string."""
