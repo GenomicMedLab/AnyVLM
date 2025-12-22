@@ -159,7 +159,12 @@ async def save_upload_file_temp(upload_file: UploadFile) -> Path:
 @app.post(
     "/ingest_vcf",
     summary="Upload and ingest VCF file",
-    description="Upload a compressed VCF file (.vcf.gz) to register variants and store allele frequency data",
+    description=(
+        "Upload a compressed VCF file (.vcf.gz) to register variants and store allele frequency data. "
+        "**Requirements:** File must be gzip-compressed (.vcf.gz), contain required INFO fields "
+        "(AC, AN, AC_Het, AC_Hom, AC_Hemi), and be under 5GB. "
+        "Processing is synchronous with a 30-minute timeout."
+    ),
     tags=[EndpointTag.SEARCH],
     response_model=VcfIngestionResponse,
 )
@@ -173,8 +178,11 @@ async def ingest_vcf_endpoint(
 ) -> VcfIngestionResponse:
     """Upload and ingest a VCF file with allele frequency data.
 
+    Requirements: .vcf.gz format, <5GB, INFO fields (AC, AN, AC_Het, AC_Hom, AC_Hemi).
+    Synchronous processing with 30-minute timeout. Variants batched in groups of 1000.
+
     :param request: FastAPI request object
-    :param file: uploaded VCF file (must be .vcf.gz)
+    :param file: uploaded VCF file
     :param assembly: reference assembly used in VCF
     :return: ingestion status response
     """
