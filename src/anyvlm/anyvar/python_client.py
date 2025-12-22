@@ -7,7 +7,7 @@ from anyvar import AnyVar
 from anyvar.storage.base_storage import Storage
 from anyvar.translate.translate import TranslationError, Translator
 from anyvar.utils.liftover_utils import ReferenceAssembly
-from anyvar.utils.types import VrsVariation
+from anyvar.utils.types import SupportedVariationType, VrsVariation
 from ga4gh.vrs.dataproxy import DataProxyValidationError
 
 from anyvlm.anyvar.base_client import BaseAnyVarClient
@@ -33,6 +33,10 @@ class PythonAnyVarClient(BaseAnyVarClient):
     ) -> Sequence[str | None]:
         """Submit allele expressions to an AnyVar instance and retrieve corresponding VRS IDs
 
+        Currently, only expressions supported by the VRS-Python translator are supported.
+        This could change depending on the AnyVar implementation, though, and probably
+        can't be validated on the AnyVLM side.
+
         :param expressions: variation expressions to register
         :param assembly: reference assembly used in expressions
         :return: list where the i'th item is either the VRS ID if translation succeeds,
@@ -43,7 +47,9 @@ class PythonAnyVarClient(BaseAnyVarClient):
             translated_variation = None
             try:
                 translated_variation = self.av.translator.translate_variation(
-                    expression, assembly=assembly.value
+                    expression,
+                    assembly=assembly.value,
+                    input_type=SupportedVariationType.ALLELE,
                 )
             except DataProxyValidationError:
                 _logger.exception("Found invalid base in expression %s", expression)

@@ -29,6 +29,10 @@ class BaseAnyVarClient(abc.ABC):
     ) -> Sequence[str | None]:
         """Submit allele expressions to an AnyVar instance and retrieve corresponding VRS IDs
 
+        Currently, only expressions supported by the VRS-Python translator are supported.
+        This could change depending on the AnyVar implementation, though, and probably
+        can't be validated on the AnyVLM side.
+
         :param expressions: variation expressions to register
         :param assembly: reference assembly used in variation expressions
         :return: list where the i'th item is either the VRS ID if translation succeeds,

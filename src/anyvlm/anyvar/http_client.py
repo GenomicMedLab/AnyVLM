@@ -7,7 +7,7 @@ from http import HTTPStatus
 import requests
 from anyvar.utils.liftover_utils import ReferenceAssembly
 from anyvar.utils.types import VrsVariation
-from ga4gh.vrs import models
+from ga4gh.vrs import VrsType, models
 
 from anyvlm.anyvar.base_client import (
     AnyVarClientConnectionError,
@@ -40,6 +40,10 @@ class HttpAnyVarClient(BaseAnyVarClient):
     ) -> Sequence[str | None]:
         """Submit allele expressions to an AnyVar instance and retrieve corresponding VRS IDs
 
+        Currently, only expressions supported by the VRS-Python translator are supported.
+        This could change depending on the AnyVar implementation, though, and probably
+        can't be validated on the AnyVLM side.
+
         :param expressions: variation expressions to register
         :param assembly: reference assembly used in expressions
         :return: list where the i'th item is either the VRS ID if translation succeeds,
@@ -47,12 +51,12 @@ class HttpAnyVarClient(BaseAnyVarClient):
         :raise AnyVarClientError: for unexpected errors relating to specifics of client interface
         """
         results = []
+        url = f"{self.hostname}/variation"
         for expression in expressions:
-            url = f"{self.hostname}/variation"
             payload = {
                 "definition": expression,
                 "assembly_name": assembly.value,
-                "input_type": "Allele",
+                "input_type": VrsType.ALLELE.value,
             }
             try:
                 response = requests.put(

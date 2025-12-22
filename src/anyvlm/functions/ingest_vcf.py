@@ -17,14 +17,16 @@ _logger = logging.getLogger(__name__)
 AfData = namedtuple("AfData", ("ac", "an", "ac_het", "ac_hom", "ac_hemi"))
 
 
+class VcfAfColumnsError(Exception):
+    """Raise for missing VCF INFO columns that are required for AF ingestion"""
+
+
 def _yield_expression_af_batches(
     vcf: pysam.VariantFile, batch_size: int = 1000
 ) -> Iterator[list[tuple[str, CohortAlleleFrequencyStudyResult]]]:
     """Generate a variant expression-allele frequency data pairing, one at a time
 
     :param vcf: VCF to pull variants from
-    :param translator: VRS-Python variant translator for converting VCF expressions to VRS
-    :param assembly: name of reference assembly used by VCF
     :param batch_size: size of return batches
     :return: iterator of lists of pairs of variant expressions and AF data classes
     """
@@ -36,13 +38,19 @@ def _yield_expression_af_batches(
                 _logger.info("Skipping missing allele at %s", record)
                 continue
             expression = f"{record.chrom}-{record.pos}-{record.ref}-{alt}"
-            af = AfData(
-                ac=record.info["AC"][i],
-                an=record.info["AN"],
-                ac_het=record.info["AC_Het"][i],
-                ac_hom=record.info["AC_Hom"][i],
-                ac_hemi=record.info["AC_Hemi"][i],
-            )
+            try:
+                af = AfData(
+                    ac=record.info["AC"][i],
+                    an=record.info["AN"],
+                    ac_het=record.info["AC_Het"][i],
+                    ac_hom=record.info["AC_Hom"][i],
+                    ac_hemi=record.info["AC_Hemi"][i],
+                )
+            except KeyError as e:
+                info = record.info
+                msg = f"One or more required INFO column is missing: {'AC' in info}, {'AN' in info}, {'AC_Het' in info}, {'AC_Hom' in info}, {'AC_Hemi' in info}"
+                _logger.exception(msg)
+                raise VcfAfColumnsError(msg) from e
             batch.append((expression, af))
             if len(batch) >= batch_size:
                 _logger.debug("Yielding next batch")
@@ -72,6 +80,7 @@ def ingest_vcf(
     :param vcf_path: location of input file
     :param av: AnyVar client
     :param assembly: reference assembly used by VCF
+    :raise VcfAfColumnsError: if VCF is missing required columns
     """
     vcf = pysam.VariantFile(filename=vcf_path.absolute().as_uri(), mode="r")
 
