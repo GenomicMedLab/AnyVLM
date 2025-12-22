@@ -41,7 +41,7 @@ class AlleleFrequencyMapper(
         homozygotes = db_entity.ac_hom
         heterozygotes = db_entity.ac_het
         hemizygotes = db_entity.ac_hemi
-        ac = sum((homozygotes, heterozygotes, hemizygotes))
+        ac = sum((homozygotes or 0, heterozygotes or 0, hemizygotes or 0))
         an = db_entity.an
 
         return CohortAlleleFrequencyStudyResult(
@@ -56,7 +56,7 @@ class AlleleFrequencyMapper(
                 "hemizygotes": hemizygotes,
             },
             cohort=StudyGroup(name=db_entity.cohort),  # type: ignore
-        )  # type: ignore
+        )
 
     def to_db_entity(
         self, va_model: CohortAlleleFrequencyStudyResult
