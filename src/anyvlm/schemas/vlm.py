@@ -12,65 +12,21 @@ from anyvlm.utils.types import Zygosity
 RESULT_ENTITY_TYPE = "genomicVariant"
 
 
-class HandoverSettings(BaseSettings):
-    """Settings for 'HandoverType' class"""
-
-    id: str
-    label: str
-
-    model_config = SettingsConfigDict(
-        env_prefix="HANDOVER_TYPE_",
-        extra="ignore",
-    )
-
-
-handover_type_settings = HandoverSettings()  # type: ignore
-
-
 class HandoverType(BaseModel):
     """The type of handover the parent `BeaconHandover` represents."""
 
-    id: str = Field(
-        "",
-        description="Node-specific identifier",
-        frozen=True,
-    )
+    id: str = Field(default="gregor", description="Node-specific identifier")
     label: str = Field(
-        "",
-        description="Node-specific label",
-        frozen=True,
+        description="Node-specific identifier",
     )
-
-    model_config = ConfigDict(
-        extra="forbid",
-    )
-
-    # custom __init__ to prevent overriding attributes that are static/set via environment variables
-    def __init__(self) -> None:
-        super().__init__(
-            id=handover_type_settings.id,
-            label=handover_type_settings.label,
-        )
-
-
-class BeaconHandoverSettings(BaseSettings):
-    """Settings for 'BeaconHandover' class"""
-
-    url: str
-
-    model_config = SettingsConfigDict(
-        env_prefix="BEACON_HANDOVER_",
-        extra="ignore",
-    )
-
-
-beacon_handover_settings = BeaconHandoverSettings()  # type: ignore
 
 
 class BeaconHandover(BaseModel):
     """Describes how users can get more information about the results provided in the parent `VlmResponse`"""
 
-    handoverType: HandoverType = Field(default=HandoverType())
+    handoverType: HandoverType = Field(
+        ..., description="The type of handover this represents"
+    )
     url: str = Field(
         "",
         description="""
@@ -78,10 +34,6 @@ class BeaconHandover(BaseModel):
             Ideally links directly to the variant specified in the query, but can be a generic search page if necessary.
         """,
     )
-
-    # custom __init__ to prevent overriding attributes that are static/set via environment variables
-    def __init__(self) -> None:
-        super().__init__(url=beacon_handover_settings.url)
 
 
 class ReturnedSchema(BaseModel):
@@ -190,7 +142,7 @@ class ResponseField(BaseModel):
 class VlmResponse(BaseModel):
     """Define response structure for the variant_counts endpoint."""
 
-    beaconHandovers: list[BeaconHandover] = [BeaconHandover()]
+    beaconHandovers: list[BeaconHandover]
     meta: Meta = Meta()
     responseSummary: ResponseSummary
     response: ResponseField
