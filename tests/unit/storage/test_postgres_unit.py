@@ -32,6 +32,28 @@ def caf_empty_cohort(caf_iri: CohortAlleleFrequencyStudyResult):
     return caf
 
 
+@pytest.mark.parametrize(
+    ("db_url", "sanitized_db_url"),
+    [
+        (
+            "postgresql://postgres:postgres@localhost:5432/anyvlm_test",
+            "postgresql://postgres:****@localhost:5432/anyvlm_test",
+        ),
+        (
+            "postgresql://postgres@localhost:5432/anyvlm_test",
+            "postgresql://postgres@localhost:5432/anyvlm_test",
+        ),
+    ],
+)
+def test_sanitized_url(monkeypatch, db_url: str, sanitized_db_url: str):
+    """Test that sanitized_url method works correctly"""
+    monkeypatch.setattr(PostgresObjectStore, "__init__", lambda *_: None)
+    object_store = PostgresObjectStore("")
+    monkeypatch.setattr(object_store, "db_url", db_url, raising=False)
+    assert object_store.db_url == db_url
+    assert object_store.sanitized_url == sanitized_db_url
+
+
 @pytest.mark.parametrize("caf_fixture_name", ["caf_iri", "caf_allele"])
 def test_add_allele_frequencies(
     request, caf_fixture_name: str, postgres_storage: PostgresObjectStore
