@@ -14,6 +14,10 @@ from anyvlm.utils.types import (
 )
 
 
+class VariantNotRegisteredError(Exception):
+    """Raised when a variant is not registered in the AnyVar client"""
+
+
 def get_caf(
     anyvar_client: BaseAnyVarClient,
     anyvlm_storage: Storage,
@@ -23,8 +27,8 @@ def get_caf(
     reference_bases: NucleotideSequence,
     alternate_bases: NucleotideSequence,
 ) -> list[CohortAlleleFrequencyStudyResult]:
-    """Retrieve Cohort Allele Frequency data for all known variants matching provided
-    search params
+    """Retrieve Cohort Allele Frequency data for all known registered variants matching
+    provided search params
 
     :param anyvar_client: AnyVar client (variant lookup)
     :param anyvlm_storage: AnyVLM Storage (CAF storage and retrieval)
@@ -36,6 +40,7 @@ def get_caf(
     :param reference_bases: Genomic bases ('T', 'AC', etc.)
     :param alternate_bases: Genomic bases ('T', 'AC', etc.)
     :raises ValueError: if unsupported assembly ID is provided
+    :raises VariantNotRegisteredError: if variant is not registered in AnyVar
     :return: list of CohortAlleleFrequencyStudyResult objects for the provided variant
     """
     gnomad_vcf: str = f"{reference_name}-{start}-{reference_bases}-{alternate_bases}"
@@ -47,7 +52,8 @@ def get_caf(
 
     vrs_variation = anyvar_client.get_registered_allele_expression(gnomad_vcf, assembly)
     if not vrs_variation:
-        return []
+        msg = f"Variant {assembly.value} {gnomad_vcf} is not registered in AnyVar"
+        raise VariantNotRegisteredError(msg)
 
     cafs: list[CohortAlleleFrequencyStudyResult] = (
         anyvlm_storage.get_caf_by_vrs_allele_id(vrs_variation.id)  # type: ignore

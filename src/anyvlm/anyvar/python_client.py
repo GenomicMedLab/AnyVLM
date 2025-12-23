@@ -51,9 +51,7 @@ class PythonAnyVarClient(BaseAnyVarClient):
             _logger.exception("Found invalid base in expression %s", expression)
         except TranslationError:
             _logger.exception("Failed to translate expression: %s", expression)
-        if isinstance(translated_variation, Allele):
-            return translated_variation
-        return None
+        return translated_variation  # type: ignore
 
     def get_registered_allele_expression(
         self, expression: str, assembly: ReferenceAssembly = ReferenceAssembly.GRCH38
