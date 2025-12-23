@@ -9,6 +9,7 @@ from anyvar.translate.translate import TranslationError, Translator
 from anyvar.utils.liftover_utils import ReferenceAssembly
 from anyvar.utils.types import SupportedVariationType, VrsVariation
 from ga4gh.vrs.dataproxy import DataProxyValidationError
+from ga4gh.vrs.models import Allele
 
 from anyvlm.anyvar.base_client import BaseAnyVarClient
 
@@ -25,6 +26,59 @@ class PythonAnyVarClient(BaseAnyVarClient):
         :param storage: AnyVar storage instance
         """
         self.av = AnyVar(translator, storage)
+
+    def _translate_allele_expression(
+        self, expression: str, assembly: ReferenceAssembly = ReferenceAssembly.GRCH38
+    ) -> Allele | None:
+        """Translate a single allele expression to a VRS Allele ID
+
+        Currently, only expressions supported by the VRS-Python translator are supported.
+        This could change depending on the AnyVar implementation, though, and probably
+        can't be validated on the AnyVLM side.
+
+        :param expression: variation expression to translate
+        :param assembly: reference assembly used in expression
+        :return: VRS Allele if translation succeeds, else `None`
+        """
+        translated_variation = None
+        try:
+            translated_variation = self.av.translator.translate_variation(
+                expression,
+                assembly=assembly.value,
+                input_type=SupportedVariationType.ALLELE,  # type: ignore
+            )
+        except DataProxyValidationError:
+            _logger.exception("Found invalid base in expression %s", expression)
+        except TranslationError:
+            _logger.exception("Failed to translate expression: %s", expression)
+        if isinstance(translated_variation, Allele):
+            return translated_variation
+        return None
+
+    def get_registered_allele_expression(
+        self, expression: str, assembly: ReferenceAssembly = ReferenceAssembly.GRCH38
+    ) -> Allele | None:
+        """Retrieve registered VRS Allele for given allele expression
+
+        Currently, only expressions supported by the VRS-Python translator are supported.
+        This could change depending on the AnyVar implementation, though, and probably
+        can't be validated on the AnyVLM side.
+
+        :param expression: variation expression to get VRS Allele for
+        :param assembly: reference assembly used in expression
+        :return: VRS Allele if translation succeeds and VRS Allele has already been registered, else `None`
+        """
+        translated_variation = self._translate_allele_expression(expression, assembly)
+        if translated_variation and translated_variation.id:
+            try:
+                vrs_variation = self.av.get_object(translated_variation.id, Allele)
+                if isinstance(vrs_variation, Allele):
+                    return vrs_variation
+            except KeyError:
+                _logger.exception(
+                    "VRS Allele with ID %s not found", translated_variation.id
+                )
+        return None
 
     def put_allele_expressions(
         self,
@@ -44,20 +98,12 @@ class PythonAnyVarClient(BaseAnyVarClient):
         """
         results = []
         for expression in expressions:
-            translated_variation = None
-            try:
-                translated_variation = self.av.translator.translate_variation(
-                    expression,
-                    assembly=assembly.value,
-                    input_type=SupportedVariationType.ALLELE,
-                )
-            except DataProxyValidationError:
-                _logger.exception("Found invalid base in expression %s", expression)
-            except TranslationError:
-                _logger.exception("Failed to translate expression: %s", expression)
+            translated_variation = self._translate_allele_expression(
+                expression, assembly
+            )
             if translated_variation:
-                self.av.put_objects([translated_variation])  # type: ignore
-                results.append(translated_variation.id)  # type: ignore
+                self.av.put_objects([translated_variation])
+                results.append(translated_variation.id)
             else:
                 results.append(None)
         return results

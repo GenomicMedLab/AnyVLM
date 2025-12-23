@@ -1,66 +1,94 @@
 """Test that get_caf function works correctly"""
 
+from dataclasses import dataclass
+
 import pytest
 from deepdiff import DeepDiff
 from ga4gh.core.models import iriReference
 from ga4gh.va_spec.base import CohortAlleleFrequencyStudyResult
+from ga4gh.vrs.models import Allele
 
 from anyvlm.anyvar.python_client import PythonAnyVarClient
 from anyvlm.functions.get_caf import get_caf
 from anyvlm.storage.postgres import PostgresObjectStore
 from anyvlm.utils.types import GrcAssemblyId
 
-POSITION = 2781761
-ASSEMBLY = GrcAssemblyId.GRCH38
-CHROMOSOME = "chrY"
-CHROMOSOME_IDENTIFIER = f"{ASSEMBLY}:{CHROMOSOME}"
-GA4GH_SEQ_ID = f"ga4gh:{CHROMOSOME_IDENTIFIER}"
+
+@dataclass(frozen=True, slots=True)
+class TestVariant:
+    """Dataclass for test variant"""
+
+    assembly: GrcAssemblyId
+    chromosome: str
+    position: int
+    ref: str
+    alt: str
+
+
+EXPECTED_VRS_ID = "ga4gh:VA.9VDxL0stMBOZwcTKw3yb3UoWQkpaI9OD"
+TEST_VARIANT = TestVariant(
+    assembly=GrcAssemblyId.GRCH38,
+    chromosome="chrY",
+    position=2781761,
+    ref="C",
+    alt="A",
+)
+
+
+def build_caf(
+    base_caf: CohortAlleleFrequencyStudyResult,
+    allele_id: str | None = None,
+    allele_obj: dict | None = None,
+):
+    """Build a caf object with the given allele_id or allele_obj"""
+    caf = base_caf.model_copy(deep=True)
+    if allele_id:
+        caf.focusAllele = iriReference(root=allele_id)
+    elif allele_obj:
+        caf.focusAllele = Allele(**allele_obj)
+    else:
+        msg = "One of allele_id or allele_obj must be provided"
+        raise ValueError(msg)
+
+    return caf
 
 
 @pytest.fixture
-def alleles_to_add(alleles: dict):
-    """Create test fixture for alleles whose sequence reference matches CHROMOSOME_IDENTIFIER"""
-    return [
-        value["variation"]
-        for value in alleles.values()
-        if value["variation"]["location"]["sequenceReference"]["refgetAccession"]
-        == CHROMOSOME_IDENTIFIER
+def anyvar_minimal_populated_python_client(
+    anyvar_python_client: PythonAnyVarClient, alleles: dict
+):
+    """AnyVar client populated with allele alleles except the expected one"""
+    vcf_expressions = [
+        allele_fixture["vcf_expression"]
+        for allele_fixture in alleles.values()
+        if allele_fixture.get("vcf_expression")
+        and allele_fixture["variation"]["id"] != EXPECTED_VRS_ID
     ]
+    anyvar_python_client.put_allele_expressions(vcf_expressions)
 
-
-@pytest.fixture
-def alleles_in_range(alleles_to_add):
-    """Create test fixture for alleles overlapping POS"""
-    return [
-        variation
-        for variation in alleles_to_add
-        if variation["location"]["start"] <= POSITION
-        and variation["location"]["end"] >= POSITION
-    ]
+    return anyvar_python_client
 
 
 @pytest.fixture
 def populated_postgres_storage(
     postgres_storage: PostgresObjectStore,
-    alleles_to_add: list[dict],
+    alleles: dict,
     caf_iri: CohortAlleleFrequencyStudyResult,
 ):
-    """Create test fixture for Postgres storage populated with CAFs for alleles_to_add"""
-    for variation in alleles_to_add:
-        caf_copy = caf_iri.model_copy(deep=True)
-        caf_copy.focusAllele = iriReference(root=variation["id"])
-        postgres_storage.add_allele_frequencies(caf_copy)
+    """Populate the postgres storage with allele frequencies for testing"""
+    for allele in alleles.values():
+        caf = build_caf(caf_iri, allele_id=allele["variation"]["id"])
+        postgres_storage.add_allele_frequencies(caf)
     return postgres_storage
 
 
 @pytest.fixture
-def expected_cafs(caf_iri, alleles_in_range):
-    cafs = []
-    for variation in alleles_in_range:
-        new_caf = caf_iri.model_copy(deep=True)
-        new_caf.focusAllele = variation
-        cafs.append(new_caf)
-    return cafs
+def expected_cafs(caf_iri: CohortAlleleFrequencyStudyResult, alleles: dict):
+    allele = alleles.get(EXPECTED_VRS_ID)
+    if not allele:
+        return []
+
+    return [build_caf(caf_iri, allele_obj=allele["variation"])]
 
 
 @pytest.mark.vcr
@@ -69,13 +97,15 @@ def test_get_caf_results_returned(
     populated_postgres_storage: PostgresObjectStore,
     expected_cafs: list[CohortAlleleFrequencyStudyResult],
 ):
-    """Test get_caf when results are expected"""
+    """Test get_caf when variants are registered and results are expected"""
     cafs = get_caf(
         anyvar_populated_python_client,
         populated_postgres_storage,
-        ASSEMBLY,
-        CHROMOSOME,
-        POSITION,
+        TEST_VARIANT.assembly,
+        TEST_VARIANT.chromosome,
+        TEST_VARIANT.position,
+        TEST_VARIANT.ref,
+        TEST_VARIANT.alt,
     )
     diff = DeepDiff(
         [caf.model_dump(exclude_none=True) for caf in cafs],
@@ -86,16 +116,18 @@ def test_get_caf_results_returned(
 
 
 @pytest.mark.vcr
-def test_get_caf_no_results(
-    anyvar_populated_python_client: PythonAnyVarClient,
+def test_get_caf_no_results_when_variant_not_registered(
+    anyvar_minimal_populated_python_client: PythonAnyVarClient,
     populated_postgres_storage: PostgresObjectStore,
 ):
-    """Test get_caf when no results are expected"""
+    """Test get_caf when results are not expected due to variant not being registered"""
     cafs = get_caf(
-        anyvar_populated_python_client,
+        anyvar_minimal_populated_python_client,
         populated_postgres_storage,
-        GrcAssemblyId.GRCH37,
-        "Y",
-        POSITION,
+        TEST_VARIANT.assembly,
+        TEST_VARIANT.chromosome,
+        TEST_VARIANT.position,
+        TEST_VARIANT.ref,
+        TEST_VARIANT.alt,
     )
     assert cafs == []

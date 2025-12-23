@@ -44,6 +44,13 @@ def stub_anyvar_client():
     }
 
     class TestAnyVarClient(BaseAnyVarClient):
+        def get_registered_allele_expression(
+            self,
+            expression: str,
+            assembly: ReferenceAssembly = ReferenceAssembly.GRCH38,
+        ):
+            raise NotImplementedError
+
         def put_allele_expressions(
             self,
             expressions: Iterable[str],

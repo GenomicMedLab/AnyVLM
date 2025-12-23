@@ -3,6 +3,7 @@
 from enum import Enum, StrEnum
 from typing import Annotated
 
+from anyvar.utils.liftover_utils import ReferenceAssembly
 from pydantic import BaseModel, BeforeValidator, StringConstraints
 
 
@@ -39,6 +40,15 @@ class UcscAssemblyBuild(StrEnum):
 
     HG38 = "hg38"
     HG19 = "hg19"
+
+
+# Mapping of GRC and UCSC assembly identifiers to their corresponding ReferenceAssembly
+ASSEMBLY_MAP = {
+    GrcAssemblyId.GRCH38: ReferenceAssembly.GRCH38,
+    UcscAssemblyBuild.HG38: ReferenceAssembly.GRCH38,
+    GrcAssemblyId.GRCH37: ReferenceAssembly.GRCH37,
+    UcscAssemblyBuild.HG19: ReferenceAssembly.GRCH37,
+}
 
 
 NucleotideSequence = Annotated[

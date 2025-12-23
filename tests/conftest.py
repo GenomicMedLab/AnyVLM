@@ -87,8 +87,13 @@ def anyvar_python_client(anyvlm_anyvar_postgres_uri: str) -> PythonAnyVarClient:
 def anyvar_populated_python_client(
     anyvar_python_client: PythonAnyVarClient, alleles: dict
 ):
-    for allele_fixture in alleles.values():
-        anyvar_python_client.put_objects([models.Allele(**allele_fixture["variation"])])
+    vcf_expressions = [
+        allele_fixture["vcf_expression"]
+        for allele_fixture in alleles.values()
+        if allele_fixture.get("vcf_expression")
+    ]
+    anyvar_python_client.put_allele_expressions(vcf_expressions)
+
     return anyvar_python_client
 
 

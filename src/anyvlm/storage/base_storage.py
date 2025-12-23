@@ -41,12 +41,12 @@ class Storage(ABC):
         """
 
     @abstractmethod
-    def get_caf_by_vrs_allele_ids(
-        self, vrs_allele_ids: list[str]
+    def get_caf_by_vrs_allele_id(
+        self, vrs_allele_id: str
     ) -> list[CohortAlleleFrequencyStudyResult]:
-        """Retrieve cohort allele frequency study results by VRS Allele IDs
+        """Retrieve cohort allele frequency study results by VRS Allele ID
 
-        :param vrs_allele_ids: List of VRS Allele IDs
+        :param vrs_allele_id: VRS Allele ID
         :return: List of cohort allele frequency study results matching given VRS
             Allele IDs. Will use iriReference for focusAllele
         """

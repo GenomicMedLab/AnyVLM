@@ -1,13 +1,17 @@
 """Perform search against variant(s) contained by an AnyVar node, and construct cohort allele frequency model(s)"""
 
-from anyvar.utils.types import VrsVariation
 from ga4gh.core.models import iriReference
 from ga4gh.va_spec.base import CohortAlleleFrequencyStudyResult
-from ga4gh.vrs.models import Allele
 
 from anyvlm.anyvar.base_client import BaseAnyVarClient
 from anyvlm.storage.base_storage import Storage
-from anyvlm.utils.types import ChromosomeName, GrcAssemblyId, UcscAssemblyBuild
+from anyvlm.utils.types import (
+    ASSEMBLY_MAP,
+    ChromosomeName,
+    GrcAssemblyId,
+    NucleotideSequence,
+    UcscAssemblyBuild,
+)
 
 
 def get_caf(
@@ -16,6 +20,8 @@ def get_caf(
     assembly_id: GrcAssemblyId | UcscAssemblyBuild,
     reference_name: ChromosomeName,
     start: int,
+    reference_bases: NucleotideSequence,
+    alternate_bases: NucleotideSequence,
 ) -> list[CohortAlleleFrequencyStudyResult]:
     """Retrieve Cohort Allele Frequency data for all known variants matching provided
     search params
@@ -29,23 +35,25 @@ def get_caf(
     :param start: start of range search. Uses residue coordinates (1-based)
     :param reference_bases: Genomic bases ('T', 'AC', etc.)
     :param alternate_bases: Genomic bases ('T', 'AC', etc.)
+    :raises ValueError: if unsupported assembly ID is provided
     :return: list of CAFs contained in search interval
     """
-    vrs_variations: list[VrsVariation] = anyvar_client.search_by_interval(
-        f"{assembly_id}:{reference_name}", start - 1, start
-    )
-    vrs_variations_map: dict[str, Allele] = {
-        vrs_variation.id: vrs_variation
-        for vrs_variation in vrs_variations
-        if vrs_variation.id and isinstance(vrs_variation, Allele)
-    }
+    gnomad_vcf: str = f"{reference_name}-{start}-{reference_bases}-{alternate_bases}"
+    try:
+        assembly = ASSEMBLY_MAP[assembly_id]
+    except KeyError as e:
+        msg = "Unsupported assembly ID: {assembly_id}"
+        raise ValueError(msg) from e
+    vrs_variation = anyvar_client.get_registered_allele_expression(gnomad_vcf, assembly)
+    if not vrs_variation:
+        return []
 
     cafs: list[CohortAlleleFrequencyStudyResult] = (
-        anyvlm_storage.get_caf_by_vrs_allele_ids(list(vrs_variations_map))
+        anyvlm_storage.get_caf_by_vrs_allele_id(vrs_variation.id)  # type: ignore
     )
 
     for caf in cafs:
         if isinstance(caf.focusAllele, iriReference):
-            caf.focusAllele = vrs_variations_map[caf.focusAllele.root]
+            caf.focusAllele = vrs_variation
 
     return cafs

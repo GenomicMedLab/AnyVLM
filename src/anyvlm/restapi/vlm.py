@@ -13,6 +13,7 @@ from anyvlm.main import app
 from anyvlm.schemas.vlm import (
     VlmResponse,
 )
+from anyvlm.storage.base_storage import Storage
 from anyvlm.utils.types import (
     ChromosomeName,
     EndpointTag,
@@ -55,7 +56,14 @@ def variant_counts(
     ],
 ) -> VlmResponse:
     anyvar_client: BaseAnyVarClient = request.app.state.anyvar_client
+    anyvlm_storage: Storage = request.app.state.anyvlm_storage
     caf_data: list[CohortAlleleFrequencyStudyResult] = get_caf(
-        anyvar_client, assemblyId, referenceName, start, referenceBases, alternateBases
+        anyvar_client,
+        anyvlm_storage,
+        assemblyId,
+        referenceName,
+        start,
+        referenceBases,
+        alternateBases,
     )
     return build_vlm_response_from_caf_data(caf_data)

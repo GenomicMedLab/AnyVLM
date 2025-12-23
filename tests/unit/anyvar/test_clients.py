@@ -74,6 +74,37 @@ POPULATED_CLIENTS = [
 
 @pytest.mark.vcr
 @pytest.mark.parametrize("anyvar_client", UNPOPULATED_CLIENTS, indirect=True)
+def test_get_registered_allele_expressions_unpopulated(
+    anyvar_client: BaseAnyVarClient, alleles: dict
+):
+    """Test `get_registered_allele_expressions` for an unpopulated client"""
+    for allele_fixture in alleles.values():
+        if "vcf_expression" not in allele_fixture:
+            continue
+        assert (
+            anyvar_client.get_registered_allele_expression(
+                allele_fixture["vcf_expression"]
+            )
+            is None
+        )
+
+
+@pytest.mark.vcr
+@pytest.mark.parametrize("anyvar_client", POPULATED_CLIENTS, indirect=True)
+def test_get_registered_allele_expressions_populated(
+    anyvar_client: BaseAnyVarClient, alleles: dict
+):
+    """Test `get_registered_allele_expressions` for a populated client"""
+    for allele_fixture in alleles.values():
+        if "vcf_expression" not in allele_fixture:
+            continue
+        assert anyvar_client.get_registered_allele_expression(
+            allele_fixture["vcf_expression"]
+        ) == models.Allele(**allele_fixture["variation"])
+
+
+@pytest.mark.vcr
+@pytest.mark.parametrize("anyvar_client", UNPOPULATED_CLIENTS, indirect=True)
 def test_put_allele_expressions(anyvar_client: BaseAnyVarClient, alleles: dict):
     """Test `put_objects` for a basic test suite of variants"""
     for allele_fixture in alleles.values():
