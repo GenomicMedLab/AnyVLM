@@ -76,11 +76,12 @@ class Meta(BaseModel):
     )
     beaconId: str = Field(
         default="",
-        description="""
-            The Id of a Beacon. Usually a reversed domain string, but any URI is acceptable. The purpose of this attribute is,
-            in the context of a Beacon network, to disambiguate responses coming from different Beacons. See the beacon documentation
-            [here](https://github.com/ga4gh-beacon/beacon-v2/blob/c6558bf2e6494df3905f7b2df66e903dfe509500/framework/src/common/beaconCommonComponents.yaml#L26)
-        """,
+        description=(
+            "The Id of a Beacon. Usually a reversed domain string, but any URI is acceptable. "
+            "The purpose of this attribute is,in the context of a Beacon network, to disambiguate "
+            "responses coming from different Beacons. See the beacon documentation "
+            "[here](https://github.com/ga4gh-beacon/beacon-v2/blob/c6558bf2e6494df3905f7b2df66e903dfe509500/framework/src/common/beaconCommonComponents.yaml#L26)"
+        ),
     )
     returnedSchemas: list[ReturnedSchema] = [ReturnedSchema()]
 
