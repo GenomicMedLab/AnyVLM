@@ -1,13 +1,16 @@
 """Implement AnyVar client interface for direct Python-based access."""
 
 import logging
+from collections.abc import Iterable, Sequence
 
 from anyvar import AnyVar
 from anyvar.storage.base_storage import Storage
-from anyvar.translate.translate import Translator
-from anyvar.utils.types import VrsVariation
+from anyvar.translate.translate import TranslationError, Translator
+from anyvar.utils.liftover_utils import ReferenceAssembly
+from anyvar.utils.types import SupportedVariationType, VrsVariation
+from ga4gh.vrs.dataproxy import DataProxyValidationError
 
-from anyvlm.anyvar.base_client import BaseAnyVarClient, UnidentifiedObjectError
+from anyvlm.anyvar.base_client import BaseAnyVarClient
 
 _logger = logging.getLogger(__name__)
 
@@ -23,20 +26,41 @@ class PythonAnyVarClient(BaseAnyVarClient):
         """
         self.av = AnyVar(translator, storage)
 
-    def put_objects(self, objects: list[VrsVariation]) -> None:
-        """Register objects with AnyVar
+    def put_allele_expressions(
+        self,
+        expressions: Iterable[str],
+        assembly: ReferenceAssembly = ReferenceAssembly.GRCH38,
+    ) -> Sequence[str | None]:
+        """Submit allele expressions to an AnyVar instance and retrieve corresponding VRS IDs
 
-        All input objects must have a populated ID field. A validation check for this is
-        performed before any variants are registered.
+        Currently, only expressions supported by the VRS-Python translator are supported.
+        This could change depending on the AnyVar implementation, though, and probably
+        can't be validated on the AnyVLM side.
 
-        :param objects: variation objects to register
-        :raise UnidentifiedObjectError: if *any* provided object lacks a VRS ID
+        :param expressions: variation expressions to register
+        :param assembly: reference assembly used in expressions
+        :return: list where the i'th item is either the VRS ID if translation succeeds,
+            else `None`, for the i'th expression
         """
-        for variant in objects:
-            if not variant.id:
-                _logger.error("Provided variant %s has no VRS ID", variant)
-                raise UnidentifiedObjectError
-        self.av.put_objects(objects)  # type: ignore[reportArgumentType]
+        results = []
+        for expression in expressions:
+            translated_variation = None
+            try:
+                translated_variation = self.av.translator.translate_variation(
+                    expression,
+                    assembly=assembly.value,
+                    input_type=SupportedVariationType.ALLELE,
+                )
+            except DataProxyValidationError:
+                _logger.exception("Found invalid base in expression %s", expression)
+            except TranslationError:
+                _logger.exception("Failed to translate expression: %s", expression)
+            if translated_variation:
+                self.av.put_objects([translated_variation])  # type: ignore
+                results.append(translated_variation.id)  # type: ignore
+            else:
+                results.append(None)
+        return results
 
     def search_by_interval(
         self, accession: str, start: int, end: int
@@ -65,4 +89,5 @@ class PythonAnyVarClient(BaseAnyVarClient):
 
     def close(self) -> None:
         """Clean up AnyVar instance."""
+        _logger.info("Closing AnyVar client.")
         self.av.object_store.close()
