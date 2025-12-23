@@ -4,7 +4,6 @@ from pathlib import Path
 from typing import Annotated
 
 from fastapi import Query, Request
-from ga4gh.va_spec.base.core import AnyVlmCohortAlleleFrequencyResult
 
 from anyvlm.anyvar.base_client import BaseAnyVarClient
 from anyvlm.functions.build_vlm_response import build_vlm_response_from_caf_data
@@ -15,6 +14,7 @@ from anyvlm.schemas.vlm import (
 )
 from anyvlm.storage.base_storage import Storage
 from anyvlm.utils.types import (
+    AnyVlmCohortAlleleFrequencyResult,
     ChromosomeName,
     EndpointTag,
     GrcAssemblyId,

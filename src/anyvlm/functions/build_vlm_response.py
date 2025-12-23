@@ -1,10 +1,9 @@
 """Craft a VlmResponse object from a list of CohortAlleleFrequencyStudyResults"""
 
-from ga4gh.va_spec.base.core import AnyVlmCohortAlleleFrequencyResult
-
 from anyvlm.schemas.vlm import (
     VlmResponse,
 )
+from anyvlm.utils.types import AnyVlmCohortAlleleFrequencyResult
 
 
 def build_vlm_response_from_caf_data(
