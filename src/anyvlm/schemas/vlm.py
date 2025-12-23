@@ -3,10 +3,11 @@
 from typing import ClassVar, Literal, Self
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from anyvlm.utils.types import Zygosity
 
-# ruff: noqa: N815 (allows camelCase vars instead of snake_case to align with expected VLM protocol response)
+# ruff: noqa: N815, N803, D107 (allow camelCase instead of snake_case to align with expected VLM protocol response + don't require init docstrings)
 
 RESULT_ENTITY_TYPE = "genomicVariant"
 
@@ -14,21 +15,24 @@ RESULT_ENTITY_TYPE = "genomicVariant"
 class HandoverType(BaseModel):
     """The type of handover the parent `BeaconHandover` represents."""
 
-    id: str = Field(
-        default="gregor", description="Node-specific identifier"
-    )  # TODO: enable configuration of this field. See Issue #27.
+    id: str = Field(default="gregor", description="Node-specific identifier")
     label: str = Field(
-        default="GREGoR AnVIL browser", description="Node-specific label"
-    )  # TODO: enable configuration of this field. See Issue #27.
+        description="Node-specific identifier",
+    )
 
 
 class BeaconHandover(BaseModel):
     """Describes how users can get more information about the results provided in the parent `VlmResponse`"""
 
-    handoverType: HandoverType = HandoverType()
+    handoverType: HandoverType = Field(
+        ..., description="The type of handover this represents"
+    )
     url: str = Field(
-        default="https://anvil.terra.bio/#workspaces?filter=GREGoR",  # TODO: enable configuration of this field. See Issue #27.
-        description="A url which directs users to more detailed information about the results tabulated by the API (ideally human-readable)",
+        "",
+        description="""
+            A url which directs users to more detailed information about the results tabulated by the API. Must be human-readable.
+            Ideally links directly to the variant specified in the query, but can be a generic search page if necessary.
+        """,
     )
 
 
@@ -42,11 +46,25 @@ class ReturnedSchema(BaseModel):
     schema_: str = Field(
         default="ga4gh-beacon-variant-v2.0.0",
         # Alias is required because 'schema' is reserved by Pydantic's BaseModel class,
-        # But VLM expects a field named 'schema'
+        # But VLM protocol expects a field named 'schema'
         alias="schema",
     )
 
     model_config = ConfigDict(populate_by_name=True)
+
+
+class MetaSettings(BaseSettings):
+    """Settings for 'Meta' class"""
+
+    beaconId: str = Field(..., alias="BEACON_NODE_ID")
+
+    model_config = SettingsConfigDict(
+        env_prefix="",
+        extra="ignore",
+    )
+
+
+meta_settings = MetaSettings()  # type: ignore
 
 
 class Meta(BaseModel):
@@ -57,14 +75,19 @@ class Meta(BaseModel):
         description="The version of the VLM API that this response conforms to",
     )
     beaconId: str = Field(
-        default="org.gregor.beacon",  # TODO: enable configuration of this field. See Issue #27.
-        description="""
-            The Id of a Beacon. Usually a reversed domain string, but any URI is acceptable. The purpose of this attribute is,
-            in the context of a Beacon network, to disambiguate responses coming from different Beacons. See the beacon documentation
-            [here](https://github.com/ga4gh-beacon/beacon-v2/blob/c6558bf2e6494df3905f7b2df66e903dfe509500/framework/src/common/beaconCommonComponents.yaml#L26)
-        """,
+        default="",
+        description=(
+            "The Id of a Beacon. Usually a reversed domain string, but any URI is acceptable. "
+            "The purpose of this attribute is,in the context of a Beacon network, to disambiguate "
+            "responses coming from different Beacons. See the beacon documentation "
+            "[here](https://github.com/ga4gh-beacon/beacon-v2/blob/c6558bf2e6494df3905f7b2df66e903dfe509500/framework/src/common/beaconCommonComponents.yaml#L26)"
+        ),
     )
     returnedSchemas: list[ReturnedSchema] = [ReturnedSchema()]
+
+    # custom __init__ to prevent overriding attributes that are static or set via environment variables
+    def __init__(self) -> None:
+        super().__init__(beaconId=meta_settings.beaconId)
 
 
 class ResponseSummary(BaseModel):
@@ -104,6 +127,10 @@ class ResultSet(BaseModel):
         description=f"The type of entity relevant to these results. Must always be set to '{RESULT_ENTITY_TYPE}'",
     )
 
+    # custom __init__ to prevent inadvertently overriding static fields
+    def __init__(self, resultset_id: str, resultsCount: int) -> None:
+        super().__init__(id=resultset_id, resultsCount=resultsCount)
+
 
 class ResponseField(BaseModel):
     """A list of ResultSets"""
@@ -116,7 +143,7 @@ class ResponseField(BaseModel):
 class VlmResponse(BaseModel):
     """Define response structure for the variant_counts endpoint."""
 
-    beaconHandovers: list[BeaconHandover] = [BeaconHandover()]
+    beaconHandovers: list[BeaconHandover]
     meta: Meta = Meta()
     responseSummary: ResponseSummary
     response: ResponseField
