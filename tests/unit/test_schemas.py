@@ -41,36 +41,6 @@ def response_summary() -> ResponseSummary:
     return ResponseSummary(exists=False, numTotalResults=0)
 
 
-@pytest.fixture(scope="module")
-def responses_with_invalid_resultset_ids(valid_handover_id: str) -> list[ResponseField]:
-    return [
-        ResponseField(
-            resultSets=[
-                ResultSet(
-                    resultset_id=f"invalid_handover_id {Zygosity.HOMOZYGOUS}",
-                    resultsCount=0,
-                )
-            ]
-        ),
-        ResponseField(
-            resultSets=[
-                ResultSet(
-                    resultset_id=f"{valid_handover_id} invalid_zygosity",
-                    resultsCount=0,
-                )
-            ]
-        ),
-        ResponseField(
-            resultSets=[
-                ResultSet(
-                    resultset_id=f"{Zygosity.HOMOZYGOUS}-{valid_handover_id}",  # incorrect order/formatting
-                    resultsCount=0,
-                )
-            ]
-        ),
-    ]
-
-
 def test_valid_resultset_id(
     valid_handover_id: str,
     beacon_handovers: list[BeaconHandover],
@@ -100,9 +70,35 @@ def test_valid_resultset_id(
 
 def test_invalid_resultset_ids(
     response_summary: ResponseSummary,
-    responses_with_invalid_resultset_ids: list[ResponseField],
     beacon_handovers: list[BeaconHandover],
 ):
+    responses_with_invalid_resultset_ids: list[ResponseField] = [
+        ResponseField(
+            resultSets=[
+                ResultSet(
+                    resultset_id=f"invalid_handover_id {Zygosity.HOMOZYGOUS}",
+                    resultsCount=0,
+                )
+            ]
+        ),
+        ResponseField(
+            resultSets=[
+                ResultSet(
+                    resultset_id=f"{valid_handover_id} invalid_zygosity",
+                    resultsCount=0,
+                )
+            ]
+        ),
+        ResponseField(
+            resultSets=[
+                ResultSet(
+                    resultset_id=f"{Zygosity.HOMOZYGOUS}-{valid_handover_id}",  # incorrect order/formatting
+                    resultsCount=0,
+                )
+            ]
+        ),
+    ]
+
     for response in responses_with_invalid_resultset_ids:
         with pytest.raises(
             ValueError,
