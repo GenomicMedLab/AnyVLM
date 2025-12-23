@@ -82,9 +82,7 @@ def test_get_registered_allele_expressions_unpopulated(
         if "vcf_expression" not in allele_fixture:
             continue
         assert (
-            anyvar_client.get_registered_allele_expression(
-                allele_fixture["vcf_expression"]
-            )
+            anyvar_client.get_registered_allele(allele_fixture["vcf_expression"])
             is None
         )
 
@@ -98,7 +96,7 @@ def test_get_registered_allele_expressions_populated(
     for allele_fixture in alleles.values():
         if "vcf_expression" not in allele_fixture:
             continue
-        assert anyvar_client.get_registered_allele_expression(
+        assert anyvar_client.get_registered_allele(
             allele_fixture["vcf_expression"]
         ) == models.Allele(**allele_fixture["variation"])
 
@@ -129,76 +127,3 @@ def test_put_allele_expressions_handle_invalid(
         ["Y-2781761-A-C", allele_fixture["vcf_expression"]]
     )
     assert results == [None, allele_fixture["variation"]["id"]]
-
-
-@pytest.mark.vcr
-@pytest.mark.parametrize("anyvar_client", POPULATED_CLIENTS, indirect=True)
-def test_search_by_interval(anyvar_client: BaseAnyVarClient, alleles: dict):
-    """Test `search_by_interval` for a couple of basic cases"""
-    results = anyvar_client.search_by_interval(
-        "ga4gh:SQ.8_liLu1aycC0tPQPFmUaGXJLDs5SbPZ5", 2781760, 2781760
-    )
-    assert sorted(results, key=lambda r: r.id) == [
-        models.Allele(
-            **alleles["ga4gh:VA.9VDxL0stMBOZwcTKw3yb3UoWQkpaI9OD"]["variation"]
-        ),
-        models.Allele(
-            **alleles["ga4gh:VA.R4kbmdsn5VldGrBiAaByO5N9zM3qCSFw"]["variation"]
-        ),
-    ]
-    results = anyvar_client.search_by_interval(
-        "ga4gh:SQ.8_liLu1aycC0tPQPFmUaGXJLDs5SbPZ5", 2781760, 2781768
-    )
-    assert sorted(results, key=lambda r: r.id) == [
-        models.Allele(
-            **alleles["ga4gh:VA.9VDxL0stMBOZwcTKw3yb3UoWQkpaI9OD"]["variation"]
-        ),
-        models.Allele(
-            **alleles["ga4gh:VA.R4kbmdsn5VldGrBiAaByO5N9zM3qCSFw"]["variation"]
-        ),
-        models.Allele(
-            **alleles["ga4gh:VA.yi7A2l0uIUMaInQaJnHU_B2Cf_OuZRJg"]["variation"]
-        ),
-    ]
-
-
-@pytest.mark.vcr
-@pytest.mark.parametrize("anyvar_client", POPULATED_CLIENTS, indirect=True)
-def test_search_by_interval_with_alias(anyvar_client: BaseAnyVarClient, alleles: dict):
-    """Test use of sequence alias"""
-    results = anyvar_client.search_by_interval("GRCh38.p1:Y", 2781760, 2781760)
-    assert sorted(results, key=lambda r: r.id) == [
-        models.Allele(
-            **alleles["ga4gh:VA.9VDxL0stMBOZwcTKw3yb3UoWQkpaI9OD"]["variation"]
-        ),
-        models.Allele(
-            **alleles["ga4gh:VA.R4kbmdsn5VldGrBiAaByO5N9zM3qCSFw"]["variation"]
-        ),
-    ]
-
-
-@pytest.mark.vcr
-@pytest.mark.parametrize("anyvar_client", POPULATED_CLIENTS, indirect=True)
-def test_search_by_interval_unknown_alias(anyvar_client: BaseAnyVarClient):
-    """Test handling response when sequence alias isn't recognized."""
-    assert anyvar_client.search_by_interval("GRCh45.p1:Y", 2781760, 2781760) == []
-
-
-@pytest.mark.vcr
-@pytest.mark.parametrize("anyvar_client", POPULATED_CLIENTS, indirect=True)
-def test_search_by_interval_unknown_accession(anyvar_client: BaseAnyVarClient):
-    """Test handling response when accession ID isn't recognized"""
-    results = anyvar_client.search_by_interval(
-        "ga4gh:SQ.ZZZZZu1aycC0tPQPFmUaGXJLDs5SbPZ5", 2781760, 2781768
-    )
-    assert results == []
-
-
-@pytest.mark.vcr
-@pytest.mark.parametrize("anyvar_client", POPULATED_CLIENTS, indirect=True)
-def test_search_by_interval_not_found(anyvar_client: BaseAnyVarClient):
-    """Test handling response when no matching variants are found"""
-    results = anyvar_client.search_by_interval(
-        "ga4gh:SQ.8_liLu1aycC0tPQPFmUaGXJLDs5SbPZ5", 1, 100
-    )
-    assert results == []

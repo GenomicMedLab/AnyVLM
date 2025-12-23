@@ -6,7 +6,6 @@ from http import HTTPMethod, HTTPStatus
 
 import requests
 from anyvar.utils.liftover_utils import ReferenceAssembly
-from anyvar.utils.types import VrsVariation
 from ga4gh.vrs import VrsType, models
 
 from anyvlm.anyvar.base_client import (
@@ -97,7 +96,7 @@ class HttpAnyVarClient(BaseAnyVarClient):
             raise AnyVarClientError from e
         return response
 
-    def get_registered_allele_expression(
+    def get_registered_allele(
         self, expression: str, assembly: ReferenceAssembly = ReferenceAssembly.GRCH38
     ) -> models.Allele | None:
         """Retrieve registered VRS Allele for given allele expression
@@ -145,31 +144,6 @@ class HttpAnyVarClient(BaseAnyVarClient):
             else:
                 results.append(response.json()["object_id"])
         return results
-
-    def search_by_interval(
-        self, accession: str, start: int, end: int
-    ) -> list[VrsVariation]:
-        """Get all variation IDs located within the specified range
-
-        :param accession: sequence accession
-        :param start: start position for genomic region
-        :param end: end position for genomic region
-        :return: list of matching variant objects
-        :raise AnyVarClientError: if connection is unsuccessful during search query
-        """
-        response = requests.get(
-            f"{self.hostname}/search?accession={accession}&start={start}&end={end}",
-            timeout=self.request_timeout,
-        )
-        try:
-            response.raise_for_status()
-        except requests.HTTPError as e:
-            if response.json() == {
-                "detail": "Unable to dereference provided accession ID"
-            }:
-                return []
-            raise AnyVarClientError from e
-        return [models.Allele(**v) for v in response.json()["variations"]]
 
     def close(self) -> None:
         """Clean up AnyVar connection.

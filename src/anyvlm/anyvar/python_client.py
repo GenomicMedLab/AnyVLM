@@ -7,7 +7,7 @@ from anyvar import AnyVar
 from anyvar.storage.base_storage import Storage
 from anyvar.translate.translate import TranslationError, Translator
 from anyvar.utils.liftover_utils import ReferenceAssembly
-from anyvar.utils.types import SupportedVariationType, VrsVariation
+from anyvar.utils.types import SupportedVariationType
 from ga4gh.vrs.dataproxy import DataProxyValidationError
 from ga4gh.vrs.models import Allele
 
@@ -53,7 +53,7 @@ class PythonAnyVarClient(BaseAnyVarClient):
             _logger.exception("Failed to translate expression: %s", expression)
         return translated_variation  # type: ignore
 
-    def get_registered_allele_expression(
+    def get_registered_allele(
         self, expression: str, assembly: ReferenceAssembly = ReferenceAssembly.GRCH38
     ) -> Allele | None:
         """Retrieve registered VRS Allele for given allele expression
@@ -104,31 +104,6 @@ class PythonAnyVarClient(BaseAnyVarClient):
             else:
                 results.append(None)
         return results
-
-    def search_by_interval(
-        self, accession: str, start: int, end: int
-    ) -> list[VrsVariation]:
-        """Get all variation IDs located within the specified range
-
-        :param accession: sequence accession
-        :param start: start position for genomic region
-        :param end: end position for genomic region
-        :return: list of matching variant objects
-        """
-        try:
-            if accession.startswith("ga4gh:"):
-                ga4gh_id = accession
-            else:
-                ga4gh_id = self.av.translator.get_sequence_id(accession)
-        except KeyError:
-            return []
-
-        alleles = []
-        if ga4gh_id:
-            refget_accession = ga4gh_id.split("ga4gh:")[-1]
-            alleles = self.av.object_store.search_alleles(refget_accession, start, end)
-
-        return alleles  # type: ignore[reportReturnType]
 
     def close(self) -> None:
         """Clean up AnyVar instance."""

@@ -50,7 +50,7 @@ def get_caf(
         msg = "Unsupported assembly ID: {assembly_id}"
         raise ValueError(msg) from e
 
-    vrs_variation = anyvar_client.get_registered_allele_expression(gnomad_vcf, assembly)
+    vrs_variation = anyvar_client.get_registered_allele(gnomad_vcf, assembly)
     if not vrs_variation:
         msg = f"Variant {assembly.value} {gnomad_vcf} is not registered in AnyVar"
         raise VariantNotRegisteredError(msg)
