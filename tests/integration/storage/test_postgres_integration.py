@@ -1,10 +1,10 @@
 """Test postgres storage integration methods"""
 
-from ga4gh.va_spec.base import CohortAlleleFrequencyStudyResult
 from sqlalchemy import select
 
 from anyvlm.storage import orm
 from anyvlm.storage.postgres import PostgresObjectStore
+from anyvlm.utils.types import AnyVlmCohortAlleleFrequencyResult
 
 
 def return_cafs(postgres_storage: PostgresObjectStore):
@@ -14,7 +14,7 @@ def return_cafs(postgres_storage: PostgresObjectStore):
 
 
 def test_db_lifecycle(
-    anyvlm_postgres_uri: str, caf_iri: CohortAlleleFrequencyStudyResult
+    anyvlm_postgres_uri: str, caf_iri: AnyVlmCohortAlleleFrequencyResult
 ):
     """Test that DB lifecycle works correctly"""
     # set up and populate DB

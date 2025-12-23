@@ -5,13 +5,12 @@ from dataclasses import dataclass
 import pytest
 from deepdiff import DeepDiff
 from ga4gh.core.models import iriReference
-from ga4gh.va_spec.base import CohortAlleleFrequencyStudyResult
 from ga4gh.vrs.models import Allele
 
 from anyvlm.anyvar.python_client import PythonAnyVarClient
 from anyvlm.functions.get_caf import VariantNotRegisteredError, get_caf
 from anyvlm.storage.postgres import PostgresObjectStore
-from anyvlm.utils.types import GrcAssemblyId
+from anyvlm.utils.types import AnyVlmCohortAlleleFrequencyResult, GrcAssemblyId
 
 
 @dataclass(frozen=True, slots=True)
@@ -36,7 +35,7 @@ TEST_VARIANT = TestVariant(
 
 
 def build_caf(
-    base_caf: CohortAlleleFrequencyStudyResult,
+    base_caf: AnyVlmCohortAlleleFrequencyResult,
     allele_id: str | None = None,
     allele_obj: dict | None = None,
 ):
@@ -73,7 +72,7 @@ def anyvar_minimal_populated_python_client(
 def populated_postgres_storage(
     postgres_storage: PostgresObjectStore,
     alleles: dict,
-    caf_iri: CohortAlleleFrequencyStudyResult,
+    caf_iri: AnyVlmCohortAlleleFrequencyResult,
 ):
     """Populate the postgres storage with allele frequencies for testing"""
     for allele in alleles.values():
@@ -83,7 +82,7 @@ def populated_postgres_storage(
 
 
 @pytest.fixture
-def expected_cafs(caf_iri: CohortAlleleFrequencyStudyResult, alleles: dict):
+def expected_cafs(caf_iri: AnyVlmCohortAlleleFrequencyResult, alleles: dict):
     allele = alleles.get(EXPECTED_VRS_ID)
     if not allele:
         return []
@@ -95,7 +94,7 @@ def expected_cafs(caf_iri: CohortAlleleFrequencyStudyResult, alleles: dict):
 def test_get_caf_results_returned(
     anyvar_populated_python_client: PythonAnyVarClient,
     populated_postgres_storage: PostgresObjectStore,
-    expected_cafs: list[CohortAlleleFrequencyStudyResult],
+    expected_cafs: list[AnyVlmCohortAlleleFrequencyResult],
 ):
     """Test get_caf when variants are registered and results are expected"""
     cafs = get_caf(

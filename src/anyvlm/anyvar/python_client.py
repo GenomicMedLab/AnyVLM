@@ -30,7 +30,7 @@ class PythonAnyVarClient(BaseAnyVarClient):
     def _translate_allele_expression(
         self, expression: str, assembly: ReferenceAssembly = ReferenceAssembly.GRCH38
     ) -> Allele | None:
-        """Translate a single allele expression to a VRS Allele ID
+        """Translate a single allele expression to a VRS Allele
 
         Currently, only expressions supported by the VRS-Python translator are supported.
         This could change depending on the AnyVar implementation, though, and probably
@@ -67,14 +67,15 @@ class PythonAnyVarClient(BaseAnyVarClient):
         :return: VRS Allele if translation succeeds and VRS Allele has already been registered, else `None`
         """
         translated_variation = self._translate_allele_expression(expression, assembly)
-        if translated_variation:
-            try:
-                return self.av.get_object(translated_variation.id, Allele)  # type: ignore
-            except KeyError:
-                _logger.exception(
-                    "VRS Allele with ID %s not found", translated_variation.id
-                )
-        return None
+        if not translated_variation:
+            return None
+
+        try:
+            return self.av.get_object(translated_variation.id, Allele)  # type: ignore
+        except KeyError:
+            _logger.exception(
+                "VRS Allele with ID %s not found", translated_variation.id
+            )
 
     def put_allele_expressions(
         self,

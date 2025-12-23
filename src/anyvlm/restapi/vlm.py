@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Annotated
 
 from fastapi import Query, Request
-from ga4gh.va_spec.base.core import CohortAlleleFrequencyStudyResult
+from ga4gh.va_spec.base.core import AnyVlmCohortAlleleFrequencyResult
 
 from anyvlm.anyvar.base_client import BaseAnyVarClient
 from anyvlm.functions.build_vlm_response import build_vlm_response_from_caf_data
@@ -57,7 +57,7 @@ def variant_counts(
 ) -> VlmResponse:
     anyvar_client: BaseAnyVarClient = request.app.state.anyvar_client
     anyvlm_storage: Storage = request.app.state.anyvlm_storage
-    caf_data: list[CohortAlleleFrequencyStudyResult] = get_caf(
+    caf_data: list[AnyVlmCohortAlleleFrequencyResult] = get_caf(
         anyvar_client,
         anyvlm_storage,
         assemblyId,

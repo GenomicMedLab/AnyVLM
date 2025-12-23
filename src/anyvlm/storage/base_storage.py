@@ -2,7 +2,7 @@
 
 from abc import ABC, abstractmethod
 
-from ga4gh.va_spec.base import CohortAlleleFrequencyStudyResult
+from anyvlm.utils.types import AnyVlmCohortAlleleFrequencyResult
 
 
 class StorageError(Exception):
@@ -30,7 +30,7 @@ class Storage(ABC):
         """Return a sanitized URL (password masked) of the database connection string."""
 
     @abstractmethod
-    def add_allele_frequencies(self, caf: CohortAlleleFrequencyStudyResult) -> None:
+    def add_allele_frequencies(self, caf: AnyVlmCohortAlleleFrequencyResult) -> None:
         """Add allele frequency data to the database. Will skip conflicts.
 
         NOTE: For now, this will only insert a single caf record into the database.
@@ -43,10 +43,10 @@ class Storage(ABC):
     @abstractmethod
     def get_caf_by_vrs_allele_id(
         self, vrs_allele_id: str
-    ) -> list[CohortAlleleFrequencyStudyResult]:
+    ) -> list[AnyVlmCohortAlleleFrequencyResult]:
         """Retrieve cohort allele frequency study results by VRS Allele ID
 
-        :param vrs_allele_id: VRS Allele ID
-        :return: List of cohort allele frequency study results matching given VRS
-            Allele IDs. Will use iriReference for focusAllele
+        :param vrs_allele_id: VRS Allele ID to filter by
+        :return: List of cohort allele frequency study results matching given VRS Allele
+            ID. Will use iriReference for focusAllele
         """

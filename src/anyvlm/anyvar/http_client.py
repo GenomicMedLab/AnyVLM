@@ -100,15 +100,15 @@ class HttpAnyVarClient(BaseAnyVarClient):
     def get_registered_allele_expression(
         self, expression: str, assembly: ReferenceAssembly = ReferenceAssembly.GRCH38
     ) -> models.Allele | None:
-        """Retrieve VRS Allele for given allele expression
+        """Retrieve registered VRS Allele for given allele expression
 
         Currently, only expressions supported by the VRS-Python translator are supported.
         This could change depending on the AnyVar implementation, though, and probably
         can't be validated on the AnyVLM side.
 
-        :param expression: variation expression to translate
+        :param expression: variation expression to get VRS Allele for
         :param assembly: reference assembly used in expression
-        :return: VRS Allele if translation succeeds, else `None`
+        :return: VRS Allele if translation succeeds and VRS Allele has already been registered, else `None`
         """
         response = self._make_allele_expression_request(
             expression, assembly, HTTPMethod.POST

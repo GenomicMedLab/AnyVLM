@@ -6,12 +6,17 @@ import pytest
 from anyvar.anyvar import create_storage, create_translator
 from dotenv import load_dotenv
 from ga4gh.core.models import iriReference
-from ga4gh.va_spec.base import CohortAlleleFrequencyStudyResult, StudyGroup
+from ga4gh.va_spec.base import StudyGroup
 from ga4gh.vrs import models
 from pydantic import BaseModel
 
 from anyvlm.anyvar.python_client import PythonAnyVarClient
 from anyvlm.storage.postgres import PostgresObjectStore
+from anyvlm.utils.types import (
+    AncillaryResults,
+    AnyVlmCohortAlleleFrequencyResult,
+    QualityMeasures,
+)
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -120,16 +125,16 @@ def caf_iri():
 
     This is a GREGoR example from issue #23 description
     """
-    return CohortAlleleFrequencyStudyResult(
+    return AnyVlmCohortAlleleFrequencyResult(
         focusAllele=iriReference("ga4gh:VA.J3Hi64dkKFKdnKIwB2419Qz3STDB2sJq"),
         focusAlleleCount=1,
         locusAlleleCount=6164,
         focusAlleleFrequency=0.000162232,
-        qualityMeasures={"qcFilters": ["LowQual", "NO_HQ_GENOTYPES"]},
-        ancillaryResults={
-            "homozygotes": 0,
-            "heterozygotes": 1,
-            "hemizygotes": 0,
-        },
+        qualityMeasures=QualityMeasures(qcFilters=["LowQual", "NO_HQ_GENOTYPES"]),
+        ancillaryResults=AncillaryResults(
+            homozygotes=0,
+            heterozygotes=1,
+            hemizygotes=0,
+        ),
         cohort=StudyGroup(name="rare disease"),  # type: ignore
-    )  # type: ignore
+    )

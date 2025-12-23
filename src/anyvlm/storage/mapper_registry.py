@@ -3,10 +3,9 @@
 from types import MappingProxyType
 from typing import TypeVar
 
-from ga4gh.va_spec.base import CohortAlleleFrequencyStudyResult
-
 from anyvlm.storage import orm
 from anyvlm.storage.mappers import AlleleFrequencyMapper, BaseMapper
+from anyvlm.utils.types import AnyVlmCohortAlleleFrequencyResult
 
 T = TypeVar("T")
 
@@ -15,7 +14,7 @@ class MapperRegistry:
     """Central registry for all object mappers."""
 
     va_model_to_db_mapping: MappingProxyType = MappingProxyType(
-        {CohortAlleleFrequencyStudyResult: orm.AlleleFrequencyData}
+        {AnyVlmCohortAlleleFrequencyResult: orm.AlleleFrequencyData}
     )
 
     _mappers: MappingProxyType[type, BaseMapper] = MappingProxyType(

@@ -4,6 +4,7 @@ from enum import Enum, StrEnum
 from typing import Annotated
 
 from anyvar.utils.liftover_utils import ReferenceAssembly
+from ga4gh.va_spec.base import CohortAlleleFrequencyStudyResult
 from pydantic import BaseModel, BeforeValidator, StringConstraints
 
 
@@ -19,6 +20,16 @@ class QualityMeasures(BaseModel):
     """Define model for Quality Measures"""
 
     qcFilters: list[str] | None = None  # noqa: N815
+
+
+class AnyVlmCohortAlleleFrequencyResult(CohortAlleleFrequencyStudyResult):
+    """Define model for AnyVLM Cohort Allele Frequency Result
+
+    This is still VA-Spec compliant, but replaces dictionary fields with Pydantic models
+    """
+
+    ancillaryResults: AncillaryResults | None = None  # noqa: N815
+    qualityMeasures: QualityMeasures | None = None  # noqa: N815
 
 
 class EndpointTag(str, Enum):

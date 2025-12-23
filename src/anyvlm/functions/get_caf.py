@@ -1,12 +1,12 @@
 """Perform search against variant(s) contained by an AnyVar node, and construct cohort allele frequency model(s)"""
 
 from ga4gh.core.models import iriReference
-from ga4gh.va_spec.base import CohortAlleleFrequencyStudyResult
 
 from anyvlm.anyvar.base_client import BaseAnyVarClient
 from anyvlm.storage.base_storage import Storage
 from anyvlm.utils.types import (
     ASSEMBLY_MAP,
+    AnyVlmCohortAlleleFrequencyResult,
     ChromosomeName,
     GrcAssemblyId,
     NucleotideSequence,
@@ -26,7 +26,7 @@ def get_caf(
     start: int,
     reference_bases: NucleotideSequence,
     alternate_bases: NucleotideSequence,
-) -> list[CohortAlleleFrequencyStudyResult]:
+) -> list[AnyVlmCohortAlleleFrequencyResult]:
     """Retrieve Cohort Allele Frequency data for all known registered variants matching
     provided search params
 
@@ -41,7 +41,7 @@ def get_caf(
     :param alternate_bases: Genomic bases ('T', 'AC', etc.)
     :raises ValueError: if unsupported assembly ID is provided
     :raises VariantNotRegisteredError: if variant is not registered in AnyVar
-    :return: list of CohortAlleleFrequencyStudyResult objects for the provided variant
+    :return: list of AnyVlmCohortAlleleFrequencyResult objects for the provided variant
     """
     gnomad_vcf: str = f"{reference_name}-{start}-{reference_bases}-{alternate_bases}"
     try:
@@ -55,7 +55,7 @@ def get_caf(
         msg = f"Variant {assembly.value} {gnomad_vcf} is not registered in AnyVar"
         raise VariantNotRegisteredError(msg)
 
-    cafs: list[CohortAlleleFrequencyStudyResult] = (
+    cafs: list[AnyVlmCohortAlleleFrequencyResult] = (
         anyvlm_storage.get_caf_by_vrs_allele_id(vrs_variation.id)  # type: ignore
     )
 
