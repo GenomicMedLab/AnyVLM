@@ -36,7 +36,7 @@ def get_caf(
     :param reference_bases: Genomic bases ('T', 'AC', etc.)
     :param alternate_bases: Genomic bases ('T', 'AC', etc.)
     :raises ValueError: if unsupported assembly ID is provided
-    :return: list of CAFs contained in search interval
+    :return: list of CohortAlleleFrequencyStudyResult objects for the provided variant
     """
     gnomad_vcf: str = f"{reference_name}-{start}-{reference_bases}-{alternate_bases}"
     try:
@@ -44,6 +44,7 @@ def get_caf(
     except KeyError as e:
         msg = "Unsupported assembly ID: {assembly_id}"
         raise ValueError(msg) from e
+
     vrs_variation = anyvar_client.get_registered_allele_expression(gnomad_vcf, assembly)
     if not vrs_variation:
         return []

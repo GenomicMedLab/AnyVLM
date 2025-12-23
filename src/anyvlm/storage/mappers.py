@@ -47,16 +47,16 @@ class AlleleFrequencyMapper(
         an = db_entity.an
 
         if filter_ := db_entity.filter:
-            filter_ = QualityMeasures(qcFilters=db_entity.filter).model_dump()
+            quality_measures = QualityMeasures(qcFilters=filter_).model_dump()
         else:
-            filter_ = None
+            quality_measures = None
 
         return CohortAlleleFrequencyStudyResult(
             focusAllele=iriReference(db_entity.vrs_id),
             focusAlleleCount=ac,
             locusAlleleCount=an,
             focusAlleleFrequency=round(ac / an, 9),
-            qualityMeasures=filter_,
+            qualityMeasures=quality_measures,
             ancillaryResults=AncillaryResults(
                 homozygotes=homozygotes,
                 heterozygotes=heterozygotes,
@@ -80,7 +80,7 @@ class AlleleFrequencyMapper(
             raise ValueError("Invalid ancillaryResults data") from e
 
         try:
-            filter_ = QualityMeasures(**va_model.qualityMeasures or {})
+            quality_measures = QualityMeasures(**va_model.qualityMeasures or {})
         except ValidationError as e:
             raise ValueError("Invalid qualityMeasures data") from e
 
@@ -98,6 +98,6 @@ class AlleleFrequencyMapper(
             ac_het=ancillary_results.heterozygotes,
             ac_hom=ancillary_results.homozygotes,
             ac_hemi=ancillary_results.hemizygotes,
-            filter=filter_.qcFilters,
+            filter=quality_measures.qcFilters,
             cohort=va_model.cohort.name,
         )

@@ -69,11 +69,9 @@ class PythonAnyVarClient(BaseAnyVarClient):
         :return: VRS Allele if translation succeeds and VRS Allele has already been registered, else `None`
         """
         translated_variation = self._translate_allele_expression(expression, assembly)
-        if translated_variation and translated_variation.id:
+        if translated_variation:
             try:
-                vrs_variation = self.av.get_object(translated_variation.id, Allele)
-                if isinstance(vrs_variation, Allele):
-                    return vrs_variation
+                return self.av.get_object(translated_variation.id, Allele)  # type: ignore
             except KeyError:
                 _logger.exception(
                     "VRS Allele with ID %s not found", translated_variation.id
@@ -114,10 +112,8 @@ class PythonAnyVarClient(BaseAnyVarClient):
         """Get all variation IDs located within the specified range
 
         :param accession: sequence accession
-        :param start: Inclusive, inter-residue genomic start position of the interval
-            to search
-        :param end: Inclusive, inter-residue genomic end position of the interval to
-            search
+        :param start: start position for genomic region
+        :param end: end position for genomic region
         :return: list of matching variant objects
         """
         try:

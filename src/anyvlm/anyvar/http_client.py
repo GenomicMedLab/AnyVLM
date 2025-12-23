@@ -152,10 +152,8 @@ class HttpAnyVarClient(BaseAnyVarClient):
         """Get all variation IDs located within the specified range
 
         :param accession: sequence accession
-        :param start: Inclusive, inter-residue genomic start position of the interval
-            to search
-        :param end: Inclusive, inter-residue genomic end position of the interval to
-            search
+        :param start: start position for genomic region
+        :param end: end position for genomic region
         :return: list of matching variant objects
         :raise AnyVarClientError: if connection is unsuccessful during search query
         """
