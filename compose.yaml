@@ -1,0 +1,15 @@
+services:
+  anyvlm_db:
+    image: postgres:17
+    volumes:
+      - anyvlm_vol:/var/lib/postgresql/data
+    ports:
+      - 127.0.0.1:5435:5432
+    environment:
+      - POSTGRES_DB=anyvlm
+      - POSTGRES_USER=anyvlm
+      - POSTGRES_PASSWORD=anyvlm-pw
+
+volumes:
+  anyvlm_vol:
+    external: true
