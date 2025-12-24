@@ -2,15 +2,16 @@
 
 import pytest
 from ga4gh.core.models import iriReference
-from ga4gh.va_spec.base import CohortAlleleFrequencyStudyResult, StudyGroup
+from ga4gh.va_spec.base import StudyGroup
 from ga4gh.vrs.models import Allele, LiteralSequenceExpression, sequenceString
 from sqlalchemy.exc import IntegrityError
 
 from anyvlm.storage.postgres import PostgresObjectStore
+from anyvlm.utils.types import AnyVlmCohortAlleleFrequencyResult, QualityMeasures
 
 
 @pytest.fixture
-def caf_allele(caf_iri: CohortAlleleFrequencyStudyResult):
+def caf_allele(caf_iri: AnyVlmCohortAlleleFrequencyResult):
     """Create test fixture for CAF object that uses Allele for focusAllele
 
     Note: Allele is a dummy allele
@@ -25,7 +26,7 @@ def caf_allele(caf_iri: CohortAlleleFrequencyStudyResult):
 
 
 @pytest.fixture
-def caf_empty_cohort(caf_iri: CohortAlleleFrequencyStudyResult):
+def caf_empty_cohort(caf_iri: AnyVlmCohortAlleleFrequencyResult):
     """Create test fixture for CAF object that uses empty cohort"""
     caf = caf_iri.model_copy(deep=True)
     caf.cohort = StudyGroup()  # type: ignore
@@ -65,12 +66,12 @@ def test_add_allele_frequencies(
     except Exception as e:  # noqa: BLE001
         pytest.fail(f"add_allele_frequencies raised an exception: {e}")
 
-    caf = CohortAlleleFrequencyStudyResult(
+    caf = AnyVlmCohortAlleleFrequencyResult(
         focusAllele=iriReference("ga4gh:VA.J3Hi64dkKFKdnKIwB2419Qz3STDB2sJq"),
         focusAlleleCount=1,
         locusAlleleCount=6164,
         focusAlleleFrequency=0.000162232,
-        qualityMeasures={"qcFilters": ["LowQual", "NO_HQ_GENOTYPES"]},
+        qualityMeasures=QualityMeasures(qcFilters=["LowQual", "NO_HQ_GENOTYPES"]),
         cohort=StudyGroup(name="rare disease"),  # type: ignore
     )  # type: ignore
 
@@ -79,7 +80,7 @@ def test_add_allele_frequencies(
 
 def test_add_allele_frequencies_failures(
     postgres_storage: PostgresObjectStore,
-    caf_empty_cohort: CohortAlleleFrequencyStudyResult,
+    caf_empty_cohort: AnyVlmCohortAlleleFrequencyResult,
 ):
     """Test that add_allele_frequencies method fails correctly on bad input"""
     with pytest.raises(IntegrityError, match='null value in column "cohort"'):

@@ -3,7 +3,6 @@ from pathlib import Path
 
 import pytest
 from anyvar.utils.liftover_utils import ReferenceAssembly
-from anyvar.utils.types import VrsVariation
 
 from anyvlm.anyvar.base_client import BaseAnyVarClient
 from anyvlm.functions.ingest_vcf import VcfAfColumnsError, ingest_vcf
@@ -44,6 +43,13 @@ def stub_anyvar_client():
     }
 
     class TestAnyVarClient(BaseAnyVarClient):
+        def get_registered_allele(
+            self,
+            expression: str,
+            assembly: ReferenceAssembly = ReferenceAssembly.GRCH38,
+        ):
+            raise NotImplementedError
+
         def put_allele_expressions(
             self,
             expressions: Iterable[str],
@@ -53,11 +59,6 @@ def stub_anyvar_client():
                 put_allele_expressions_responses[(expr, assembly)]
                 for expr in expressions
             ]
-
-        def search_by_interval(
-            self, accession: str, start: int, end: int
-        ) -> list[VrsVariation]:
-            raise NotImplementedError
 
         def close(self) -> None:
             """Clean up AnyVar connection."""

@@ -2,8 +2,7 @@
 
 from urllib.parse import urlparse
 
-from ga4gh.va_spec.base import CohortAlleleFrequencyStudyResult
-from sqlalchemy import create_engine, delete
+from sqlalchemy import create_engine, delete, select
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import sessionmaker
 
@@ -13,6 +12,7 @@ from anyvlm.storage.base_storage import (
 )
 from anyvlm.storage.mapper_registry import mapper_registry
 from anyvlm.storage.orm import create_tables
+from anyvlm.utils.types import AnyVlmCohortAlleleFrequencyResult
 
 
 class PostgresObjectStore(Storage):
@@ -54,7 +54,7 @@ class PostgresObjectStore(Storage):
             netloc += f":{parsed.port}"
         return f"{parsed.scheme}://{netloc}{parsed.path}"
 
-    def add_allele_frequencies(self, caf: CohortAlleleFrequencyStudyResult) -> None:
+    def add_allele_frequencies(self, caf: AnyVlmCohortAlleleFrequencyResult) -> None:
         """Add allele frequency data to the database. Will skip conflicts.
 
         NOTE: For now, this will only insert a single caf record into the database.
@@ -68,3 +68,26 @@ class PostgresObjectStore(Storage):
 
         with self.session_factory() as session, session.begin():
             session.execute(stmt, db_entity.to_dict())
+
+    def get_caf_by_vrs_allele_id(
+        self, vrs_allele_id: str
+    ) -> list[AnyVlmCohortAlleleFrequencyResult]:
+        """Retrieve cohort allele frequency study results by VRS Allele ID
+
+        :param vrs_allele_id: VRS Allele ID to filter by
+        :return: List of cohort allele frequency study results matching given VRS Allele
+            ID. Will use iriReference for focusAllele
+        """
+        cafs: list[AnyVlmCohortAlleleFrequencyResult] = []
+        with self.session_factory() as session:
+            stmt = (
+                select(orm.AlleleFrequencyData)
+                .where(orm.AlleleFrequencyData.vrs_id == vrs_allele_id)
+                .limit(self.MAX_ROWS)
+            )
+            db_objects = session.scalars(stmt).all()
+
+            for db_object in db_objects:
+                caf = mapper_registry.from_db_entity(db_object)
+                cafs.append(caf)
+        return cafs

@@ -18,7 +18,7 @@ classifiers = [
 ]
 dependencies = [
     "ga4gh.vrs>=2.2.0,<3.0",
-    "ga4gh.va_spec~=0.4.2",
+    "ga4gh.va_spec~=0.4.3",
     "biocommons.anyvar@git+https://github.com/biocommons/anyvar.git@0d3ab56fe936b27235a1ce136da4641ea81c0bbf",
     "fastapi>=0.95.0",
     "python-multipart",  # required for fastapi file uploads
@@ -40,6 +40,7 @@ test = [
     "jsonschema",
     "pyyaml",
     "pytest-recording",
+    "deepdiff",
 ]
 dev = [
     "ruff==0.12.8",

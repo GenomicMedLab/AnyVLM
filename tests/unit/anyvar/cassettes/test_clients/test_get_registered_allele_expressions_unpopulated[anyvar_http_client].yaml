@@ -1,0 +1,72 @@
+interactions:
+- request:
+    body: '{"definition": "7-140753336-A-T", "assembly_name": "GRCh38", "input_type":
+      "Allele"}'
+    headers: {}
+    method: POST
+    uri: http://localhost:8000/variation
+  response:
+    body:
+      string: '{"detail":"VRS Object ga4gh:VA.Otc5ovrw906Ack087o1fhegB4jDRqCAe not
+        found"}'
+    headers: {}
+    status:
+      code: 404
+      message: Not Found
+- request:
+    body: '{"definition": "Y-2781704-G-G", "assembly_name": "GRCh38", "input_type":
+      "Allele"}'
+    headers: {}
+    method: POST
+    uri: http://localhost:8000/variation
+  response:
+    body:
+      string: '{"detail":"VRS Object ga4gh:VA.0ydMeUtVfU9ttSoziRnp0Nv8OMN359HC not
+        found"}'
+    headers: {}
+    status:
+      code: 404
+      message: Not Found
+- request:
+    body: '{"definition": "Y-2781761-C-C", "assembly_name": "GRCh38", "input_type":
+      "Allele"}'
+    headers: {}
+    method: POST
+    uri: http://localhost:8000/variation
+  response:
+    body:
+      string: '{"detail":"VRS Object ga4gh:VA.R4kbmdsn5VldGrBiAaByO5N9zM3qCSFw not
+        found"}'
+    headers: {}
+    status:
+      code: 404
+      message: Not Found
+- request:
+    body: '{"definition": "Y-2781761-C-A", "assembly_name": "GRCh38", "input_type":
+      "Allele"}'
+    headers: {}
+    method: POST
+    uri: http://localhost:8000/variation
+  response:
+    body:
+      string: '{"detail":"VRS Object ga4gh:VA.9VDxL0stMBOZwcTKw3yb3UoWQkpaI9OD not
+        found"}'
+    headers: {}
+    status:
+      code: 404
+      message: Not Found
+- request:
+    body: '{"definition": "Y-2781761-CA-C", "assembly_name": "GRCh38", "input_type":
+      "Allele"}'
+    headers: {}
+    method: POST
+    uri: http://localhost:8000/variation
+  response:
+    body:
+      string: '{"detail":"VRS Object ga4gh:VA.yi7A2l0uIUMaInQaJnHU_B2Cf_OuZRJg not
+        found"}'
+    headers: {}
+    status:
+      code: 404
+      message: Not Found
+version: 1
