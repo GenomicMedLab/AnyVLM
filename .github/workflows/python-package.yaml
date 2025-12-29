@@ -46,6 +46,7 @@ jobs:
       - name: Run tests
         run: uv run pytest
         env:
+          ANYVLM_TEST_STORAGE_URI: postgresql://postgres:postgres@localhost:5432/postgres
           ANYVLM_ANYVAR_TEST_STORAGE_URI: postgresql://postgres:postgres@localhost:5432/postgres
           HANDOVER_TYPE_ID: GREGoR-NCH
           HANDOVER_TYPE_LABEL: "GREGoR AnyVLM Reference"
