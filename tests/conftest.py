@@ -1,10 +1,15 @@
 import json
+from os import environ
 from pathlib import Path
 
 import pytest
 from dotenv import load_dotenv
+from ga4gh.core.models import iriReference
+from ga4gh.va_spec.base import CohortAlleleFrequencyStudyResult, StudyGroup
 from ga4gh.vrs import models
 from pydantic import BaseModel
+
+from anyvlm.storage.postgres import PostgresObjectStore
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -58,3 +63,41 @@ def vcr_config():
         "before_record_response": remove_response_headers,
         "decode_compressed_response": True,
     }
+
+
+@pytest.fixture(scope="session")
+def postgres_uri():
+    return environ.get(
+        "ANYVLM_TEST_STORAGE_URI",
+        "postgresql://postgres:postgres@localhost:5432/anyvlm_test",
+    )
+
+
+@pytest.fixture
+def postgres_storage(postgres_uri: str):
+    """Reset storage state after each test case"""
+    storage = PostgresObjectStore(postgres_uri)
+    storage.wipe_db()  # Ensure clean state before test
+    yield storage
+    storage.wipe_db()  # Clean up after test
+
+
+@pytest.fixture
+def caf_iri():
+    """Create test fixture for CAF object that uses iriReference for focusAllele
+
+    This is a GREGoR example from issue #23 description
+    """
+    return CohortAlleleFrequencyStudyResult(
+        focusAllele=iriReference("ga4gh:VA.J3Hi64dkKFKdnKIwB2419Qz3STDB2sJq"),
+        focusAlleleCount=1,
+        locusAlleleCount=6164,
+        focusAlleleFrequency=0.000162232,
+        qualityMeasures={"qcFilters": ["LowQual", "NO_HQ_GENOTYPES"]},
+        ancillaryResults={
+            "homozygotes": 0,
+            "heterozygotes": 1,
+            "hemizygotes": 0,
+        },
+        cohort=StudyGroup(name="rare disease"),  # type: ignore
+    )  # type: ignore

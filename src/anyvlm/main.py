@@ -3,6 +3,7 @@
 import logging
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
+from urllib.parse import urlparse
 
 from anyvar.anyvar import create_storage, create_translator
 from fastapi import FastAPI
@@ -18,6 +19,7 @@ from anyvlm.schemas.common import (
     ServiceOrganization,
     ServiceType,
 )
+from anyvlm.storage.base_storage import Storage
 from anyvlm.utils.types import (
     EndpointTag,
 )
@@ -51,6 +53,34 @@ def create_anyvar_client(
     return PythonAnyVarClient(translator, storage)
 
 
+def create_anyvlm_storage(uri: str | None = None) -> Storage:
+    """Provide factory to create storage based on `uri`, the ANYVLM_STORAGE_URI
+    environment value, or the default value if neither is provided.
+
+    The URI format is as follows:
+
+    `postgresql://[username]:[password]@[domain]/[database]`
+
+    :param uri: AnyVLM storage URI
+    :raises ValueError: if the URI scheme is not supported
+    :return: AnyVLM storage instance
+    """
+    if not uri:
+        uri = get_config().storage_uri
+
+    parsed_uri = urlparse(uri)
+    if parsed_uri.scheme == "postgresql":
+        from anyvlm.storage.postgres import PostgresObjectStore  # noqa: PLC0415
+
+        storage = PostgresObjectStore(uri)
+    else:
+        msg = f"URI scheme {parsed_uri.scheme} is not implemented"
+        raise ValueError(msg)
+
+    _logger.debug("create_storage: %s → %s}", storage.sanitized_url, storage)
+    return storage
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator:
     """Configure FastAPI instance lifespan.
@@ -59,8 +89,10 @@ async def lifespan(app: FastAPI) -> AsyncGenerator:
     :return: async context handler
     """
     app.state.anyvar_client = create_anyvar_client()
+    app.state.anyvlm_storage = create_anyvlm_storage()
     yield
     app.state.anyvar_client.close()
+    app.state.anyvlm_storage.close()
 
 
 app = FastAPI(
