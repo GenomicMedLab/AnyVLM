@@ -1,9 +1,36 @@
 """Provide helpful type definitions, references, and type-based operations."""
 
 from enum import Enum, StrEnum
+from types import MappingProxyType
 from typing import Annotated
 
-from pydantic import BeforeValidator, StringConstraints
+from anyvar.utils.liftover_utils import ReferenceAssembly
+from ga4gh.va_spec.base import CohortAlleleFrequencyStudyResult
+from pydantic import BaseModel, BeforeValidator, StringConstraints
+
+
+class AncillaryResults(BaseModel):
+    """Define model for Ancillary Results"""
+
+    homozygotes: int | None = None
+    heterozygotes: int | None = None
+    hemizygotes: int | None = None
+
+
+class QualityMeasures(BaseModel):
+    """Define model for Quality Measures"""
+
+    qcFilters: list[str] | None = None  # noqa: N815
+
+
+class AnyVlmCohortAlleleFrequencyResult(CohortAlleleFrequencyStudyResult):
+    """Define model for AnyVLM Cohort Allele Frequency Result
+
+    This is still VA-Spec compliant, but replaces dictionary fields with Pydantic models
+    """
+
+    ancillaryResults: AncillaryResults | None = None  # type: ignore # noqa: N815
+    qualityMeasures: QualityMeasures | None = None  # type: ignore # noqa: N815
 
 
 class EndpointTag(str, Enum):
@@ -25,6 +52,19 @@ class UcscAssemblyBuild(StrEnum):
 
     HG38 = "hg38"
     HG19 = "hg19"
+
+
+# Mapping of GRC and UCSC assembly identifiers to their corresponding ReferenceAssembly
+ASSEMBLY_MAP: MappingProxyType[GrcAssemblyId | UcscAssemblyBuild, ReferenceAssembly] = (
+    MappingProxyType(
+        {
+            GrcAssemblyId.GRCH38: ReferenceAssembly.GRCH38,
+            UcscAssemblyBuild.HG38: ReferenceAssembly.GRCH38,
+            GrcAssemblyId.GRCH37: ReferenceAssembly.GRCH37,
+            UcscAssemblyBuild.HG19: ReferenceAssembly.GRCH37,
+        }
+    )
+)
 
 
 NucleotideSequence = Annotated[

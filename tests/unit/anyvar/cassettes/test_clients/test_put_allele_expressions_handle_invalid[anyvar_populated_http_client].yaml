@@ -1,0 +1,108 @@
+interactions:
+- request:
+    body: '{"definition": "7-140753336-A-T", "assembly_name": "GRCh38", "input_type":
+      "Allele"}'
+    headers: {}
+    method: PUT
+    uri: http://localhost:8000/variation
+  response:
+    body:
+      string: '{"messages":[],"object":{"id":"ga4gh:VA.Otc5ovrw906Ack087o1fhegB4jDRqCAe","type":"Allele","digest":"Otc5ovrw906Ack087o1fhegB4jDRqCAe","location":{"id":"ga4gh:SL.nhul5x5P_fKjGEpY9PEkMIekJfZaKom2","type":"SequenceLocation","digest":"nhul5x5P_fKjGEpY9PEkMIekJfZaKom2","sequenceReference":{"type":"SequenceReference","refgetAccession":"SQ.F-LrLMe1SRpfUZHkQmvkVKFEGaoDeHul"},"start":140753335,"end":140753336},"state":{"type":"LiteralSequenceExpression","sequence":"T"}},"object_id":"ga4gh:VA.Otc5ovrw906Ack087o1fhegB4jDRqCAe"}'
+    headers: {}
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"definition": "Y-2781704-G-G", "assembly_name": "GRCh38", "input_type":
+      "Allele"}'
+    headers: {}
+    method: PUT
+    uri: http://localhost:8000/variation
+  response:
+    body:
+      string: '{"messages":[],"object":{"id":"ga4gh:VA.0ydMeUtVfU9ttSoziRnp0Nv8OMN359HC","type":"Allele","digest":"0ydMeUtVfU9ttSoziRnp0Nv8OMN359HC","location":{"id":"ga4gh:SL.JqeJ3V-75edWj03xbzw1gtSw3qPQVV2D","type":"SequenceLocation","digest":"JqeJ3V-75edWj03xbzw1gtSw3qPQVV2D","sequenceReference":{"type":"SequenceReference","refgetAccession":"SQ.8_liLu1aycC0tPQPFmUaGXJLDs5SbPZ5"},"start":2781703,"end":2781704},"state":{"type":"ReferenceLengthExpression","length":1,"sequence":"G","repeatSubunitLength":1}},"object_id":"ga4gh:VA.0ydMeUtVfU9ttSoziRnp0Nv8OMN359HC"}'
+    headers: {}
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"definition": "Y-2781761-C-C", "assembly_name": "GRCh38", "input_type":
+      "Allele"}'
+    headers: {}
+    method: PUT
+    uri: http://localhost:8000/variation
+  response:
+    body:
+      string: '{"messages":[],"object":{"id":"ga4gh:VA.R4kbmdsn5VldGrBiAaByO5N9zM3qCSFw","type":"Allele","digest":"R4kbmdsn5VldGrBiAaByO5N9zM3qCSFw","location":{"id":"ga4gh:SL.sYiBcbbgF-1CANNCTfQ6zwZOU0iHhymR","type":"SequenceLocation","digest":"sYiBcbbgF-1CANNCTfQ6zwZOU0iHhymR","sequenceReference":{"type":"SequenceReference","refgetAccession":"SQ.8_liLu1aycC0tPQPFmUaGXJLDs5SbPZ5"},"start":2781760,"end":2781761},"state":{"type":"ReferenceLengthExpression","length":1,"sequence":"C","repeatSubunitLength":1}},"object_id":"ga4gh:VA.R4kbmdsn5VldGrBiAaByO5N9zM3qCSFw"}'
+    headers: {}
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"definition": "Y-2781761-C-A", "assembly_name": "GRCh38", "input_type":
+      "Allele"}'
+    headers: {}
+    method: PUT
+    uri: http://localhost:8000/variation
+  response:
+    body:
+      string: '{"messages":[],"object":{"id":"ga4gh:VA.9VDxL0stMBOZwcTKw3yb3UoWQkpaI9OD","type":"Allele","digest":"9VDxL0stMBOZwcTKw3yb3UoWQkpaI9OD","location":{"id":"ga4gh:SL.sYiBcbbgF-1CANNCTfQ6zwZOU0iHhymR","type":"SequenceLocation","digest":"sYiBcbbgF-1CANNCTfQ6zwZOU0iHhymR","sequenceReference":{"type":"SequenceReference","refgetAccession":"SQ.8_liLu1aycC0tPQPFmUaGXJLDs5SbPZ5"},"start":2781760,"end":2781761},"state":{"type":"LiteralSequenceExpression","sequence":"A"}},"object_id":"ga4gh:VA.9VDxL0stMBOZwcTKw3yb3UoWQkpaI9OD"}'
+    headers: {}
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"definition": "Y-2781761-CA-C", "assembly_name": "GRCh38", "input_type":
+      "Allele"}'
+    headers: {}
+    method: PUT
+    uri: http://localhost:8000/variation
+  response:
+    body:
+      string: '{"messages":[],"object":{"id":"ga4gh:VA.yi7A2l0uIUMaInQaJnHU_B2Cf_OuZRJg","type":"Allele","digest":"yi7A2l0uIUMaInQaJnHU_B2Cf_OuZRJg","location":{"id":"ga4gh:SL.JsFGLKlUDocinf7oWTXAvVT2WOso7R9u","type":"SequenceLocation","digest":"JsFGLKlUDocinf7oWTXAvVT2WOso7R9u","sequenceReference":{"type":"SequenceReference","refgetAccession":"SQ.8_liLu1aycC0tPQPFmUaGXJLDs5SbPZ5"},"start":2781761,"end":2781785},"state":{"type":"ReferenceLengthExpression","length":23,"sequence":"AAAAAAAAAAAAAAAAAAAAAAA","repeatSubunitLength":1}},"object_id":"ga4gh:VA.yi7A2l0uIUMaInQaJnHU_B2Cf_OuZRJg"}'
+    headers: {}
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"definition": "Y-2781761-A-C", "assembly_name": "GRCh38", "input_type":
+      "Allele"}'
+    headers: {}
+    method: PUT
+    uri: http://localhost:8000/variation
+  response:
+    body:
+      string: '{"detail":"Reference mismatch at GRCh38:Y position 2781760-2781761
+        (input gave ''A'' but correct ref is ''C'')"}'
+    headers: {}
+    status:
+      code: 422
+      message: Unprocessable Entity
+- request:
+    body: '{"definition": "Y-2781761-A-C", "assembly_name": "GRCh38", "input_type":
+      "Allele"}'
+    headers: {}
+    method: PUT
+    uri: http://localhost:8000/variation
+  response:
+    body:
+      string: '{"detail":"Reference mismatch at GRCh38:Y position 2781760-2781761
+        (input gave ''A'' but correct ref is ''C'')"}'
+    headers: {}
+    status:
+      code: 422
+      message: Unprocessable Entity
+- request:
+    body: '{"definition": "Y-2781761-CA-C", "assembly_name": "GRCh38", "input_type":
+      "Allele"}'
+    headers: {}
+    method: PUT
+    uri: http://localhost:8000/variation
+  response:
+    body:
+      string: '{"messages":[],"object":{"id":"ga4gh:VA.yi7A2l0uIUMaInQaJnHU_B2Cf_OuZRJg","type":"Allele","digest":"yi7A2l0uIUMaInQaJnHU_B2Cf_OuZRJg","location":{"id":"ga4gh:SL.JsFGLKlUDocinf7oWTXAvVT2WOso7R9u","type":"SequenceLocation","digest":"JsFGLKlUDocinf7oWTXAvVT2WOso7R9u","sequenceReference":{"type":"SequenceReference","refgetAccession":"SQ.8_liLu1aycC0tPQPFmUaGXJLDs5SbPZ5"},"start":2781761,"end":2781785},"state":{"type":"ReferenceLengthExpression","length":23,"sequence":"AAAAAAAAAAAAAAAAAAAAAAA","repeatSubunitLength":1}},"object_id":"ga4gh:VA.yi7A2l0uIUMaInQaJnHU_B2Cf_OuZRJg"}'
+    headers: {}
+    status:
+      code: 200
+      message: OK
+version: 1

@@ -3,13 +3,20 @@ from os import environ
 from pathlib import Path
 
 import pytest
+from anyvar.anyvar import create_storage, create_translator
 from dotenv import load_dotenv
 from ga4gh.core.models import iriReference
-from ga4gh.va_spec.base import CohortAlleleFrequencyStudyResult, StudyGroup
+from ga4gh.va_spec.base import StudyGroup
 from ga4gh.vrs import models
 from pydantic import BaseModel
 
+from anyvlm.anyvar.python_client import PythonAnyVarClient
 from anyvlm.storage.postgres import PostgresObjectStore
+from anyvlm.utils.types import (
+    AncillaryResults,
+    AnyVlmCohortAlleleFrequencyResult,
+    QualityMeasures,
+)
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -66,7 +73,37 @@ def vcr_config():
 
 
 @pytest.fixture(scope="session")
-def postgres_uri():
+def anyvlm_anyvar_postgres_uri():
+    return environ.get(
+        "ANYVLM_ANYVAR_TEST_STORAGE_URI",
+        "postgresql://postgres:postgres@localhost:5432/anyvlm_anyvar_test",
+    )
+
+
+@pytest.fixture
+def anyvar_python_client(anyvlm_anyvar_postgres_uri: str) -> PythonAnyVarClient:
+    storage = create_storage(anyvlm_anyvar_postgres_uri)
+    storage.wipe_db()
+    translator = create_translator()
+    return PythonAnyVarClient(translator, storage)
+
+
+@pytest.fixture
+def anyvar_populated_python_client(
+    anyvar_python_client: PythonAnyVarClient, alleles: dict
+):
+    vcf_expressions = [
+        allele_fixture["vcf_expression"]
+        for allele_fixture in alleles.values()
+        if allele_fixture.get("vcf_expression")
+    ]
+    anyvar_python_client.put_allele_expressions(vcf_expressions)
+
+    return anyvar_python_client
+
+
+@pytest.fixture(scope="session")
+def anyvlm_postgres_uri():
     return environ.get(
         "ANYVLM_TEST_STORAGE_URI",
         "postgresql://postgres:postgres@localhost:5432/anyvlm_test",
@@ -74,9 +111,9 @@ def postgres_uri():
 
 
 @pytest.fixture
-def postgres_storage(postgres_uri: str):
+def postgres_storage(anyvlm_postgres_uri: str):
     """Reset storage state after each test case"""
-    storage = PostgresObjectStore(postgres_uri)
+    storage = PostgresObjectStore(anyvlm_postgres_uri)
     storage.wipe_db()  # Ensure clean state before test
     yield storage
     storage.wipe_db()  # Clean up after test
@@ -88,16 +125,16 @@ def caf_iri():
 
     This is a GREGoR example from issue #23 description
     """
-    return CohortAlleleFrequencyStudyResult(
+    return AnyVlmCohortAlleleFrequencyResult(
         focusAllele=iriReference("ga4gh:VA.J3Hi64dkKFKdnKIwB2419Qz3STDB2sJq"),
         focusAlleleCount=1,
         locusAlleleCount=6164,
         focusAlleleFrequency=0.000162232,
-        qualityMeasures={"qcFilters": ["LowQual", "NO_HQ_GENOTYPES"]},
-        ancillaryResults={
-            "homozygotes": 0,
-            "heterozygotes": 1,
-            "hemizygotes": 0,
-        },
+        qualityMeasures=QualityMeasures(qcFilters=["LowQual", "NO_HQ_GENOTYPES"]),
+        ancillaryResults=AncillaryResults(
+            homozygotes=0,
+            heterozygotes=1,
+            hemizygotes=0,
+        ),
         cohort=StudyGroup(name="rare disease"),  # type: ignore
-    )  # type: ignore
+    )
