@@ -4,7 +4,7 @@ import abc
 from collections.abc import Iterable, Sequence
 
 from anyvar.utils.liftover_utils import ReferenceAssembly
-from anyvar.utils.types import VrsVariation
+from ga4gh.vrs.models import Allele
 
 
 class AnyVarClientError(Exception):
@@ -22,6 +22,21 @@ class BaseAnyVarClient(abc.ABC):
     """Interface elements for an AnyVar client"""
 
     @abc.abstractmethod
+    def get_registered_allele(
+        self, expression: str, assembly: ReferenceAssembly = ReferenceAssembly.GRCH38
+    ) -> Allele | None:
+        """Retrieve registered VRS Allele for given allele expression
+
+        Currently, only expressions supported by the VRS-Python translator are supported.
+        This could change depending on the AnyVar implementation, though, and probably
+        can't be validated on the AnyVLM side.
+
+        :param expression: variation expression to get VRS Allele for
+        :param assembly: reference assembly used in expression
+        :return: VRS Allele if translation succeeds and VRS Allele has already been registered, else `None`
+        """
+
+    @abc.abstractmethod
     def put_allele_expressions(
         self,
         expressions: Iterable[str],
@@ -37,19 +52,6 @@ class BaseAnyVarClient(abc.ABC):
         :param assembly: reference assembly used in variation expressions
         :return: list where the i'th item is either the VRS ID if translation succeeds,
             else `None`, for the i'th expression
-        """
-
-    @abc.abstractmethod
-    def search_by_interval(
-        self, accession: str, start: int, end: int
-    ) -> list[VrsVariation]:
-        """Get all variation IDs located within the specified range
-
-        :param accession: sequence accession
-        :param start: start position for genomic region
-        :param end: end position for genomic region
-        :return: list of matching variant objects
-        :raise AnyVarClientConnectionError: if connection is unsuccessful during search query
         """
 
     @abc.abstractmethod
