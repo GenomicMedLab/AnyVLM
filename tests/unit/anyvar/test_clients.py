@@ -7,52 +7,32 @@ variants deposited by the `put_objects` test are all that's in there (i.e. use a
 AnyVar DB to record new test cassettes)
 """
 
-import os
-
 import pytest
-from anyvar.anyvar import create_storage, create_translator
+from anyvar.anyvar import create_storage
 from ga4gh.vrs import models
 
 from anyvlm.anyvar.base_client import BaseAnyVarClient
 from anyvlm.anyvar.http_client import HttpAnyVarClient
-from anyvlm.anyvar.python_client import PythonAnyVarClient
-
-
-@pytest.fixture(scope="session")
-def anyvar_postgres_uri():
-    """Create test fixure for AnyVar postgres storage URI"""
-    uri = os.environ.get(
-        "ANYVLM_ANYVAR_TEST_STORAGE_URI",
-        "postgresql://postgres:postgres@localhost:5432/anyvlm_anyvar_test",
-    )
-    return uri
 
 
 @pytest.fixture
-def anyvar_python_client(anyvar_postgres_uri: str) -> PythonAnyVarClient:
-    """Create test fixture for AnyVar Python Client"""
-    storage = create_storage(anyvar_postgres_uri)
-    storage.wipe_db()
-    translator = create_translator()
-    return PythonAnyVarClient(translator, storage)
-
-
-@pytest.fixture
-def anyvar_http_client() -> HttpAnyVarClient:
+def anyvar_http_client(anyvlm_anyvar_postgres_uri: str) -> HttpAnyVarClient:
     """Create test fixture for AnyVar HTTP client"""
+    storage = create_storage(anyvlm_anyvar_postgres_uri)
+    storage.wipe_db()
     return HttpAnyVarClient()
 
 
 @pytest.fixture
-def anyvar_populated_python_client(
-    anyvar_python_client: PythonAnyVarClient, alleles: dict
-):
-    """Create test fixture for populated AnyVar Python client"""
+def anyvar_populated_http_client(
+    anyvar_http_client: HttpAnyVarClient, alleles: dict
+) -> HttpAnyVarClient:
+    """Create test fixture for populated AnyVar HTTP client"""
     for allele_fixture in alleles.values():
         if "vcf_expression" not in allele_fixture:
             continue
-        anyvar_python_client.put_allele_expressions([allele_fixture["vcf_expression"]])
-    return anyvar_python_client
+        anyvar_http_client.put_allele_expressions([allele_fixture["vcf_expression"]])
+    return anyvar_http_client
 
 
 @pytest.fixture
@@ -68,7 +48,7 @@ UNPOPULATED_CLIENTS = [
 
 POPULATED_CLIENTS = [
     "anyvar_populated_python_client",
-    "anyvar_http_client",
+    "anyvar_populated_http_client",
 ]
 
 
