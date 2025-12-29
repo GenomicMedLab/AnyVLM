@@ -1,6 +1,7 @@
 """Provide helpful type definitions, references, and type-based operations."""
 
 from enum import Enum, StrEnum
+from types import MappingProxyType
 from typing import Annotated
 
 from anyvar.utils.liftover_utils import ReferenceAssembly
@@ -54,12 +55,16 @@ class UcscAssemblyBuild(StrEnum):
 
 
 # Mapping of GRC and UCSC assembly identifiers to their corresponding ReferenceAssembly
-ASSEMBLY_MAP = {
-    GrcAssemblyId.GRCH38: ReferenceAssembly.GRCH38,
-    UcscAssemblyBuild.HG38: ReferenceAssembly.GRCH38,
-    GrcAssemblyId.GRCH37: ReferenceAssembly.GRCH37,
-    UcscAssemblyBuild.HG19: ReferenceAssembly.GRCH37,
-}
+ASSEMBLY_MAP: MappingProxyType[GrcAssemblyId | UcscAssemblyBuild, ReferenceAssembly] = (
+    MappingProxyType(
+        {
+            GrcAssemblyId.GRCH38: ReferenceAssembly.GRCH38,
+            UcscAssemblyBuild.HG38: ReferenceAssembly.GRCH38,
+            GrcAssemblyId.GRCH37: ReferenceAssembly.GRCH37,
+            UcscAssemblyBuild.HG19: ReferenceAssembly.GRCH37,
+        }
+    )
+)
 
 
 NucleotideSequence = Annotated[
