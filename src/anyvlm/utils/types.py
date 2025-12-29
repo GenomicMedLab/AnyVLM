@@ -28,8 +28,8 @@ class AnyVlmCohortAlleleFrequencyResult(CohortAlleleFrequencyStudyResult):
     This is still VA-Spec compliant, but replaces dictionary fields with Pydantic models
     """
 
-    ancillaryResults: AncillaryResults | None = None  # noqa: N815
-    qualityMeasures: QualityMeasures | None = None  # noqa: N815
+    ancillaryResults: AncillaryResults | None = None  # type: ignore # noqa: N815
+    qualityMeasures: QualityMeasures | None = None  # type: ignore # noqa: N815
 
 
 class EndpointTag(str, Enum):
