@@ -46,8 +46,12 @@ jobs:
       - name: Run tests
         run: uv run pytest
         env:
-          ANYVLM_ANYVAR_TEST_STORAGE_URI: postgresql://postgres:postgres@localhost:5432/postgres
           ANYVLM_TEST_STORAGE_URI: postgresql://postgres:postgres@localhost:5432/postgres
+          ANYVLM_ANYVAR_TEST_STORAGE_URI: postgresql://postgres:postgres@localhost:5432/postgres
+          HANDOVER_TYPE_ID: GREGoR-NCH
+          HANDOVER_TYPE_LABEL: "GREGoR AnyVLM Reference"
+          BEACON_HANDOVER_URL: https://variants.gregorconsortium.org/
+          BEACON_NODE_ID: org.anyvlm.gregor
   lint:
     name: lint
     runs-on: ubuntu-latest
