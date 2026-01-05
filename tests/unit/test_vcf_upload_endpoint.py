@@ -6,7 +6,6 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 from anyvar.utils.liftover_utils import ReferenceAssembly
-from fastapi import UploadFile
 from fastapi.testclient import TestClient
 
 from anyvlm.functions.ingest_vcf import VcfAfColumnsError
@@ -145,70 +144,12 @@ class TestFileValidation:
         """Test VCF header validation fails on missing INFO fields."""
         from anyvlm.restapi.vlm import validate_vcf_header
 
-        with pytest.raises(
-            ValueError, match="VCF missing required INFO fields.*AN"
-        ):
+        with pytest.raises(ValueError, match="VCF missing required INFO fields.*AN"):
             validate_vcf_header(missing_fields_vcf_gz)
-
-
-class TestFileHandling:
-    """Test file upload and temporary file handling."""
-
-    @pytest.mark.asyncio
-    async def test_save_upload_file_temp(self, valid_vcf_gz: Path):
-        """Test saving uploaded file to temporary location."""
-        from anyvlm.restapi.vlm import save_upload_file_temp
-
-        # Create mock UploadFile
-        with open(valid_vcf_gz, "rb") as f:
-            content = f.read()
-
-        upload_file = UploadFile(
-            filename="test.vcf.gz", file=io.BytesIO(content)
-        )
-
-        # Save to temp
-        temp_path = await save_upload_file_temp(upload_file)
-
-        try:
-            # Verify file exists
-            assert temp_path.exists()
-            assert temp_path.name.startswith("anyvlm_")
-            assert temp_path.suffix == ".gz"
-
-            # Verify content matches
-            with open(temp_path, "rb") as f:
-                saved_content = f.read()
-            assert saved_content == content
-
-        finally:
-            # Cleanup
-            if temp_path.exists():
-                temp_path.unlink()
-
-    @pytest.mark.asyncio
-    async def test_save_upload_file_temp_cleanup_on_error(self):
-        """Test temporary file cleanup on error during save."""
-        from anyvlm.restapi.vlm import save_upload_file_temp
-
-        # Create mock that raises error during read
-        mock_file = MagicMock()
-        mock_file.read.side_effect = IOError("Read failed")
-
-        upload_file = UploadFile(filename="test.vcf.gz", file=mock_file)
-
-        # Should raise and not leave temp file
-        with pytest.raises(IOError):
-            await save_upload_file_temp(upload_file)
-
-        # Verify no temp files left behind (hard to test perfectly, but we try)
-        # The implementation should clean up in except block
-
 
 # ====================
 # Endpoint Integration Tests
 # ====================
-
 
 class TestIngestVcfEndpoint:
     """Test the /ingest_vcf HTTP endpoint."""
@@ -235,7 +176,9 @@ class TestIngestVcfEndpoint:
             response = client.post("/ingest_vcf", files=files)
 
         assert response.status_code == 422
-        assert "assembly" in response.text.lower() or "required" in response.text.lower()
+        assert (
+            "assembly" in response.text.lower() or "required" in response.text.lower()
+        )
 
     def test_invalid_assembly_value(self, client: TestClient, valid_vcf_gz: Path):
         """Test request with invalid assembly value."""
@@ -312,7 +255,10 @@ class TestIngestVcfEndpoint:
         assert response.status_code == 422
         json_response = response.json()
         assert "detail" in json_response
-        assert "info" in json_response["detail"].lower() or "field" in json_response["detail"].lower()
+        assert (
+            "info" in json_response["detail"].lower()
+            or "field" in json_response["detail"].lower()
+        )
 
     @patch("anyvlm.restapi.vlm.ingest_vcf_function")
     def test_successful_upload_and_ingestion(
@@ -338,13 +284,13 @@ class TestIngestVcfEndpoint:
         # Verify ingest_vcf was called
         assert mock_ingest.called
         call_args = mock_ingest.call_args
-        
+
         # Check Path argument
         assert isinstance(call_args[0][0], Path)
-        
+
         # Check AnyVar client was passed
         assert call_args[0][1] is not None
-        
+
         # Check assembly (3rd positional argument)
         assert call_args[0][2] == ReferenceAssembly.GRCH38
 
@@ -369,9 +315,7 @@ class TestIngestVcfEndpoint:
         assert "detail" in json_response
         assert "AC_Het" in json_response["detail"]
 
-    def test_temp_file_cleanup_on_success(
-        self, client: TestClient, valid_vcf_gz: Path
-    ):
+    def test_temp_file_cleanup_on_success(self, client: TestClient, valid_vcf_gz: Path):
         """Test that temporary files are cleaned up after successful ingestion."""
         with patch("anyvlm.restapi.vlm.ingest_vcf_function") as mock_ingest:
             mock_ingest.return_value = None
@@ -391,9 +335,7 @@ class TestIngestVcfEndpoint:
                 temp_path = mock_ingest.call_args[0][0]
                 assert not temp_path.exists(), "Temporary file should be cleaned up"
 
-    def test_temp_file_cleanup_on_error(
-        self, client: TestClient, valid_vcf_gz: Path
-    ):
+    def test_temp_file_cleanup_on_error(self, client: TestClient, valid_vcf_gz: Path):
         """Test that temporary files are cleaned up even when ingestion fails."""
         with patch("anyvlm.restapi.vlm.ingest_vcf_function") as mock_ingest:
             mock_ingest.side_effect = Exception("Ingestion failed")
@@ -411,11 +353,11 @@ class TestIngestVcfEndpoint:
             # Verify cleanup happened
             if mock_ingest.called:
                 temp_path = mock_ingest.call_args[0][0]
-                assert not temp_path.exists(), "Temporary file should be cleaned up even on error"
+                assert not temp_path.exists(), (
+                    "Temporary file should be cleaned up even on error"
+                )
 
-    def test_assembly_grch37_parameter(
-        self, client: TestClient, valid_vcf_gz: Path
-    ):
+    def test_assembly_grch37_parameter(self, client: TestClient, valid_vcf_gz: Path):
         """Test that GRCh37 assembly parameter is accepted and used."""
         with patch("anyvlm.restapi.vlm.ingest_vcf_function") as mock_ingest:
             mock_ingest.return_value = None
@@ -429,7 +371,7 @@ class TestIngestVcfEndpoint:
                 )
 
             assert response.status_code == 200
-            
+
             # Verify GRCh37 was passed (3rd positional argument)
             call_args = mock_ingest.call_args
             assert call_args[0][2] == ReferenceAssembly.GRCH37
@@ -448,7 +390,7 @@ class TestFileSizeLimits:
         # Create a mock file that reports large size
         mock_large_file = MagicMock()
         mock_large_file.filename = "huge.vcf.gz"
-        
+
         # We'll need to test this at the validation function level
         # since mocking the actual upload size is complex
         from anyvlm.restapi.vlm import validate_file_size

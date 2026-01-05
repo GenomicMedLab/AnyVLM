@@ -9,7 +9,6 @@ from typing import Annotated, BinaryIO, Literal
 
 from anyvar.utils.liftover_utils import ReferenceAssembly
 from fastapi import HTTPException, Query, Request, UploadFile
-from ga4gh.va_spec.base.core import CohortAlleleFrequencyStudyResult
 from pydantic import BaseModel
 
 from anyvlm.anyvar.base_client import BaseAnyVarClient
@@ -18,8 +17,8 @@ from anyvlm.functions.get_caf import get_caf
 from anyvlm.functions.ingest_vcf import VcfAfColumnsError
 from anyvlm.functions.ingest_vcf import ingest_vcf as ingest_vcf_function
 from anyvlm.main import app
-from anyvlm.storage.base_storage import Storage
 from anyvlm.schemas.vlm import VlmResponse
+from anyvlm.storage.base_storage import Storage
 from anyvlm.utils.types import (
     AnyVlmCohortAlleleFrequencyResult,
     ChromosomeName,
@@ -140,15 +139,17 @@ async def save_upload_file_temp(upload_file: UploadFile) -> Path:
 
     try:
         # Stream upload to disk (memory efficient)
-        with open(temp_path, "wb") as f:
+        # Using blocking I/O here is acceptable as we're writing to local disk
+        with temp_path.open("wb") as f:
             while chunk := await upload_file.read(UPLOAD_CHUNK_SIZE):
                 f.write(chunk)
-        return temp_path
     except Exception:
         # Cleanup on error
         if temp_path.exists():
             temp_path.unlink()
         raise
+    else:
+        return temp_path
 
 
 # ====================
@@ -191,7 +192,7 @@ async def ingest_vcf_endpoint(
     try:
         # Validate filename extension
         if not file.filename:
-            raise HTTPException(400, "Filename is required")
+            raise HTTPException(400, "Filename is required")  # noqa: TRY301
 
         try:
             validate_filename_extension(file.filename)
@@ -204,7 +205,7 @@ async def ingest_vcf_endpoint(
             "application/x-gzip",
             "application/octet-stream",
         }:
-            raise HTTPException(
+            raise HTTPException(  # noqa: TRY301
                 400,
                 f"Invalid content type: {file.content_type}",
             )
@@ -235,7 +236,7 @@ async def ingest_vcf_endpoint(
         except ValueError as e:
             raise HTTPException(
                 422,
-                f"VCF validation failed: {str(e)}",
+                f"VCF validation failed: {e!s}",
             ) from e
 
         # Process VCF
@@ -246,14 +247,10 @@ async def ingest_vcf_endpoint(
             ingest_vcf_function(temp_path, anyvar_client, assembly)
         except VcfAfColumnsError as e:
             _logger.exception("VCF missing required INFO columns")
-            raise HTTPException(
-                422, f"VCF validation failed: {e}"
-            ) from e
+            raise HTTPException(422, f"VCF validation failed: {e}") from e
         except Exception as e:
             _logger.exception("VCF ingestion failed")
-            raise HTTPException(
-                500, f"Ingestion failed: {e}"
-            ) from e
+            raise HTTPException(500, f"Ingestion failed: {e}") from e
 
         _logger.info("Successfully ingested VCF: %s", file.filename)
         return VcfIngestionResponse(
