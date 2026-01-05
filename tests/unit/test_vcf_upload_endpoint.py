@@ -88,7 +88,7 @@ class TestFileValidation:
         """Test gzip magic bytes validation with valid file."""
         from anyvlm.restapi.vlm import validate_gzip_magic_bytes
 
-        with open(valid_vcf_gz, "rb") as f:
+        with valid_vcf_gz.open("rb") as f:
             content = f.read()
             file_obj = io.BytesIO(content)
             validate_gzip_magic_bytes(file_obj)
@@ -147,9 +147,11 @@ class TestFileValidation:
         with pytest.raises(ValueError, match="VCF missing required INFO fields.*AN"):
             validate_vcf_header(missing_fields_vcf_gz)
 
+
 # ====================
 # Endpoint Integration Tests
 # ====================
+
 
 class TestIngestVcfEndpoint:
     """Test the /ingest_vcf HTTP endpoint."""
@@ -171,7 +173,7 @@ class TestIngestVcfEndpoint:
 
     def test_missing_assembly_parameter(self, client: TestClient, valid_vcf_gz: Path):
         """Test request without assembly parameter."""
-        with open(valid_vcf_gz, "rb") as f:
+        with valid_vcf_gz.open("rb") as f:
             files = {"file": ("test.vcf.gz", f, "application/gzip")}
             response = client.post("/ingest_vcf", files=files)
 
@@ -182,7 +184,7 @@ class TestIngestVcfEndpoint:
 
     def test_invalid_assembly_value(self, client: TestClient, valid_vcf_gz: Path):
         """Test request with invalid assembly value."""
-        with open(valid_vcf_gz, "rb") as f:
+        with valid_vcf_gz.open("rb") as f:
             files = {"file": ("test.vcf.gz", f, "application/gzip")}
             response = client.post(
                 "/ingest_vcf",
@@ -194,7 +196,7 @@ class TestIngestVcfEndpoint:
 
     def test_invalid_file_extension(self, client: TestClient, valid_vcf_gz: Path):
         """Test upload with wrong file extension."""
-        with open(valid_vcf_gz, "rb") as f:
+        with valid_vcf_gz.open("rb") as f:
             # Use .vcf extension (should be .vcf.gz)
             files = {"file": ("test.vcf", f, "application/gzip")}
             response = client.post(
@@ -227,7 +229,7 @@ class TestIngestVcfEndpoint:
 
     def test_not_a_vcf_file(self, client: TestClient, not_vcf_gz: Path):
         """Test upload of gzipped file that's not a VCF."""
-        with open(not_vcf_gz, "rb") as f:
+        with not_vcf_gz.open("rb") as f:
             files = {"file": ("test.vcf.gz", f, "application/gzip")}
             response = client.post(
                 "/ingest_vcf",
@@ -244,7 +246,7 @@ class TestIngestVcfEndpoint:
         self, client: TestClient, missing_fields_vcf_gz: Path
     ):
         """Test upload of VCF missing required INFO fields."""
-        with open(missing_fields_vcf_gz, "rb") as f:
+        with missing_fields_vcf_gz.open("rb") as f:
             files = {"file": ("test.vcf.gz", f, "application/gzip")}
             response = client.post(
                 "/ingest_vcf",
@@ -268,7 +270,7 @@ class TestIngestVcfEndpoint:
         # Mock the ingest_vcf function to avoid needing real AnyVar
         mock_ingest.return_value = None
 
-        with open(valid_vcf_gz, "rb") as f:
+        with valid_vcf_gz.open("rb") as f:
             files = {"file": ("test.vcf.gz", f, "application/gzip")}
             response = client.post(
                 "/ingest_vcf",
@@ -302,7 +304,7 @@ class TestIngestVcfEndpoint:
         # Mock ingest_vcf to raise an error
         mock_ingest.side_effect = VcfAfColumnsError("Missing AC_Het field")
 
-        with open(valid_vcf_gz, "rb") as f:
+        with valid_vcf_gz.open("rb") as f:
             files = {"file": ("test.vcf.gz", f, "application/gzip")}
             response = client.post(
                 "/ingest_vcf",
@@ -320,7 +322,7 @@ class TestIngestVcfEndpoint:
         with patch("anyvlm.restapi.vlm.ingest_vcf_function") as mock_ingest:
             mock_ingest.return_value = None
 
-            with open(valid_vcf_gz, "rb") as f:
+            with valid_vcf_gz.open("rb") as f:
                 files = {"file": ("test.vcf.gz", f, "application/gzip")}
                 response = client.post(
                     "/ingest_vcf",
@@ -340,7 +342,7 @@ class TestIngestVcfEndpoint:
         with patch("anyvlm.restapi.vlm.ingest_vcf_function") as mock_ingest:
             mock_ingest.side_effect = Exception("Ingestion failed")
 
-            with open(valid_vcf_gz, "rb") as f:
+            with valid_vcf_gz.open("rb") as f:
                 files = {"file": ("test.vcf.gz", f, "application/gzip")}
                 response = client.post(
                     "/ingest_vcf",
@@ -362,7 +364,7 @@ class TestIngestVcfEndpoint:
         with patch("anyvlm.restapi.vlm.ingest_vcf_function") as mock_ingest:
             mock_ingest.return_value = None
 
-            with open(valid_vcf_gz, "rb") as f:
+            with valid_vcf_gz.open("rb") as f:
                 files = {"file": ("test.vcf.gz", f, "application/gzip")}
                 response = client.post(
                     "/ingest_vcf",
@@ -385,7 +387,7 @@ class TestIngestVcfEndpoint:
 class TestFileSizeLimits:
     """Test file size limit enforcement."""
 
-    def test_file_size_check_with_mock_large_file(self, client: TestClient):
+    def test_file_size_check_with_mock_large_file(self):
         """Test that files exceeding size limit are rejected."""
         # Create a mock file that reports large size
         mock_large_file = MagicMock()
