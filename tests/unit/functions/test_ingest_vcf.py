@@ -6,6 +6,7 @@ from anyvar.utils.liftover_utils import ReferenceAssembly
 
 from anyvlm.anyvar.base_client import BaseAnyVarClient
 from anyvlm.functions.ingest_vcf import VcfAfColumnsError, ingest_vcf
+from anyvlm.storage.base_storage import Storage
 
 
 @pytest.fixture(scope="session")
@@ -76,26 +77,41 @@ def input_grch37_vcf_path(test_data_dir: Path) -> Path:
     return test_data_dir / "vcf" / "grch37_vcf.vcf"
 
 
-def test_ingest_vcf_grch38(test_data_dir: Path, stub_anyvar_client: BaseAnyVarClient):
-    ingest_vcf(test_data_dir / "vcf" / "grch38_vcf.vcf", stub_anyvar_client)
+def test_ingest_vcf_grch38(
+    test_data_dir: Path, stub_anyvar_client: BaseAnyVarClient, postgres_storage: Storage
+):
+    ingest_vcf(
+        test_data_dir / "vcf" / "grch38_vcf.vcf", stub_anyvar_client, postgres_storage
+    )
 
 
-def test_ingest_vcf_grch37(test_data_dir: Path, stub_anyvar_client: BaseAnyVarClient):
+def test_ingest_vcf_grch37(
+    test_data_dir: Path, stub_anyvar_client: BaseAnyVarClient, postgres_storage: Storage
+):
     ingest_vcf(
         test_data_dir / "vcf" / "grch37_vcf.vcf",
         stub_anyvar_client,
+        postgres_storage,
         ReferenceAssembly.GRCH37,
     )
 
 
-def test_ingest_vcf_notfound(stub_anyvar_client: BaseAnyVarClient):
+def test_ingest_vcf_notfound(
+    stub_anyvar_client: BaseAnyVarClient, postgres_storage: Storage
+):
     with pytest.raises(FileNotFoundError):
-        ingest_vcf(Path("file_that_doesnt_exist.vcf"), stub_anyvar_client)
+        ingest_vcf(
+            Path("file_that_doesnt_exist.vcf"), stub_anyvar_client, postgres_storage
+        )
 
 
 def test_ingest_vcf_infocol_missing(
-    stub_anyvar_client: BaseAnyVarClient, test_data_dir: Path
+    stub_anyvar_client: BaseAnyVarClient, test_data_dir: Path, postgres_storage: Storage
 ):
     """Test smooth handling of VCF that's missing one or more required INFO columns"""
     with pytest.raises(VcfAfColumnsError):
-        ingest_vcf(test_data_dir / "vcf" / "info_field_missing.vcf", stub_anyvar_client)
+        ingest_vcf(
+            test_data_dir / "vcf" / "info_field_missing.vcf",
+            stub_anyvar_client,
+            postgres_storage,
+        )
