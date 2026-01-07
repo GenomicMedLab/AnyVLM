@@ -128,7 +128,7 @@ def test_build_vlm_response_no_data():
 
     # Test VlmResponse.responseSummary
     response_summary: ResponseSummary = vlm_response.responseSummary
-    assert not response_summary.exists
+    assert not response_summary.exists  # should be `False`
     assert response_summary.numTotalResults == 0
 
     # Test VlmResponse.response
