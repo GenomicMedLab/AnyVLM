@@ -77,7 +77,9 @@ def build_vlm_response_from_caf_data(
                 results[Zygosity.HEMIZYGOUS], ancillary_results.hemizygotes
             )
         else:
-            results[Zygosity.UNKNOWN] = sum_nullables(results[Zygosity.UNKNOWN], 1)
+            results[Zygosity.UNKNOWN] = sum_nullables(
+                results[Zygosity.UNKNOWN], entry.focusAlleleCount
+            )
 
     result_sets: list[ResultSet] = []
     total_num_results = 0
