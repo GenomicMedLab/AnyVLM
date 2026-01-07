@@ -36,7 +36,7 @@ def _get_environment_var(key: str) -> str:
     return value
 
 
-def build_vlm_response_from_caf_data(
+def build_vlm_response(
     caf_data: list[AnyVlmCohortAlleleFrequencyResult],
 ) -> VlmResponse:
     """Craft a VlmResponse object from a list of CohortAlleleFrequencyStudyResults.
