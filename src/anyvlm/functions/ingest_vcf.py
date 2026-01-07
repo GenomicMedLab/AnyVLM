@@ -7,14 +7,21 @@ from pathlib import Path
 
 import pysam
 from anyvar.utils.liftover_utils import ReferenceAssembly
-from ga4gh.va_spec.base import CohortAlleleFrequencyStudyResult
+from ga4gh.core.models import iriReference
+from ga4gh.va_spec.base import StudyGroup
 
 from anyvlm.anyvar.base_client import BaseAnyVarClient
+from anyvlm.storage.base_storage import Storage
+from anyvlm.utils.types import (
+    AncillaryResults,
+    AnyVlmCohortAlleleFrequencyResult,
+    QualityMeasures,
+)
 
 _logger = logging.getLogger(__name__)
 
 
-AfData = namedtuple("AfData", ("ac", "an", "ac_het", "ac_hom", "ac_hemi"))
+AfData = namedtuple("AfData", ("ac", "an", "ac_het", "ac_hom", "ac_hemi", "filters"))
 
 
 class VcfAfColumnsError(Exception):
@@ -23,12 +30,12 @@ class VcfAfColumnsError(Exception):
 
 def _yield_expression_af_batches(
     vcf: pysam.VariantFile, batch_size: int = 1000
-) -> Iterator[list[tuple[str, CohortAlleleFrequencyStudyResult]]]:
+) -> Iterator[list[tuple[str, AfData]]]:
     """Generate a variant expression-allele frequency data pairing, one at a time
 
     :param vcf: VCF to pull variants from
     :param batch_size: size of return batches
-    :return: iterator of lists of pairs of variant expressions and AF data classes
+    :return: iterator of lists of pairs of variant expressions and AF data instances
     """
     batch = []
 
@@ -45,6 +52,7 @@ def _yield_expression_af_batches(
                     ac_het=record.info["AC_Het"][i],
                     ac_hom=record.info["AC_Hom"][i],
                     ac_hemi=record.info["AC_Hemi"][i],
+                    filters=record.filter.keys(),
                 )
             except KeyError as e:
                 info = record.info
@@ -64,6 +72,7 @@ def _yield_expression_af_batches(
 def ingest_vcf(
     vcf_path: Path,
     av: BaseAnyVarClient,
+    storage: Storage,
     assembly: ReferenceAssembly = ReferenceAssembly.GRCH38,
 ) -> None:
     """Extract variant and frequency information from a single VCF
@@ -79,6 +88,7 @@ def ingest_vcf(
 
     :param vcf_path: location of input file
     :param av: AnyVar client
+    :param storage: AnyVLM storage instance
     :param assembly: reference assembly used by VCF
     :raise VcfAfColumnsError: if VCF is missing required columns
     """
@@ -87,10 +97,20 @@ def ingest_vcf(
     for batch in _yield_expression_af_batches(vcf):
         expressions, afs = zip(*batch, strict=True)
         variant_ids = av.put_allele_expressions(expressions, assembly)
-        for variant_id, af in zip(variant_ids, afs, strict=True):  # noqa: B007
+        for variant_id, af in zip(variant_ids, afs, strict=True):
             if variant_id is None:
                 continue
-            # make call to object store method for putting CAF here
-            # presumably build the CAF object here + call the insert method with it
-            # may need to alter zip() if the insert method expects a full variation
-            # instead of just the ID
+            caf = AnyVlmCohortAlleleFrequencyResult(
+                focusAllele=iriReference(variant_id),
+                focusAlleleCount=af.ac,
+                locusAlleleCount=af.an,
+                focusAlleleFrequency=af.ac / af.an,
+                qualityMeasures=QualityMeasures(qcFilters=af.filters),
+                ancillaryResults=AncillaryResults(
+                    heterozygotes=af.ac_het,
+                    homozygotes=af.ac_hom,
+                    hemizygotes=af.ac_hemi,
+                ),
+                cohort=StudyGroup(name="rare disease"),
+            )
+            storage.add_allele_frequencies(caf)
