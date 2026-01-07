@@ -56,14 +56,6 @@ def build_vlm_response_from_caf_data(
         )
     ]
 
-    # TODO - is this the right way to count this?
-    # Or is it the total of heterozygotes + homozygotes + hemizygotes + unknowns?
-    num_results = len(caf_data)
-    response_summary = ResponseSummary(
-        exists=num_results > 0, numTotalResults=num_results
-    )
-
-    # Build Response Field
     results: dict[Zygosity, int | None] = {
         Zygosity.HOMOZYGOUS: None,
         Zygosity.HETEROZYGOUS: None,
@@ -96,9 +88,11 @@ def build_vlm_response_from_caf_data(
                 else results[Zygosity.UNKNOWN] + 1  # type: ignore
             )
 
-    result_sets = []
+    result_sets: list[ResultSet] = []
+    total_num_results = 0
     for zygosity_type, num_results in results.items():
         if num_results is not None:
+            total_num_results += num_results
             result_sets.append(
                 ResultSet(
                     resultset_id=f"{_get_environment_var('HANDOVER_TYPE_ID')} {zygosity_type}",
@@ -108,6 +102,8 @@ def build_vlm_response_from_caf_data(
 
     return VlmResponse(
         beaconHandovers=beacon_handovers,
-        responseSummary=response_summary,
+        responseSummary=ResponseSummary(
+            exists=total_num_results > 0, numTotalResults=total_num_results
+        ),
         response=ResponseField(resultSets=result_sets),
     )
