@@ -68,17 +68,17 @@ def build_vlm_response_from_caf_data(
         ancillary_results: AncillaryResults | None = entry.ancillaryResults
         if ancillary_results is not None:
             results[Zygosity.HOMOZYGOUS] = sum_nullables(
-                results[Zygosity.HOMOZYGOUS], ancillary_results.homozygotes
+                [results[Zygosity.HOMOZYGOUS], ancillary_results.homozygotes]
             )
             results[Zygosity.HETEROZYGOUS] = sum_nullables(
-                results[Zygosity.HETEROZYGOUS], ancillary_results.heterozygotes
+                [results[Zygosity.HETEROZYGOUS], ancillary_results.heterozygotes]
             )
             results[Zygosity.HEMIZYGOUS] = sum_nullables(
-                results[Zygosity.HEMIZYGOUS], ancillary_results.hemizygotes
+                [results[Zygosity.HEMIZYGOUS], ancillary_results.hemizygotes]
             )
         else:
             results[Zygosity.UNKNOWN] = sum_nullables(
-                results[Zygosity.UNKNOWN], entry.focusAlleleCount
+                [results[Zygosity.UNKNOWN], entry.focusAlleleCount]
             )
 
     result_sets: list[ResultSet] = []
