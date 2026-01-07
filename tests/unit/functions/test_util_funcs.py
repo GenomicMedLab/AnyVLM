@@ -7,5 +7,4 @@ def test_sum_nullables():
     assert sum_nullables([142, None]) == 142
     assert sum_nullables([None, None, None]) is None
     assert sum_nullables([0, 0]) == 0
-    assert sum_nullables([0, None]) == 0
-    assert sum_nullables([None, 0]) == 0
+    assert sum_nullables([0, None, None, 0]) == 0
