@@ -10,6 +10,7 @@ from anyvlm.schemas.vlm import (
     ResultSet,
     VlmResponse,
 )
+from anyvlm.utils.funcs import sum_nullables
 from anyvlm.utils.types import (
     AncillaryResults,
     AnyVlmCohortAlleleFrequencyResult,
@@ -66,27 +67,17 @@ def build_vlm_response_from_caf_data(
     for entry in caf_data:
         ancillary_results: AncillaryResults | None = entry.ancillaryResults
         if ancillary_results is not None:
-            results[Zygosity.HOMOZYGOUS] = (
-                ancillary_results.homozygotes
-                if results[Zygosity.HOMOZYGOUS] is None
-                else results[Zygosity.HOMOZYGOUS] + ancillary_results.homozygotes  # type: ignore
+            results[Zygosity.HOMOZYGOUS] = sum_nullables(
+                results[Zygosity.HOMOZYGOUS], ancillary_results.homozygotes
             )
-            results[Zygosity.HETEROZYGOUS] = (
-                ancillary_results.heterozygotes
-                if results[Zygosity.HETEROZYGOUS] is None
-                else results[Zygosity.HETEROZYGOUS] + ancillary_results.heterozygotes  # type: ignore
+            results[Zygosity.HETEROZYGOUS] = sum_nullables(
+                results[Zygosity.HETEROZYGOUS], ancillary_results.heterozygotes
             )
-            results[Zygosity.HEMIZYGOUS] = (
-                ancillary_results.hemizygotes
-                if results[Zygosity.HEMIZYGOUS] is None
-                else results[Zygosity.HEMIZYGOUS] + ancillary_results.hemizygotes  # type: ignore
+            results[Zygosity.HEMIZYGOUS] = sum_nullables(
+                results[Zygosity.HEMIZYGOUS], ancillary_results.hemizygotes
             )
         else:
-            results[Zygosity.UNKNOWN] = (
-                1
-                if results[Zygosity.UNKNOWN] is None
-                else results[Zygosity.UNKNOWN] + 1  # type: ignore
-            )
+            results[Zygosity.UNKNOWN] = sum_nullables(results[Zygosity.UNKNOWN], 1)
 
     result_sets: list[ResultSet] = []
     total_num_results = 0
