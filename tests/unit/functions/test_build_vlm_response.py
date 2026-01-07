@@ -121,3 +121,16 @@ def test_build_vlm_response(
             for entry in caf_data
         ]
     )
+
+
+def test_build_vlm_response_no_data():
+    vlm_response: VlmResponse = build_vlm_response([])
+
+    # VlmResponse.responseSummary
+    response_summary: ResponseSummary = vlm_response.responseSummary
+    assert not response_summary.exists
+    assert response_summary.numTotalResults == 0
+
+    # VlmResponse.response
+    result_sets: list[ResultSet] = vlm_response.response.resultSets
+    assert len(result_sets) == 0
