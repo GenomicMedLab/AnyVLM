@@ -6,7 +6,7 @@ from typing import Annotated
 
 from anyvar.utils.liftover_utils import ReferenceAssembly
 from ga4gh.va_spec.base import CohortAlleleFrequencyStudyResult
-from pydantic import BaseModel, BeforeValidator, StringConstraints
+from pydantic import AfterValidator, BaseModel, BeforeValidator, StringConstraints
 
 
 class AncillaryResults(BaseModel):
@@ -93,12 +93,12 @@ def _normalize_chromosome_name(chromosome_name: str) -> str:
         return chromosome_name
 
     raise ValueError(
-        "Invalid chromosome. Must be either a number between 1-22, or "
-        "'one of the values 'X', 'Y', or 'MT'; optionally prefixed with 'chr'."
+        "Invalid chromosome name. Must be a string consisting of either a number between 1-22, "
+        "or one of the values 'X', 'Y', or 'MT'; optionally prefixed with 'chr'."
     )
 
 
-ChromosomeName = Annotated[str, BeforeValidator(_normalize_chromosome_name)]
+ChromosomeName = Annotated[str, AfterValidator(_normalize_chromosome_name)]
 
 
 class Zygosity(StrEnum):
