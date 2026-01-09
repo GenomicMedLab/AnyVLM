@@ -5,6 +5,7 @@ from collections.abc import Iterable, Sequence
 from http import HTTPMethod, HTTPStatus
 
 import requests
+from anyvar.restapi.schema import RegisterVariationResponse
 from anyvar.utils.liftover_utils import ReferenceAssembly
 from ga4gh.vrs import VrsType, models
 
@@ -117,6 +118,70 @@ class HttpAnyVarClient(BaseAnyVarClient):
 
         return models.Allele(**response.json()["data"])
 
+    def _put_allele_expressions(
+        self, expression: str, assembly: ReferenceAssembly, method: HTTPMethod
+    ) -> requests.Response | None:
+        """Make a request to the AnyVar variation endpoint for an allele expression
+
+        :param expression: variation expression to translate
+        :param assembly: reference assembly used in expression
+        :param method: HTTP method to use for the request. Only POST and PUT are
+            supported.
+            POST is used for retrieving a registered variation, while PUT is used for
+            registering a new variation.
+        :raises ValueError: if unsupported HTTP method is provided
+        :raise AnyVarClientConnectionError: if connection to AnyVar service is
+            unsuccessful
+        :raise AnyVarClientError: if HTTP request fails for other reasons
+        :return: HTTP response object if request is successful, else `None`
+        """
+        if method not in {HTTPMethod.POST, HTTPMethod.PUT}:
+            msg = (
+                f"HTTP method {method} is not supported for allele expression requests"
+            )
+            raise ValueError(msg)
+
+        url = f"{self.hostname}/variation"
+        payload = {
+            "definition": expression,
+            "assembly_name": assembly.value,
+            "input_type": VrsType.ALLELE.value,
+        }
+        try:
+            response = requests.request(
+                method=method,
+                url=url,
+                json=payload,
+                timeout=self.request_timeout,
+            )
+        except requests.ConnectionError as e:
+            _logger.exception(
+                "Unable to establish connection using AnyVar configured at %s",
+                self.hostname,
+            )
+            raise AnyVarClientConnectionError from e
+
+        try:
+            response.raise_for_status()
+        except requests.HTTPError as e:
+            _logger.exception(
+                "Encountered HTTP exception submitting payload %s to %s",
+                payload,
+                url,
+            )
+            if response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY:
+                _logger.debug(
+                    "Translation failed for variant expression '%s'", expression
+                )
+                return None
+
+            if response.status_code == HTTPStatus.NOT_FOUND:
+                _logger.debug("No variation found for expression '%s'", expression)
+                return None
+
+            raise AnyVarClientError from e
+        return response
+
     def put_allele_expressions(
         self,
         expressions: Iterable[str],
@@ -134,16 +199,38 @@ class HttpAnyVarClient(BaseAnyVarClient):
             else `None`, for the i'th expression
         :raise AnyVarClientError: for unexpected errors relating to specifics of client interface
         """
-        results: list[str | None] = []
-        for expression in expressions:
-            response = self._make_allele_expression_request(
-                expression, assembly, HTTPMethod.PUT
+        payload = [
+            {
+                "definition": expression,
+                "assembly_name": assembly.value,
+                "input_type": VrsType.ALLELE.value,
+            }
+            for expression in expressions
+        ]
+        url = f"{self.hostname}/variations"
+        try:
+            response = requests.put(
+                url=url,
+                json=payload,
+                timeout=self.request_timeout,
             )
-            if not response:
-                results.append(None)
-            else:
-                results.append(response.json()["object_id"])
-        return results
+        except requests.ConnectionError as e:
+            _logger.exception(
+                "Unable to establish connection using AnyVar configured at %s",
+                self.hostname,
+            )
+            raise AnyVarClientConnectionError from e
+
+        try:
+            response.raise_for_status()
+        except requests.HTTPError as e:
+            _logger.exception(
+                "Encountered HTTP exception submitting payload %s to %s",
+                payload,
+                url,
+            )
+            raise AnyVarClientError from e
+        return [RegisterVariationResponse(**r).object_id for r in response.json()]
 
     def close(self) -> None:
         """Clean up AnyVar connection.
