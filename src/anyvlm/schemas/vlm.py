@@ -162,20 +162,20 @@ class VlmResponse(BaseModel):
         for result_set in self.response.resultSets:
             node_id, zygosity = None, None
             try:
-                node_id, zygosity = result_set.id.split(" ")
+                node_id, zygosity = result_set.id.split(" ", 1)
             except ValueError as e:
-                error_message = f"{self.resultset_id_error_message_base}, but provided id of {result_set.id} contains invalid formatting"
+                error_message = f"{self.resultset_id_error_message_base}, but provided id of '{result_set.id}' contains invalid formatting"
                 raise ValueError(error_message) from e
 
             if node_id not in handover_ids:
-                error_message = f"{self.resultset_id_error_message_base}, but provided node_id of {node_id} does not match any `handoverType.id` provided in `self.beaconHandovers`"
+                error_message = f"{self.resultset_id_error_message_base}, but provided node_id of '{node_id}' does not match any `handoverType.id` provided in `self.beaconHandovers`"
                 raise ValueError(error_message)
 
             try:
                 Zygosity(zygosity)
             except ValueError as e:
                 valid_zygosity_values = {zygosity.value for zygosity in Zygosity}
-                error_message = f"{self.resultset_id_error_message_base}, but provided zygosity of {zygosity} is not found in allowable value set of: {', '.join(valid_zygosity_values)}"
+                error_message = f"{self.resultset_id_error_message_base}, but provided zygosity of '{zygosity}' is not found in allowable value set of: {', '.join(valid_zygosity_values)}"
                 raise ValueError(error_message) from e
 
         return self
