@@ -100,10 +100,10 @@ class PythonAnyVarClient(BaseAnyVarClient):
             )
             translated_variations.append(translated_variation)
 
+        self.av.put_objects([v for v in translated_variations if v])
         results = []
         for variation in translated_variations:
             if variation:
-                self.av.put_objects([variation])
                 results.append(variation.id)
             else:
                 results.append(None)
