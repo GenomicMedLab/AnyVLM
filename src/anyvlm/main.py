@@ -1,10 +1,13 @@
 """Define core FastAPI app"""
 
 import logging
+import logging.config
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from urllib.parse import urlparse
 
+import anyio
+import yaml
 from anyvar.anyvar import create_storage, create_translator
 from fastapi import FastAPI
 
@@ -81,6 +84,32 @@ def create_anyvlm_storage(uri: str | None = None) -> Storage:
     return storage
 
 
+async def _configure_logging() -> None:
+    """Initialize logging.
+
+    Either load settings from a file at env var ``ANYVLM_LOGGING_CONFIG``, or
+    fall back on defaults.
+    """
+    config_file = get_config().logging_config
+    if config_file:
+        async with await anyio.open_file(config_file) as f:
+            try:
+                contents = await f.read()
+                config = yaml.safe_load(contents)
+                logging.config.dictConfig(config)
+                _logger.info("Logging using configs set from %s", config_file)
+            except Exception:
+                _logger.exception(
+                    "Error in Logging Configuration. Using default configs"
+                )
+            return
+    logging.basicConfig(
+        filename="anyvlm.log",
+        format="[%(asctime)s] - %(name)s - %(levelname)s : %(message)s",
+    )
+    _logger.info("Logging with default configs.")
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator:
     """Configure FastAPI instance lifespan.
@@ -88,6 +117,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator:
     :param app: FastAPI app instance
     :return: async context handler
     """
+    await _configure_logging()
     app.state.anyvar_client = create_anyvar_client()
     app.state.anyvlm_storage = create_anyvlm_storage()
     yield
