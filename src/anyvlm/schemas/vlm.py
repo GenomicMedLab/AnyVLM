@@ -58,10 +58,7 @@ class MetaSettings(BaseSettings):
 
     beaconId: str = Field(..., alias="BEACON_NODE_ID")
 
-    model_config = SettingsConfigDict(
-        env_prefix="",
-        extra="ignore",
-    )
+    model_config = SettingsConfigDict(env_prefix="", extra="ignore", env_file=".env")
 
 
 meta_settings = MetaSettings()  # type: ignore

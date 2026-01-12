@@ -13,6 +13,7 @@ from anyvlm.anyvar.base_client import BaseAnyVarClient
 from anyvlm.anyvar.http_client import HttpAnyVarClient
 from anyvlm.anyvar.python_client import PythonAnyVarClient
 from anyvlm.config import get_config
+from anyvlm.restapi.vlm import router as vlm_router
 from anyvlm.schemas.common import (
     SERVICE_DESCRIPTION,
     ServiceInfo,
@@ -99,6 +100,7 @@ app = FastAPI(
     title="AnyVLM",
     description=SERVICE_DESCRIPTION,
     version=__version__,
+    docs_url="/",
     license={
         "name": "Apache 2.0",
         "url": "https://github.com/genomicmedlab/anyvlm/blob/main/LICENSE",
@@ -111,6 +113,7 @@ app = FastAPI(
     swagger_ui_parameters={"tryItOutEnabled": True},
     lifespan=lifespan,
 )
+app.include_router(vlm_router)
 
 
 @app.get(
