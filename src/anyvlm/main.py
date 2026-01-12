@@ -106,7 +106,8 @@ async def _configure_logging() -> None:
                 _logger.exception(
                     "Error in Logging Configuration. Using default configs"
                 )
-            return
+            else:
+                return
     logging.basicConfig(
         filename="anyvlm.log",
         format="[%(asctime)s] - %(name)s - %(levelname)s : %(message)s",
