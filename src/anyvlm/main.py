@@ -89,6 +89,10 @@ async def _configure_logging() -> None:
 
     Either load settings from a file at env var ``ANYVLM_LOGGING_CONFIG``, or
     fall back on defaults.
+
+    Note that the value provided at the config file env var must point to
+    a) an existing path that is b) a file, or else an unhandled exception will be
+    raised.
     """
     config_file = get_config().logging_config
     if config_file:
