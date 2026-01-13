@@ -242,10 +242,11 @@ async def ingest_vcf_endpoint(
 
         # Process VCF
         anyvar_client = request.app.state.anyvar_client
+        anyvlm_storage = request.app.state.anyvlm_storage
         _logger.info("Starting VCF ingestion for %s", file.filename)
 
         try:
-            ingest_vcf_function(temp_path, anyvar_client, assembly)
+            ingest_vcf_function(temp_path, anyvar_client, anyvlm_storage, assembly)
         except VcfAfColumnsError as e:
             _logger.exception("VCF missing required INFO columns")
             raise HTTPException(422, f"VCF validation failed: {e}") from e
