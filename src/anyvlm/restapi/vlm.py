@@ -12,7 +12,7 @@ from fastapi import HTTPException, Query, Request, UploadFile
 from pydantic import BaseModel
 
 from anyvlm.anyvar.base_client import BaseAnyVarClient
-from anyvlm.functions.build_vlm_response import build_vlm_response_from_caf_data
+from anyvlm.functions.build_vlm_response import build_vlm_response
 from anyvlm.functions.get_caf import get_caf
 from anyvlm.functions.ingest_vcf import VcfAfColumnsError
 from anyvlm.functions.ingest_vcf import ingest_vcf as ingest_vcf_function
@@ -306,4 +306,4 @@ def variant_counts(
         referenceBases,
         alternateBases,
     )
-    return build_vlm_response_from_caf_data(caf_data)
+    return build_vlm_response(caf_data)
