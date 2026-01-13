@@ -19,7 +19,7 @@ classifiers = [
 dependencies = [
     "ga4gh.vrs>=2.2.0,<3.0",
     "ga4gh.va_spec~=0.4.3",
-    "biocommons.anyvar@git+https://github.com/biocommons/anyvar.git@6c8c0a4085de4370b69b3e58978de7416231bce1",
+    "biocommons.anyvar>=1.0.0-rc1,<2.0",
     "fastapi>=0.95.0",
     "python-multipart",  # required for fastapi file uploads
     "uvicorn",
