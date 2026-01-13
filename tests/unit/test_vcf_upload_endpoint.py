@@ -394,9 +394,6 @@ class TestFileSizeLimits:
 
     def test_file_size_check_with_mock_large_file(self):
         """Test that files exceeding size limit are rejected."""
-        # Create a mock file that reports large size
-        mock_large_file = MagicMock()
-        mock_large_file.filename = "huge.vcf.gz"
 
         # We'll need to test this at the validation function level
         # since mocking the actual upload size is complex
