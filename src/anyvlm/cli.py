@@ -1,5 +1,7 @@
 """CLI for interacting with AnyVLM instance"""
 
+import logging
+from http import HTTPStatus
 from pathlib import Path
 
 import click
@@ -9,11 +11,14 @@ from anyvar.utils.liftover_utils import ReferenceAssembly
 import anyvlm
 from anyvlm.config import Settings, get_config
 
+_logger = logging.getLogger(__name__)
+
 
 @click.version_option(anyvlm.__version__)
 @click.group()
 def _cli() -> None:
     """Manage AnyVLM data."""
+    logging.basicConfig(level=logging.INFO)
 
 
 @_cli.command()
@@ -35,7 +40,11 @@ def _cli() -> None:
 )
 def ingest_vcf(vcf_path: Path, assembly: ReferenceAssembly) -> None:
     """Deposit variants and allele frequencies from VCF into AnyVLM instance"""
-    click.echo(f"Uploading {vcf_path}")
+    _logger.info(
+        "Starting VCF ingestion: file='%s', assembly='%s'",
+        str(vcf_path),
+        assembly.value,
+    )
 
     config: Settings = get_config()
     endpoint: str = f"{config.service_uri}/ingest_vcf"
@@ -46,13 +55,20 @@ def ingest_vcf(vcf_path: Path, assembly: ReferenceAssembly) -> None:
         files = {"file": (vcf_path.name, fh, "application/gzip")}
 
         try:
-            requests.post(
+            response: requests.Response = requests.post(
                 endpoint,
                 files=files,
                 params=params,
-                timeout=1800,
+                timeout=3600,  # 1 hour
             )
         except requests.RequestException as e:
+            _logger.exception("HTTP POST request to AnyVLM '/ingest_vcf' failed")
             raise click.ClickException(str(e)) from e
 
-    click.echo("Ingestion complete")
+    if response.status_code != HTTPStatus.OK:
+        _logger.error("Request failed with status code %s", response.status_code)
+        raise click.ClickException(
+            f"Request failed with status code: {response.status_code}"
+        )
+
+    _logger.info("Ingestion complete")
