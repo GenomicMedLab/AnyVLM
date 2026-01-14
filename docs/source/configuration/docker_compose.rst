@@ -46,6 +46,30 @@ The following volumes may be required, depending on which services you run:
 
 * ``seqrepo_vol``: Storage for sequence repository data. Required when running ``compose.anyvar.yaml`` or ``compose.test.yaml``.
 
+.. note::
+
+   If you already have a SeqRepo database on your local filesystem, you can use it directly instead of the Docker volume. Both ``compose.anyvar.yaml`` and ``compose.test.yaml`` can be updated to bind-mount your local SeqRepo directory in place of ``seqrepo_vol``.
+
+   For example, if your SeqRepo lives at ``/usr/local/share/seqrepo/2024-12-20``, replace:
+
+   .. code-block:: yaml
+
+      volumes:
+        - seqrepo_vol:/usr/local/share/seqrepo
+
+   with:
+
+   .. code-block:: yaml
+
+      volumes:
+        - $SEQREPO_ROOT_DIR:/usr/local/share/seqrepo/2024-12-20
+
+   Then export the path before starting the stack:
+
+   .. code-block:: bash
+
+      export SEQREPO_ROOT_DIR=/usr/local/share/seqrepo/2024-12-20
+
 * ``uta_vol``: Storage for UTA database data. Required when running ``compose.anyvar.yaml``.
 
 * ``anyvar_vol``: Storage for AnyVar application data. Required when running ``compose.anyvar.yaml``.
