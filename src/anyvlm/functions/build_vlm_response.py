@@ -7,9 +7,15 @@ from anyvlm.schemas.vlm import (
     HandoverType,
     ResponseField,
     ResponseSummary,
+    ResultSet,
     VlmResponse,
 )
-from anyvlm.utils.types import AnyVlmCohortAlleleFrequencyResult
+from anyvlm.utils.funcs import sum_nullables
+from anyvlm.utils.types import (
+    AncillaryResults,
+    AnyVlmCohortAlleleFrequencyResult,
+    Zygosity,
+)
 
 
 class MissingEnvironmentVariableError(Exception):
@@ -30,7 +36,7 @@ def _get_environment_var(key: str) -> str:
     return value
 
 
-def build_vlm_response_from_caf_data(
+def build_vlm_response(
     caf_data: list[AnyVlmCohortAlleleFrequencyResult],
 ) -> VlmResponse:
     """Craft a VlmResponse object from a list of CohortAlleleFrequencyStudyResults.
@@ -38,8 +44,6 @@ def build_vlm_response_from_caf_data(
     :param caf_data: A list of `AnyVlmCohortAlleleFrequencyResult` objects that will be used to build the VlmResponse
     :return: A `VlmResponse` object.
     """
-    raise NotImplementedError  # TODO: Remove this and finish implementing this function in Issue #35
-
     # TODO - create `handover_type` and `beacon_handovers` dynamically,
     # instead of pulling from environment variables. See Issue #37.
     handover_type = HandoverType(
@@ -53,16 +57,46 @@ def build_vlm_response_from_caf_data(
         )
     ]
 
-    num_results = len(caf_data)
-    response_summary = ResponseSummary(
-        exists=num_results > 0, numTotalResults=num_results
-    )
+    results: dict[Zygosity, int | None] = {
+        Zygosity.HOMOZYGOUS: None,
+        Zygosity.HETEROZYGOUS: None,
+        Zygosity.HEMIZYGOUS: None,
+        Zygosity.UNKNOWN: None,
+    }
 
-    # TODO - create this field in Issue #35
-    response_field = ResponseField()
+    for entry in caf_data:
+        ancillary_results: AncillaryResults | None = entry.ancillaryResults
+        if ancillary_results is not None:
+            results[Zygosity.HOMOZYGOUS] = sum_nullables(
+                [results[Zygosity.HOMOZYGOUS], ancillary_results.homozygotes]
+            )
+            results[Zygosity.HETEROZYGOUS] = sum_nullables(
+                [results[Zygosity.HETEROZYGOUS], ancillary_results.heterozygotes]
+            )
+            results[Zygosity.HEMIZYGOUS] = sum_nullables(
+                [results[Zygosity.HEMIZYGOUS], ancillary_results.hemizygotes]
+            )
+        else:
+            results[Zygosity.UNKNOWN] = sum_nullables(
+                [results[Zygosity.UNKNOWN], entry.focusAlleleCount]
+            )
+
+    result_sets: list[ResultSet] = []
+    total_num_results = 0
+    for zygosity_type, num_results in results.items():
+        if num_results is not None:
+            total_num_results += num_results
+            result_sets.append(
+                ResultSet(
+                    resultset_id=f"{_get_environment_var('HANDOVER_TYPE_ID')} {zygosity_type}",
+                    resultsCount=num_results,
+                )
+            )
 
     return VlmResponse(
         beaconHandovers=beacon_handovers,
-        responseSummary=response_summary,
-        response=response_field,
+        responseSummary=ResponseSummary(
+            exists=total_num_results > 0, numTotalResults=total_num_results
+        ),
+        response=ResponseField(resultSets=result_sets),
     )

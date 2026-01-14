@@ -2,6 +2,7 @@
 
 from functools import cache
 
+from pydantic import FilePath
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from anyvlm.schemas.common import ServiceEnvironment
@@ -25,6 +26,7 @@ class Settings(BaseSettings):
     service_uri: str = "http://localhost:8080"
     anyvar_uri: str = "http://localhost:8000"
     storage_uri: str = "postgresql://postgres@localhost:5432/anyvlm"
+    logging_config: FilePath | None = None
 
 
 @cache

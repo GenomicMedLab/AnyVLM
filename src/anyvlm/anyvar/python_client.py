@@ -85,22 +85,26 @@ class PythonAnyVarClient(BaseAnyVarClient):
         """Submit allele expressions to an AnyVar instance and retrieve corresponding VRS IDs
 
         Currently, only expressions supported by the VRS-Python translator are supported.
-        This could change depending on the AnyVar implementation, though, and probably
-        can't be validated on the AnyVLM side.
+        What this means could change depending on the AnyVar implementation, though, and
+        probably can't be validated on the AnyVLM side given current designs.
 
         :param expressions: variation expressions to register
         :param assembly: reference assembly used in expressions
         :return: list where the i'th item is either the VRS ID if translation succeeds,
             else `None`, for the i'th expression
         """
-        results = []
+        translated_variations = []
         for expression in expressions:
             translated_variation = self._translate_allele_expression(
                 expression, assembly
             )
-            if translated_variation:
-                self.av.put_objects([translated_variation])
-                results.append(translated_variation.id)
+            translated_variations.append(translated_variation)
+
+        self.av.put_objects([v for v in translated_variations if v])
+        results = []
+        for variation in translated_variations:
+            if variation:
+                results.append(variation.id)
             else:
                 results.append(None)
         return results
