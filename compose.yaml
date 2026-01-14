@@ -1,4 +1,14 @@
 services:
+
+  anyvlm:
+    image: ghcr.io/genomicmedlab/anyvlm:1.0.0-rc1
+    depends_on:
+      anyvlm_db:
+        required: true
+        condition: service_started
+    ports:
+      - 127.0.0.1:8020:8000
+
   anyvlm_db:
     image: postgres:17
     volumes:

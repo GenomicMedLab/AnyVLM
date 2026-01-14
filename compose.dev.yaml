@@ -1,0 +1,45 @@
+services:
+  anyvlm:
+    build:
+      context: .
+      args:
+        ANYVLM_VERSION: ${ANYVLM_VERSION}
+    depends_on:
+      anyvlm_db:
+        required: true
+        condition: service_started
+    volumes:
+      - ./src:/app/src
+    command:
+      - uvicorn
+      - anyvlm.main:app
+      - --host=0.0.0.0
+      - --port=8000
+      - --reload
+      - --reload-dir=/app/src
+      - --app-dir=/app/src
+    environment:
+      - ANYVLM_STORAGE_URI=postgresql://anyvlm:anyvlm-pw@anyvlm_db:5432/anyvlm
+      - HANDOVER_TYPE_ID=GREGoR-NCH
+      - HANDOVER_TYPE_LABEL=GREGoR AnyVLM Reference
+      - BEACON_HANDOVER_URL=https://variants.gregorconsortium.org/
+      - BEACON_NODE_ID=org.anyvlm.gregor
+      - PYTHONPATH=/app/src
+
+    ports:
+      - 127.0.0.1:8020:8000
+
+  anyvlm_db:
+    image: postgres:17
+    volumes:
+      - anyvlm_vol:/var/lib/postgresql/data
+    ports:
+      - 127.0.0.1:5435:5432
+    environment:
+      - POSTGRES_DB=anyvlm
+      - POSTGRES_USER=anyvlm
+      - POSTGRES_PASSWORD=anyvlm-pw
+
+volumes:
+  anyvlm_vol:
+    external: true

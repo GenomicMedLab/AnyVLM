@@ -21,13 +21,22 @@ else
 endif
 XRM=xargs -0${_XRM_R} rm
 
+# Provide version for container builds
+export ANYVLM_VERSION := $(shell git describe --tags --abbrev=0 2>/dev/null || echo 0.0.0)
+
 ############################################################################
 #= BASIC USAGE
 default: help
 
-#=> help -- display this help message
+#=> help: display this help message
 help:
-	@sbin/makefile-extract-documentation "${SELF}"
+	@echo ""
+	@echo "Available targets:"
+	@echo ""
+	@grep -E '^#=> ' $(SELF) | \
+		sed -E 's/^#=>[[:space:]]*//' | \
+		awk -F: '{ printf "  %-20s %s\n", $$1, $$2 }'
+	@echo ""
 
 
 ############################################################################
@@ -105,3 +114,69 @@ cleaner: clean
 .PHONY: cleanest
 cleanest: cleaner
 	rm -fr .eggs .venv
+
+############################################################################
+#= DOCKER COMPOSE
+
+#=> volumes: create required Docker volumes
+.PHONY: volumes
+volumes:
+	docker volume create anyvlm_vol
+	docker volume create seqrepo_vol
+	docker volume create uta_vol
+	docker volume create anyvar_vol
+
+#=> up: start AnyVLM and required AnyVar services (foreground)
+.PHONY: up
+up:
+	docker compose -f compose.yaml -f compose.anyvar.yaml up
+
+#=> up-d: start AnyVLM and required AnyVar services (detached)
+.PHONY: up-d
+up-d:
+	docker compose -f compose.yaml -f compose.anyvar.yaml up -d
+
+#=> up-dev: start development stack for AnyVLM and required AnyVar services (foreground)
+.PHONY: up-dev
+up-dev:
+	docker compose -f compose.dev.yaml -f compose.anyvar.yaml up
+
+#=> up-dev-d: start development stack for AnyVLM and required AnyVar services (detached)
+.PHONY: up-dev-d
+up-dev-d:
+	docker compose -f compose.dev.yaml -f compose.anyvar.yaml up -d
+
+#=> up-dev-build: rebuild image and start development stack for AnyVLM and required AnyVar services (foreground)
+.PHONY: up-dev-build
+up-dev-build:
+	docker compose -f compose.dev.yaml -f compose.anyvar.yaml up --build
+
+#=> up-dev-build: rebuild image and start development stack for AnyVLM and required AnyVar services (foreground)
+.PHONY: up-dev-build-d
+up-dev-build-d:
+	docker compose -f compose.dev.yaml -f compose.anyvar.yaml up -d --build
+
+#=> up-test: start services required for tests
+.PHONY: up-test
+up-test:
+	docker compose -f compose.test.yaml up
+
+#=> stop: stop all AnyVLM-related services (containers preserved)
+.PHONY: stop
+stop:
+	docker compose \
+		-f compose.yaml \
+		-f compose.dev.yaml \
+		-f compose.anyvar.yaml \
+		-f compose.test.yaml \
+		stop
+
+#=> down: stop and remove all AnyVLM-related containers
+.PHONY: down
+down:
+	docker compose \
+		-f compose.yaml \
+		-f compose.dev.yaml \
+		-f compose.anyvar.yaml \
+		-f compose.test.yaml \
+		down
