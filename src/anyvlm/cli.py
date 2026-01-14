@@ -19,7 +19,7 @@ _logger = logging.getLogger(__name__)
 @click.group()
 def _cli() -> None:
     """Manage AnyVLM data."""
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(filename="anyvlm.log", level=logging.INFO)
 
 
 @_cli.command()
