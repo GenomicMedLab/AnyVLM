@@ -40,7 +40,10 @@ def _cli() -> None:
     help="Reference genome assembly",
 )
 def ingest_vcf(vcf_path: Path, assembly: ReferenceAssembly) -> None:
-    """Deposit variants and allele frequencies from VCF into AnyVLM instance"""
+    """Deposit variants and allele frequencies from VCF into AnyVLM instance
+    
+    $ anyvlm ingest-vcf --file path/to/file.vcf.gz --assembly grch38
+    """
     start = timer()
 
     _logger.info(
