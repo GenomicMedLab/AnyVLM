@@ -41,10 +41,10 @@ def _cli() -> None:
 )
 def ingest_vcf(vcf_path: Path, assembly: ReferenceAssembly) -> None:
     """Deposit variants and allele frequencies from VCF into AnyVLM instance
-    
+
     $ anyvlm ingest-vcf --file path/to/file.vcf.gz --assembly grch38
     """
-    start = timer()
+    start: float = timer()
 
     _logger.info(
         "Starting VCF ingestion: file='%s', assembly='%s'",
@@ -77,6 +77,6 @@ def ingest_vcf(vcf_path: Path, assembly: ReferenceAssembly) -> None:
             f"Request failed with status code: {response.status_code}"
         )
 
-    end = timer()
-    duration = end - start
+    end: float = timer()
+    duration: float = end - start
     _logger.info("Ingestion complete in %s", f"{duration:.3f} seconds")
