@@ -9,6 +9,7 @@ from urllib.parse import urlparse
 import anyio
 import yaml
 from anyvar.anyvar import create_storage, create_translator
+from dotenv import load_dotenv
 from fastapi import FastAPI
 
 from anyvlm import __version__
@@ -28,6 +29,7 @@ from anyvlm.utils.types import (
     EndpointTag,
 )
 
+load_dotenv()
 _logger = logging.getLogger(__name__)
 
 
