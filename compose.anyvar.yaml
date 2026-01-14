@@ -16,7 +16,7 @@ services:
       - UTA_DB_URL=postgresql://uta_admin:some-password-that-you-make-up@uta:5432/uta/uta_20241220
       - ANYVAR_STORAGE_URI=postgresql://anyvar:anyvar-pw@anyvar_db:5432/anyvar
     ports:
-      - 127.0.0.1:8010:8000
+      - 127.0.0.1:8000:8000
 
   seqrepo:
     image: biocommons/seqrepo:2024-12-20

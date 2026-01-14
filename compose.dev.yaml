@@ -27,7 +27,7 @@ services:
       - PYTHONPATH=/app/src
 
     ports:
-      - 127.0.0.1:8020:8000
+      - 127.0.0.1:8080:8000
 
   anyvlm_db:
     image: postgres:17
