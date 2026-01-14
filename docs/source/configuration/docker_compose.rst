@@ -62,7 +62,7 @@ The following volumes may be required, depending on which services you run:
    .. code-block:: yaml
 
       volumes:
-        - $SEQREPO_ROOT_DIR:/usr/local/share/seqrepo/2024-12-20
+        - $SEQREPO_ROOT_DIR:$SEQREPO_ROOT_DIR
 
    Then export the path before starting the stack:
 
