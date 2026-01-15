@@ -1,0 +1,56 @@
+services:
+  anyvar:
+    image: ghcr.io/biocommons/anyvar:1.0.0-rc1
+    volumes:
+      - seqrepo_vol:/usr/local/share/seqrepo
+    depends_on:
+      anyvar_db:
+        required: true
+        condition: service_started
+      seqrepo:
+        required: true
+        condition: service_completed_successfully
+    environment:
+      - SEQREPO_INSTANCE_DIR=/usr/local/share/seqrepo/2024-12-20
+      - SEQREPO_DATAPROXY_URI=seqrepo+file:///usr/local/share/seqrepo/2024-12-20
+      - UTA_DB_URL=postgresql://uta_admin:some-password-that-you-make-up@uta:5432/uta/uta_20241220
+      - ANYVAR_STORAGE_URI=postgresql://anyvar:anyvar-pw@anyvar_db:5432/anyvar
+    ports:
+      - 127.0.0.1:8000:8000
+
+  seqrepo:
+    image: biocommons/seqrepo:2024-12-20
+    volumes:
+      - seqrepo_vol:/usr/local/share/seqrepo
+
+  uta:
+    image: postgres:17
+    environment:
+      - POSTGRES_USER=uta_admin
+      - POSTGRES_PASSWORD=some-password-that-you-make-up
+      - POSTGRES_DB=uta
+    volumes:
+      - uta_vol:/var/lib/postgresql/data
+      - ./uta_20241220.pgd.gz:/docker-entrypoint-initdb.d/uta_20241220.pgd.gz:ro
+      - ./init-uta.sh:/docker-entrypoint-initdb.d/init-uta.sh:ro
+    ports:
+      - 127.0.0.1:5432:5432
+
+  anyvar_db:
+    image: postgres:17
+    volumes:
+      - anyvar_vol:/var/lib/postgresql/data
+    ports:
+      - 127.0.0.1:5434:5432
+    environment:
+      - POSTGRES_DB=anyvar
+      - POSTGRES_USER=anyvar
+      - POSTGRES_PASSWORD=anyvar-pw
+
+volumes:
+  seqrepo_vol:
+    external: true
+  uta_vol:
+    external: true
+  anyvar_vol:
+    external: true
