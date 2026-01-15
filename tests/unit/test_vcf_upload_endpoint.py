@@ -21,7 +21,9 @@ def client():
     """Create FastAPI test client with mock anyvar_client."""
     # Set up mock anyvar client on app state
     mock_anyvar_client = MagicMock()
+    mock_anyvlm_storage = MagicMock()
     app.state.anyvar_client = mock_anyvar_client
+    app.state.anyvlm_storage = mock_anyvlm_storage
     return TestClient(app=app)
 
 
@@ -293,8 +295,11 @@ class TestIngestVcfEndpoint:
         # Check AnyVar client was passed
         assert call_args[0][1] is not None
 
-        # Check assembly (3rd positional argument)
-        assert call_args[0][2] == ReferenceAssembly.GRCH38
+        # Check AnyVLM storage was passed
+        assert call_args[0][2] is not None
+
+        # Check assembly (4th positional argument)
+        assert call_args[0][3] == ReferenceAssembly.GRCH38
 
     @patch("anyvlm.restapi.vlm.ingest_vcf_function")
     def test_ingestion_failure_propagates(
@@ -374,9 +379,9 @@ class TestIngestVcfEndpoint:
 
             assert response.status_code == 200
 
-            # Verify GRCh37 was passed (3rd positional argument)
+            # Verify GRCh37 was passed (4th positional argument)
             call_args = mock_ingest.call_args
-            assert call_args[0][2] == ReferenceAssembly.GRCH37
+            assert call_args[0][3] == ReferenceAssembly.GRCH37
 
 
 # ====================
@@ -389,9 +394,6 @@ class TestFileSizeLimits:
 
     def test_file_size_check_with_mock_large_file(self):
         """Test that files exceeding size limit are rejected."""
-        # Create a mock file that reports large size
-        mock_large_file = MagicMock()
-        mock_large_file.filename = "huge.vcf.gz"
 
         # We'll need to test this at the validation function level
         # since mocking the actual upload size is complex

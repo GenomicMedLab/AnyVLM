@@ -9,6 +9,7 @@ from urllib.parse import urlparse
 import anyio
 import yaml
 from anyvar.anyvar import create_storage, create_translator
+from dotenv import load_dotenv
 from fastapi import FastAPI
 
 from anyvlm import __version__
@@ -16,6 +17,7 @@ from anyvlm.anyvar.base_client import BaseAnyVarClient
 from anyvlm.anyvar.http_client import HttpAnyVarClient
 from anyvlm.anyvar.python_client import PythonAnyVarClient
 from anyvlm.config import get_config
+from anyvlm.restapi.vlm import router as vlm_router
 from anyvlm.schemas.common import (
     SERVICE_DESCRIPTION,
     ServiceInfo,
@@ -27,6 +29,7 @@ from anyvlm.utils.types import (
     EndpointTag,
 )
 
+load_dotenv()
 _logger = logging.getLogger(__name__)
 
 
@@ -134,6 +137,7 @@ app = FastAPI(
     title="AnyVLM",
     description=SERVICE_DESCRIPTION,
     version=__version__,
+    docs_url="/",
     license={
         "name": "Apache 2.0",
         "url": "https://github.com/genomicmedlab/anyvlm/blob/main/LICENSE",
@@ -146,6 +150,7 @@ app = FastAPI(
     swagger_ui_parameters={"tryItOutEnabled": True},
     lifespan=lifespan,
 )
+app.include_router(vlm_router)
 
 
 @app.get(

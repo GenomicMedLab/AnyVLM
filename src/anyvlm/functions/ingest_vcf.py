@@ -92,6 +92,7 @@ def ingest_vcf(
     :param assembly: reference assembly used by VCF
     :raise VcfAfColumnsError: if VCF is missing required columns
     """
+    pysam.set_verbosity(0)  # silences warning re: lack of an index for the vcf file
     vcf = pysam.VariantFile(filename=vcf_path.absolute().as_uri(), mode="r")
 
     for batch in _yield_expression_af_batches(vcf):
