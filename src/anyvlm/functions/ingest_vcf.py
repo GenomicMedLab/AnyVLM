@@ -98,6 +98,8 @@ def ingest_vcf(
     for batch in _yield_expression_af_batches(vcf):
         expressions, afs = zip(*batch, strict=True)
         variant_ids = av.put_allele_expressions(expressions, assembly)
+
+        cafs = []
         for variant_id, af in zip(variant_ids, afs, strict=True):
             if variant_id is None:
                 continue
@@ -114,4 +116,6 @@ def ingest_vcf(
                 ),
                 cohort=StudyGroup(name="rare disease"),
             )
-            storage.add_allele_frequencies(caf)
+            cafs.append(caf)
+
+        storage.add_allele_frequencies(cafs)

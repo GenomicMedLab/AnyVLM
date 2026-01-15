@@ -62,7 +62,7 @@ def test_add_allele_frequencies(
     """Test that add_allele_frequencies method works correctly"""
     caf = request.getfixturevalue(caf_fixture_name)
     try:
-        postgres_storage.add_allele_frequencies(caf)
+        postgres_storage.add_allele_frequencies([caf])
     except Exception as e:  # noqa: BLE001
         pytest.fail(f"add_allele_frequencies raised an exception: {e}")
 
@@ -75,7 +75,7 @@ def test_add_allele_frequencies(
         cohort=StudyGroup(name="rare disease"),  # type: ignore
     )  # type: ignore
 
-    postgres_storage.add_allele_frequencies(caf)
+    postgres_storage.add_allele_frequencies([caf])
 
 
 def test_add_allele_frequencies_failures(
@@ -84,4 +84,4 @@ def test_add_allele_frequencies_failures(
 ):
     """Test that add_allele_frequencies method fails correctly on bad input"""
     with pytest.raises(IntegrityError, match='null value in column "cohort"'):
-        postgres_storage.add_allele_frequencies(caf_empty_cohort)
+        postgres_storage.add_allele_frequencies([caf_empty_cohort])

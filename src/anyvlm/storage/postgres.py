@@ -54,20 +54,21 @@ class PostgresObjectStore(Storage):
             netloc += f":{parsed.port}"
         return f"{parsed.scheme}://{netloc}{parsed.path}"
 
-    def add_allele_frequencies(self, caf: AnyVlmCohortAlleleFrequencyResult) -> None:
+    def add_allele_frequencies(
+        self, cafs: list[AnyVlmCohortAlleleFrequencyResult]
+    ) -> None:
         """Add allele frequency data to the database. Will skip conflicts.
 
-        NOTE: For now, this will only insert a single caf record into the database.
-        Single insertion is used to do a simple test of the storage backend.
-        Issue-34 will support batch insertion of caf records.
-
-        :param caf: Cohort allele frequency study result object to insert into the DB
+        :param cafs: List of cohort allele frequency study result objects to insert
         """
-        db_entity = mapper_registry.to_db_entity(caf)
+        if not cafs:
+            return
+
+        db_entities = [mapper_registry.to_db_entity(caf) for caf in cafs]
         stmt = insert(orm.AlleleFrequencyData).on_conflict_do_nothing()
 
         with self.session_factory() as session, session.begin():
-            session.execute(stmt, db_entity.to_dict())
+            session.execute(stmt, [entity.to_dict() for entity in db_entities])
 
     def get_caf_by_vrs_allele_id(
         self, vrs_allele_id: str
