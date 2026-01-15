@@ -1,6 +1,6 @@
 services:
   anyvar:
-    image: ghcr.io/biocommons/anyvar:1.0.0-rc1
+    image: ghcr.io/biocommons/anyvar:1.0.0-rc3
     volumes:
       - seqrepo_vol:/usr/local/share/seqrepo
     depends_on:
