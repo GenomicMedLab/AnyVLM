@@ -1,0 +1,26 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "AnyVLM"
+authors:
+  - family-names: Stevenson
+    given-names: James
+    orcid: "https://orcid.org/0000-0002-2568-6163"
+  - family-names: Bowser
+    given-names: Jennifer
+    orcid: "https://orcid.org/0009-0001-2462-0576"
+  - family-names: Kuzma
+    given-names: Kori
+    orcid: "https://orcid.org/0000-0002-9954-7449"
+  - family-names: Perry
+    given-names: Katie
+  - family-names: Wong
+    given-names: Quinn Wai
+  - family-names: Ferriter
+    given-names: Kyle
+  - family-names: Babb
+    given-names: Lawrence
+  - family-names: Wagner
+    given-names: Alex
+    orcid: "https://orcid.org/0000-0002-2502-8961"
+doi: "10.5281/zenodo.18258601"
+url: "https://github.com/GenomicMedLab/AnyVLM"
