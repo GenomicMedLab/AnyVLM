@@ -45,7 +45,7 @@ curl "http://localhost:8080/variant_counts?assemblyId=GRCh38&referenceName=22&st
 A successful query returns a response like the following:
 
 ```json
-{}
+{"beaconHandovers":[{"handoverType":{"id":"GREGoR-NCH","label":"GREGoR AnyVLM Reference"},"url":"https://variants.gregorconsortium.org/"}],"meta":{"apiVersion":"v1.0","beaconId":"org.anyvlm.gregor","returnedSchemas":[{"entityType":"genomicVariant","schema":"ga4gh-beacon-variant-v2.0.0"}]},"responseSummary":{"exists":true,"numTotalResults":2},"response":{"resultSets":[{"exists":true,"id":"GREGoR-NCH Homozygous","results":[],"resultsCount":2,"setType":"genomicVariant"},{"exists":true,"id":"GREGoR-NCH Heterozygous","results":[],"resultsCount":0,"setType":"genomicVariant"},{"exists":true,"id":"GREGoR-NCH Hemizygous","results":[],"resultsCount":0,"setType":"genomicVariant"}]}}
 ```
 
 See the [usage](https://anyvlm.readthedocs.org/en/stable/usage.html) page in the documentation for more information.
