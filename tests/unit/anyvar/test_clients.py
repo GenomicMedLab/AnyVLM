@@ -16,9 +16,9 @@ from anyvlm.anyvar.http_client import HttpAnyVarClient
 
 
 @pytest.fixture
-def anyvar_http_client(anyvlm_anyvar_postgres_uri: str) -> HttpAnyVarClient:
+def anyvar_http_client(anyvlm_postgres_uri: str) -> HttpAnyVarClient:
     """Create test fixture for AnyVar HTTP client"""
-    storage = create_storage(anyvlm_anyvar_postgres_uri)
+    storage = create_storage(anyvlm_postgres_uri)
     storage.wipe_db()
     return HttpAnyVarClient()
 

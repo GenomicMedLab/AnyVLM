@@ -72,16 +72,16 @@ def vcr_config():
 
 
 @pytest.fixture(scope="session")
-def anyvlm_anyvar_postgres_uri():
+def anyvlm_postgres_uri():
     return environ.get(
-        "ANYVLM_ANYVAR_TEST_STORAGE_URI",
-        "postgresql://postgres:postgres@localhost:5432/anyvlm_anyvar_test",
+        "ANYVLM_TEST_STORAGE_URI",
+        "postgresql://postgres:postgres@localhost:5432/anyvlm_test",
     )
 
 
 @pytest.fixture
-def anyvar_python_client(anyvlm_anyvar_postgres_uri: str) -> PythonAnyVarClient:
-    storage = create_storage(anyvlm_anyvar_postgres_uri)
+def anyvar_python_client(anyvlm_postgres_uri: str) -> PythonAnyVarClient:
+    storage = create_storage(anyvlm_postgres_uri)
     storage.wipe_db()
     translator = create_translator()
     return PythonAnyVarClient(translator, storage)
@@ -99,14 +99,6 @@ def anyvar_populated_python_client(
     anyvar_python_client.put_allele_expressions(vcf_expressions)
 
     return anyvar_python_client
-
-
-@pytest.fixture(scope="session")
-def anyvlm_postgres_uri():
-    return environ.get(
-        "ANYVLM_TEST_STORAGE_URI",
-        "postgresql://postgres:postgres@localhost:5432/anyvlm_test",
-    )
 
 
 @pytest.fixture
