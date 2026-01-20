@@ -1,6 +1,16 @@
 AnyVLM
 !!!!!!
 
+**AnyVLM** (Any Variant-Level Matching) is an off-the-shelf solution for adding local aggregate-level variant information to a [Variant-Level Matching (VLM) network](https://www.ga4gh.org/what-we-do/ga4gh-implementation-forum/federated-variant-level-matching-vlm-project/). It provides a REST API service that integrates with GA4GH standards for genomic data exchange.
+
+AnyVLM enables genomic research organizations to:
+
+- **Ingest VCF files** containing variant and allele frequency data
+- **Register variants** using the GA4GH Variant Representation Specification (VRS) via AnyVar
+- **Store cohort allele frequencies** (CAF) with zygosity-stratified counts
+- **Serve VLM protocol-compliant responses** with Beacon handover capabilities
+
+This service is designed for rare disease variant frequency tracking in genomic research networks such as GREGoR.
 
 If you're setting up AnyVLM for the first time, begin with the :doc:`Getting Started guide <getting_started/index>`, which covers different installation options. To learn how to use AnyVar as a service, see the :doc:`Usage section <usage/index>`. For further assistance, please refer to :doc:`Getting Help <help>`.
 

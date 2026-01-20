@@ -75,9 +75,11 @@ def populated_postgres_storage(
     caf_iri: AnyVlmCohortAlleleFrequencyResult,
 ):
     """Populate the postgres storage with allele frequencies for testing"""
-    for allele in alleles.values():
-        caf = build_caf(caf_iri, allele_id=allele["variation"]["id"])
-        postgres_storage.add_allele_frequencies(caf)
+    cafs = [
+        build_caf(caf_iri, allele_id=allele["variation"]["id"])
+        for allele in alleles.values()
+    ]
+    postgres_storage.add_allele_frequencies(cafs)
     return postgres_storage
 
 

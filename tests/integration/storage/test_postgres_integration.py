@@ -22,7 +22,7 @@ def test_db_lifecycle(
     caf_rows = return_cafs(storage)
     assert caf_rows == []
 
-    storage.add_allele_frequencies(caf_iri)
+    storage.add_allele_frequencies([caf_iri])
     caf_rows = return_cafs(storage)
     assert len(caf_rows) == 1
 

@@ -31,7 +31,10 @@ class VcfAfColumnsError(Exception):
 def _yield_expression_af_batches(
     vcf: pysam.VariantFile, batch_size: int = 1000
 ) -> Iterator[list[tuple[str, AfData]]]:
-    """Generate a variant expression-allele frequency data pairing, one at a time
+    """Generate batches of tuples of (variant expression, allele frequency data).
+
+    Operates lazily so only one batch is in memory at a time. If a VCF record has
+    multiple alternate alleles, each is returned as a separate item.
 
     :param vcf: VCF to pull variants from
     :param batch_size: size of return batches
@@ -92,11 +95,14 @@ def ingest_vcf(
     :param assembly: reference assembly used by VCF
     :raise VcfAfColumnsError: if VCF is missing required columns
     """
+    pysam.set_verbosity(0)  # silences warning re: lack of an index for the vcf file
     vcf = pysam.VariantFile(filename=vcf_path.absolute().as_uri(), mode="r")
 
     for batch in _yield_expression_af_batches(vcf):
         expressions, afs = zip(*batch, strict=True)
         variant_ids = av.put_allele_expressions(expressions, assembly)
+
+        cafs = []
         for variant_id, af in zip(variant_ids, afs, strict=True):
             if variant_id is None:
                 continue
@@ -113,4 +119,6 @@ def ingest_vcf(
                 ),
                 cohort=StudyGroup(name="rare disease"),
             )
-            storage.add_allele_frequencies(caf)
+            cafs.append(caf)
+
+        storage.add_allele_frequencies(cafs)

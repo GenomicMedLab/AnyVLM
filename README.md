@@ -1,6 +1,15 @@
 # *AnyVLM* - Lightweight, Portable Variant-Level Matching
 
-AnyVLM is a Python-based web service that supports the [GA4GH Variant-Level Matching (VLM) Protocol](https://www.ga4gh.org/what-we-do/ga4gh-implementation-forum/federated-variant-level-matching-vlm-project/). It is designed to be dependency-light and trivial to stand up in environments ranging from local development to modern cloud platforms. AnyVLM provides a minimal VLM implementation suitable for institutions interested in adding their data to a federated knowledge network.
+**AnyVLM** (Any Variant-Level Matching) is an off-the-shelf solution for adding local aggregate-level variant information to a [Variant-Level Matching (VLM) network](https://www.ga4gh.org/what-we-do/ga4gh-implementation-forum/federated-variant-level-matching-vlm-project/). It provides a REST API service that integrates with GA4GH standards for genomic data exchange.
+
+AnyVLM enables genomic research organizations to:
+
+- **Ingest VCF files** containing variant and allele frequency data
+- **Register variants** using the GA4GH Variant Representation Specification (VRS) via AnyVar
+- **Store cohort allele frequencies** (CAF) with zygosity-stratified counts
+- **Serve VLM protocol-compliant responses** with Beacon handover capabilities
+
+This service is designed for rare disease variant frequency tracking in genomic research networks such as GREGoR.
 
 ## Information
 
@@ -20,9 +29,26 @@ A set of Docker Compose resources are provided as part of the AnyVLM project. Se
 
 ## Examples
 
-Populate the DB TODO
+Given an available AnyVLM node, submit a VCF which contains allele frequency data:
 
-Make a request TODO
+```bash
+curl -X POST "http://localhost:8080/ingest_vcf?assembly=grch38" \
+  -F "file=@/path/to/variants.vcf.gz"
+```
+
+Then, submit a query for allele frequency
+
+```bash
+curl "http://localhost:8080/variant_counts?assemblyId=GRCh38&referenceName=22&start=44389414&referenceBases=A&alternateBases=G"
+```
+
+A successful query returns a response like the following:
+
+```json
+{}
+```
+
+See the [usage](https://anyvlm.readthedocs.org/en/stable/usage.html) page in the documentation for more information.
 
 
 ## Feedback and contributing

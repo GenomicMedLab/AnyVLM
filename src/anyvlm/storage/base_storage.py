@@ -30,14 +30,12 @@ class Storage(ABC):
         """Return a sanitized URL (password masked) of the database connection string."""
 
     @abstractmethod
-    def add_allele_frequencies(self, caf: AnyVlmCohortAlleleFrequencyResult) -> None:
+    def add_allele_frequencies(
+        self, cafs: list[AnyVlmCohortAlleleFrequencyResult]
+    ) -> None:
         """Add allele frequency data to the database. Will skip conflicts.
 
-        NOTE: For now, this will only insert a single caf record into the database.
-        Single insertion is used to do a simple test of the storage backend.
-        Issue-34 will support batch insertion of caf records.
-
-        :param caf: Cohort allele frequency study result object to insert into the DB
+        :param cafs: List of cohort allele frequency study result objects to insert
         """
 
     @abstractmethod

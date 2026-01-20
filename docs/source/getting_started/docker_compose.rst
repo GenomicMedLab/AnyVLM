@@ -9,6 +9,11 @@ Prerequisites
 Steps
 =====
 
+TODO change to just use ghcr based workflow?
+
+```bash
+docker pull ghcr.io/genomicmedlab/anyvlm:latest
+```
 Clone the AnyVLM repository (optionally switching to a release tag), and enter the directory:
 
 .. code-block:: console

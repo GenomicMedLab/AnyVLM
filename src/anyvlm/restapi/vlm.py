@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Annotated, BinaryIO, Literal
 
 from anyvar.utils.liftover_utils import ReferenceAssembly
-from fastapi import HTTPException, Query, Request, UploadFile
+from fastapi import APIRouter, HTTPException, Query, Request, UploadFile
 from pydantic import BaseModel
 
 from anyvlm.anyvar.base_client import BaseAnyVarClient
@@ -16,7 +16,6 @@ from anyvlm.functions.build_vlm_response import build_vlm_response
 from anyvlm.functions.get_caf import get_caf
 from anyvlm.functions.ingest_vcf import VcfAfColumnsError
 from anyvlm.functions.ingest_vcf import ingest_vcf as ingest_vcf_function
-from anyvlm.main import app
 from anyvlm.schemas.vlm import VlmResponse
 from anyvlm.storage.base_storage import Storage
 from anyvlm.utils.types import (
@@ -32,6 +31,8 @@ from anyvlm.utils.types import (
 ingest_vcf = ingest_vcf_function
 
 _logger = logging.getLogger(__name__)
+
+router = APIRouter()
 
 # Constants
 MAX_FILE_SIZE = 5 * 1024 * 1024 * 1024  # 5GB
@@ -157,7 +158,7 @@ async def save_upload_file_temp(upload_file: UploadFile) -> Path:
 # ====================
 
 
-@app.post(
+@router.post(
     "/ingest_vcf",
     summary="Upload and ingest VCF file",
     description=(
@@ -241,10 +242,11 @@ async def ingest_vcf_endpoint(
 
         # Process VCF
         anyvar_client = request.app.state.anyvar_client
+        anyvlm_storage = request.app.state.anyvlm_storage
         _logger.info("Starting VCF ingestion for %s", file.filename)
 
         try:
-            ingest_vcf_function(temp_path, anyvar_client, assembly)
+            ingest_vcf_function(temp_path, anyvar_client, anyvlm_storage, assembly)
         except VcfAfColumnsError as e:
             _logger.exception("VCF missing required INFO columns")
             raise HTTPException(422, f"VCF validation failed: {e}") from e
@@ -271,7 +273,7 @@ async def ingest_vcf_endpoint(
             temp_path.unlink()
 
 
-@app.get(
+@router.get(
     "/variant_counts",
     summary="Provides allele counts of a single sequence variant, broken down by zygosity",
     description="Search for a single sequence variant and receive allele counts by zygosity, in accordance with the Variant-Level Matching protocol",

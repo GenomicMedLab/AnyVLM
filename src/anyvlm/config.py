@@ -23,6 +23,7 @@ class Settings(BaseSettings):
     )
 
     env: ServiceEnvironment = ServiceEnvironment.LOCAL
+    service_uri: str = "http://localhost:8080"
     anyvar_uri: str = "http://localhost:8000"
     storage_uri: str = "postgresql://postgres@localhost:5432/anyvlm"
     logging_config: FilePath | None = None
