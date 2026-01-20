@@ -10,8 +10,8 @@ AnyVLM
    Features<features>
    Usage<usage>
    Configuration<configuration/index>
-   API Reference<api_reference/index>
-   Getting Help<getting_help>
+   API Reference<api/index>
+   Getting Help<help>
    Changelog<changelog>
    Contributing<contributing>
    License<license>

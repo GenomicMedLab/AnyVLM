@@ -20,17 +20,30 @@ Testing
 Some configuration is required to run tests:
 
 * **Install test dependencies** - in your AnyVLM environment, ensure that the ``test`` dependency group is available by running ``make testready`` in the root directory.
-* **Configure test database** - unit and integration tests will set up a storage instance using the connection string defined by the environment variable ``ANYVLM_TEST_STORAGE_URI`` (not ``ANYVLM_STORAGE_URI``!), which defaults to ``"postgresql://postgres:postgres@localhost:5432/anyvlm_test"``.
+* **Configure test database** - tests currently make use of two distinct database connection URIs (though they technically could both point to the same place without much issue at present):
+
+.. list-table::
+   :header-rows: 1
+
+   * - Database
+     - Environment variable
+     - Default connection URI
+   * - AnyVLM DB (for :py:class:`~anyvlm.storage.postgres.PostgresObjectStore`)
+     - ``ANYVLM_TEST_STORAGE_URI``
+     - ``"postgresql://postgres:postgres@localhost:5432/anyvlm_test"``
+   * - AnyVar DB (for testing :py:class:`~anyvlm.anyvar.python_client.PythonAnyVarClient`)
+     - ``ANYVLM_ANYVAR_TEST_STORAGE_URI``
+     - ``"postgresql://postgres:postgres@localhost:5432/anyvlm_anyvar_test"``
 
 .. note::
 
-    Ensure that the database and role are available in the PostgreSQL instance.
+    Ensure that the databases and roles are available in the PostgreSQL instance.
 
-    For example, to support the connection string ``"postgresql://anyvar_test_user:anyvar_test_pw@localhost:5432/anyvar_test_db"``, run ``psql -U postgres -C "CREATE USER anyvar_test_user WITH PASSWORD anyvar_test_pw; CREATE DATABASE anyvar_test_db WITH OWNER anyvar_test_user;"``
+    For example, to support the connection string ``"postgresql://anyvlm_test_user:anyvlm_test_pw@localhost:5432/anyvlm_test_db"``, run:
 
-* **Ensure Celery backend and broker are available, and that Celery workers are NOT running** - the task queueing tests create and manage their own Celery workers, but they do require access to a broker/backend for message transport and result storage. See `async task queuing setup instructions <todo>`_ for more. If an existing AnyVar Celery worker is running, they may not function properly.
+    .. code-block::
 
-.. TODO fix celery reference above
+       psql -U postgres -C "CREATE USER anyvlm_test_user WITH PASSWORD anyvlm_test_pw; CREATE DATABASE anyvlm_test_db WITH OWNER anyvlm_test_user;"``
 
 Tests are invoked with the ``pytest`` command. The project Makefile includes an easy shortcut:
 
