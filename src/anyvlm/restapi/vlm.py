@@ -168,7 +168,6 @@ async def save_upload_file_temp(upload_file: UploadFile) -> Path:
         "Processing is synchronous with a 30-minute timeout."
     ),
     tags=[EndpointTag.SEARCH],
-    response_model=VcfIngestionResponse,
 )
 async def ingest_vcf_endpoint(
     request: Request,
