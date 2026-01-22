@@ -4,21 +4,22 @@ Usage
 Submitting VCFs
 ===============
 
+Given a VCF describing cohort-level allele frequency, submit a ``POST`` request to ``/ingest_vcf``:
 
-TODO
+.. code-block:: console
 
-```bash
-curl -X POST "http://localhost:8080/ingest_vcf?assembly=grch38" \
-  -F "file=@/path/to/variants.vcf.gz"
-```
+   % curl -X POST "http://localhost:8080/ingest_vcf?assembly=grch38" \
+     -F "file=@/path/to/variants.vcf.gz"
 
-**Requirements:**
+Requirements
+------------
 
-- File must be gzip-compressed (`.vcf.gz`)
+- File must be gzip-compressed (``.vcf.gz``)
 - Maximum file size: 5GB
-- Required INFO fields: `AC`, `AN`, `AC_Het`, `AC_Hom`, `AC_Hemi`
+- Required INFO fields: ``AC``, ``AN``, ``AC_Het``, ``AC_Hom``, ``AC_Hemi``
 
-**Response:**
+Response:
+---------
 
 ```json
 {

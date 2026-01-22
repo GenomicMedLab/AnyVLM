@@ -9,11 +9,6 @@ Prerequisites
 Steps
 =====
 
-TODO change to just use ghcr based workflow?
-
-```bash
-docker pull ghcr.io/genomicmedlab/anyvlm:latest
-```
 Clone the AnyVLM repository (optionally switching to a release tag), and enter the directory:
 
 .. code-block:: console
@@ -23,27 +18,42 @@ Clone the AnyVLM repository (optionally switching to a release tag), and enter t
 
 Create all required volumes:
 
-TODO fix this
+.. code-block:: console
 
-.. code-block:: bash
-
-   % docker volume create seqrepo_vol
-   % docker volume create uta_vol
-   % docker volume create anyvar_vol
+   % make volumes
 
 Then, launch the application:
 
+.. code-block:: bash
+
+   # Development mode with hot-reload
+   make up-dev
+
+   # Or production mode
+   ANYVLM_VERSION=latest make up
+
+
+Available Docker Compose Configurations
+=======================================
+
+.. list-table::
+
+   * - File
+     - Purpose
+   * - ``compose.yaml``
+     - Production deployment with pre-built images
+   * - ``compose.dev.yaml``
+     - Development with local build and hot-reload
+   * - ``compose.anyvar.yaml``
+     - AnyVar dependencies (SeqRepo, UTA, AnyVar service)
+   * - ``compose.test.yaml``
+     - Minimal services for testing
+
+Full stack with AnyVar
+======================
+
 .. code-block:: console
 
-   % docker compose up
+   % docker compose -f compose.dev.yaml -f compose.anyvar.yaml up --build
 
-This will:
-
-TODO clean this up
-
-* pull the necessary images,
-* start SeqRepo (or use your local SeqRepo if configured),
-* start UTA and AnyVar’s PostgreSQL database,
-* and launch AnyVar REST service.
-
-Once the containers are running, visit `http://127.0.0.1:8010/docs <http://127.0.0.1:8010/docs>`_ to view the interactive Swagger UI and confirm the service is responding.
+Once the containers are running, visit `http://127.0.0.1:8080/docs <http://127.0.0.1:8080/docs>`_ to view the interactive Swagger UI and confirm the service is responding.
