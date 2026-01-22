@@ -97,7 +97,6 @@ ignore = [
     # not used
     "AIR",
     "ERA",
-    "FAST",
     "YTT",
     "FBT",
     "CPY",
