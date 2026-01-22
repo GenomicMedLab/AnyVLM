@@ -1,3 +1,5 @@
+.. _setup-docker-compose:
+
 Quick Setup: Docker Compose
 !!!!!!!!!!!!!!!!!!!!!!!!!!!
 

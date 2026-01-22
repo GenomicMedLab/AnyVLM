@@ -46,6 +46,14 @@ from anyvlm import __version__  # noqa: E402
 
 version = release = __version__
 
+# -- declare substitutions ---------------------------------------------------
+from ga4gh.vrs import VRS_VERSION  # noqa: E402
+from ga4gh.va_spec import VASPEC_VERSION  # noqa: E402
+
+rst_epilog = f"""
+.. |vrs_version| replace:: {VRS_VERSION}
+.. |vaspec_version| replace:: {VASPEC_VERSION}
+"""
 
 # -- linkcode ----------------------------------------------------------------
 def linkcode_resolve(domain, info):

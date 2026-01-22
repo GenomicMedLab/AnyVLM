@@ -1,7 +1,7 @@
-AnyVLM
-!!!!!!
+AnyVLM |version|
+!!!!!!!!!!!!!!!!
 
-**AnyVLM** (Any Variant-Level Matching) is an off-the-shelf solution for adding local aggregate-level variant information to a [Variant-Level Matching (VLM) network](https://www.ga4gh.org/what-we-do/ga4gh-implementation-forum/federated-variant-level-matching-vlm-project/). It provides a REST API service that integrates with GA4GH standards for genomic data exchange.
+**AnyVLM** (Any Variant-Level Matching) is an off-the-shelf solution for adding local aggregate-level variant information to a `Variant-Level Matching (VLM) network <https://www.ga4gh.org/what-we-do/ga4gh-implementation-forum/federated-variant-level-matching-vlm-project/>`_. It provides a REST API service that integrates with GA4GH standards for genomic data exchange.
 
 AnyVLM enables genomic research organizations to:
 
@@ -27,4 +27,5 @@ If you're setting up AnyVLM for the first time, begin with the :doc:`Getting Sta
    Getting Help<help>
    Changelog<changelog>
    Contributing<contributing>
+   Project Roadmap<roadmap>
    License<license>
