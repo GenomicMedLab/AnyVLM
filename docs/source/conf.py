@@ -10,6 +10,11 @@ project = "anyvlm"
 author = "GenomicMedLab"
 html_title = "AnyVLM"
 
+import datetime
+
+_now = datetime.datetime.now(datetime.timezone.utc)
+copyright = f"2025-{_now.year}, AnyVLM contributors"
+
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
