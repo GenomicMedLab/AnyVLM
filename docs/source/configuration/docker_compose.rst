@@ -40,7 +40,7 @@ An example environment file is documented in :doc:`dotenv_example`. The values s
 If you are using the example targets documented below, those values can be used as-is.
 
 Beacon / handover configuration
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The following environment variables are set in ``compose.yaml`` and ``compose.dev.yaml`` and configure the VLM Spec:
 
