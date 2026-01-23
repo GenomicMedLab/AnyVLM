@@ -13,7 +13,7 @@ services:
     environment:
       - SEQREPO_INSTANCE_DIR=/usr/local/share/seqrepo/2024-12-20
       - SEQREPO_DATAPROXY_URI=seqrepo+file:///usr/local/share/seqrepo/2024-12-20
-      - UTA_DB_URL=postgresql://uta_admin:some-password-that-you-make-up@uta:5432/uta/uta_20241220
+      - UTA_DB_URL=postgresql://anonymous@uta:5432/uta/uta_20241220
       - ANYVAR_STORAGE_URI=postgresql://anyvar:anyvar-pw@anyvar_db:5432/anyvar
     ports:
       - 127.0.0.1:8000:8000
