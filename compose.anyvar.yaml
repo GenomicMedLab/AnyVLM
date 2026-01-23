@@ -30,7 +30,7 @@ services:
     volumes:
       - uta_vol:/var/lib/postgresql/data
     ports:
-      - 127.0.0.1:5432:5432
+      - 127.0.0.1:5433:5432
 
   anyvar_db:
     image: postgres:17
