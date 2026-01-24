@@ -32,7 +32,7 @@ Then, launch the application:
    make up-dev
 
    # Or production mode
-   ANYVLM_VERSION=latest make up
+   make up
 
 
 Available Docker Compose Configurations
