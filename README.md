@@ -9,7 +9,7 @@ AnyVLM enables genomic research organizations to:
 - **Store cohort allele frequencies** (CAF) with zygosity-stratified counts
 - **Serve VLM protocol-compliant responses** with Beacon handover capabilities
 
-This service is designed for rare disease variant frequency tracking in genomic research networks such as GREGoR.
+This service is designed for rare disease variant frequency tracking in genomic research networks such as [GREGoR](https://gregorconsortium.org/).
 
 ## Information
 
