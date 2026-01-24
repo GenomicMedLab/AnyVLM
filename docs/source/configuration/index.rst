@@ -3,7 +3,7 @@ Configuration
 
 This section details AnyVLM configuration. It is broken down into the following subsections:
 
-* :doc:`VLM API Values <vlm>`: define VLM service values (**required**)
+* :doc:`VLM API <vlm>`: define VLM service values (**required**)
 * :doc:`Object Storage <storage>`: define database connection
 * :doc:`AnyVar Client <anyvar>`: define AnyVar variant service connection
 * :doc:`Logging <logging>`: configure application logging
