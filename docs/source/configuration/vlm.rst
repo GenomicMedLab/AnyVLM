@@ -19,7 +19,7 @@ The VLM API presently requires declaration of several values for service identif
      - Description of the dataset or cohort
      - ``"GREGoR AnyVLM Reference"``
    * - ``BEACON_HANDOVER_URL``
-     - Homepage or reference for the data.
+     - Homepage or reference for the data
      - ``"https://variants.gregorconsortium.org/"``
    * - ``BEACON_NODE_ID``
      - Unique ID for the service instance
