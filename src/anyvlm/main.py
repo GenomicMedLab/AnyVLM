@@ -1,5 +1,6 @@
 """Define core FastAPI app"""
 
+import contextlib
 import logging
 import logging.config
 from collections.abc import AsyncGenerator
@@ -48,12 +49,15 @@ def create_anyvar_client(
     """
     if not connection_string:
         connection_string = get_config().anyvar_uri
-    if connection_string.startswith(("http://", "https://")):
+    if connection_string and connection_string.startswith(("http://", "https://")):
         _logger.info(
-            "Initializing HTTP-based AnyVar client under hostname %s", connection_string
+            "AnyVar client factory initializing HTTP-based AnyVar client under hostname %s",
+            connection_string,
         )
         return HttpAnyVarClient(connection_string)
-    _logger.info("Initializing AnyVar instance directly")
+    _logger.info(
+        "AnyVar client factory initializing AnyVar instance directly; falling back on AnyVar-specific env vars"
+    )
     storage = create_storage()
     translator = create_translator()
     return PythonAnyVarClient(translator, storage)
@@ -83,7 +87,11 @@ def create_anyvlm_storage(uri: str | None = None) -> Storage:
         msg = f"URI scheme {parsed_uri.scheme} is not implemented"
         raise ValueError(msg)
 
-    _logger.debug("create_storage: %s → %s}", storage.sanitized_url, storage)
+    _logger.info(
+        "AnyVLM storage factory initializing object store instance via {%s -> %s}",
+        storage.sanitized_url,
+        storage,
+    )
     return storage
 
 
@@ -99,22 +107,22 @@ async def _configure_logging() -> None:
     """
     config_file = get_config().logging_config
     if config_file:
-        async with await anyio.open_file(config_file) as f:
-            try:
-                contents = await f.read()
-                config = yaml.safe_load(contents)
-                logging.config.dictConfig(config)
-                _logger.info("Logging using configs set from %s", config_file)
-            except Exception:
-                _logger.exception(
-                    "Error in Logging Configuration. Using default configs"
-                )
-            else:
-                return
+        with contextlib.suppress(Exception):
+            async with await anyio.open_file(config_file, "r") as f:
+                config = yaml.safe_load(await f.read())
+            logging.config.dictConfig(config)
+            _logger.info("Logging using configs set from %s", config_file)
+            return
     logging.basicConfig(
         filename="anyvlm.log",
         format="[%(asctime)s] - %(name)s - %(levelname)s : %(message)s",
+        level=logging.INFO,
     )
+    if config_file:
+        _logger.error(
+            "Error in Logging Configuration located at %s. Falling back to default configs",
+            config_file,
+        )
     _logger.info("Logging with default configs.")
 
 
