@@ -1,6 +1,8 @@
 Usage
 !!!!!
 
+Currently, AnyVLM is used primarily by issuing requests against an HTTP server. This page assumes that such a server is running at ``http://localhost:8080/``.
+
 .. _load-vcf:
 
 Submitting VCFs
@@ -13,8 +15,8 @@ Given a VCF describing cohort-level allele frequency, submit a ``POST`` request 
    % curl -X POST "http://localhost:8080/ingest_vcf?assembly=grch38" \
      -F "file=@/path/to/variants.vcf.gz"
 
-Requirements
-------------
+VCF Requirements
+----------------
 
 - File must be gzip-compressed (``.vcf.gz``)
 - Maximum file size: 5GB
@@ -69,11 +71,11 @@ Parameters
 Response
 --------
 
-VLM protocol-compliant JSON with:
+The AnyVLM server will respond to a valid request with a VLM protocol-compliant JSON object that includes the following fields:
 
-- ``beaconHandovers``: Handover metadata for network integration
-- ``meta``: Beacon metadata
-- ``responseSummary``: Whether variant exists and total results
+- ``beaconHandovers``: Handover metadata for network integration, describing the data
+- ``meta``: Beacon metadata, describing the server itself
+- ``responseSummary``: Whether variant exists, and total number of matching results
 - ``response``: ResultSets grouped by zygosity (Homozygous, Heterozygous, Hemizygous, Unknown)
 
 For example:

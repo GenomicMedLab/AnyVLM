@@ -6,6 +6,8 @@ Variant-Level Matching (VLM) Protocol
 
 AnyVLM implements the nascent `Variant-Level Matching <https://www.ga4gh.org/what-we-do/ga4gh-implementation-forum/federated-variant-level-matching-vlm-project/>`_, or VLM, protocol. This framework enables construction of a federated genomic knowledge network, allowing laboratories and consortia to make internal variation data discoverable and reusable by other researchers and clinicians. AnyVLM is designed as a lightweight and portable solution for rapidly spinning up a new VLM node and introducing new data to the network.
 
+The VLM protocol is still in development, and is subject to change.
+
 Cohort Allele Frequency (CAF) Retrieval
 =======================================
 

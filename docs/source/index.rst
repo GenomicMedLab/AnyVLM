@@ -10,7 +10,7 @@ AnyVLM enables genomic research organizations to:
 - **Store cohort allele frequencies** (CAF) with zygosity-stratified counts
 - **Serve VLM protocol-compliant responses** with Beacon handover capabilities
 
-This service is designed for rare disease variant frequency tracking in genomic research networks such as GREGoR.
+This service is designed for rare disease variant frequency tracking in genomic research networks such as `GREGoR <https://gregorconsortium.org/>`_.
 
 If you're setting up AnyVLM for the first time, begin with the :doc:`Getting Started guide <getting_started/index>`, which covers different installation options. To learn how to use AnyVar as a service, see :doc:`Usage <usage>`. For further assistance, please refer to :doc:`Getting Help <help>`.
 
