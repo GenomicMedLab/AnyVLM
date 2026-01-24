@@ -12,7 +12,7 @@ AnyVLM enables genomic research organizations to:
 
 This service is designed for rare disease variant frequency tracking in genomic research networks such as `GREGoR <https://gregorconsortium.org/>`_.
 
-If you're setting up AnyVLM for the first time, begin with the :doc:`Getting Started guide <getting_started/index>`, which covers different installation options. To learn how to use AnyVar as a service, see :doc:`Usage <usage>`. For further assistance, please refer to :doc:`Getting Help <help>`.
+If you're setting up AnyVLM for the first time, begin with the :doc:`Getting Started guide <getting_started/index>`, which covers different installation options. To learn how to use AnyVLM as a service, see :doc:`Usage <usage>`. For further assistance, please refer to :doc:`Getting Help <help>`.
 
 .. toctree::
    :maxdepth: 2
