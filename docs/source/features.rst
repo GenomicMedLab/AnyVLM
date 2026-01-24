@@ -28,7 +28,7 @@ Data is submitted to AnyVLM by way of Variant Call Format (VCF) files. Presently
 AnyVar Storage Backend
 ======================
 
-While an AnyVLM instance stores allele frequency data internally, it utilizes `AnyVar <https://anyvar.readthedocs.io/en/latest/>`_ for registration and retrieval of the variants themselves. An AnyVar instance may be constructed internally, or an external AnyVar instance available on the local network may be used.
+While an AnyVLM instance stores allele frequency data internally, it utilizes `AnyVar <https://anyvar.readthedocs.io/en/latest/>`_ for registration and retrieval of the variants themselves. An AnyVar instance may be constructed internally, or an external AnyVar instance available on the local network may be used. See the :ref:`AnyVar client configuration page <anyvar-config>` for information on AnyVar client construction.
 
 Genomics Standards Conformance
 ==============================
