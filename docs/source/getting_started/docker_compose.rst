@@ -56,6 +56,6 @@ Full stack with AnyVar
 
 .. code-block:: console
 
-   % docker compose -f compose.dev.yaml -f compose.anyvar.yaml up --build
+   % ANYVLM_VERSION=0.0.0 docker compose -f compose.dev.yaml -f compose.anyvar.yaml up --build
 
 Once the containers are running, visit `http://127.0.0.1:8080/docs <http://127.0.0.1:8080/docs>`_ to view the interactive Swagger UI and confirm the service is responding.
