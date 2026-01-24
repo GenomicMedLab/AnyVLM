@@ -12,4 +12,5 @@ Version 1.1
 Version 1.x
 ===========
 
+* Subcohort filtering
 * Additional kinds of response data beyond CAFs

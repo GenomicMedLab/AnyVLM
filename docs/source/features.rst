@@ -18,7 +18,7 @@ At present, AnyVLM serves `Cohort Allele Frequency (CAF) <https://va-spec.ga4gh.
    :align: center
    :alt: Summary of CAF object structure
 
-   Summary of CAF object structure
+   Summary of CAF object structure (`source <https://gnomad.broadinstitute.org/news/2023-11-ga4gh-gks/>`_)
 
 VCF Ingestion
 =============
