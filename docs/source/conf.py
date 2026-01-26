@@ -10,6 +10,11 @@ project = "anyvlm"
 author = "GenomicMedLab"
 html_title = "AnyVLM"
 
+import datetime
+
+_now = datetime.datetime.now(datetime.timezone.utc)
+copyright = f"2025-{_now.year}, AnyVLM contributors"
+
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
@@ -46,6 +51,14 @@ from anyvlm import __version__  # noqa: E402
 
 version = release = __version__
 
+# -- declare substitutions ---------------------------------------------------
+from ga4gh.vrs import VRS_VERSION  # noqa: E402
+from ga4gh.va_spec import VASPEC_VERSION  # noqa: E402
+
+rst_epilog = f"""
+.. |vrs_version| replace:: {VRS_VERSION}
+.. |vaspec_version| replace:: {VASPEC_VERSION}
+"""
 
 # -- linkcode ----------------------------------------------------------------
 def linkcode_resolve(domain, info):

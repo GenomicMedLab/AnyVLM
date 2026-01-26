@@ -1,0 +1,9 @@
+﻿anyvlm.storage.base_storage
+===========================
+
+.. automodule:: anyvlm.storage.base_storage
+   :members:
+   :no-inherited-members:
+   :undoc-members:
+   :special-members: __init__
+   :exclude-members: model_fields, model_config, metadata

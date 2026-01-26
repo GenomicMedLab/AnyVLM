@@ -49,7 +49,7 @@ def create_anyvar_client(
     """
     if not connection_string:
         connection_string = get_config().anyvar_uri
-    if connection_string and connection_string.startswith("http://"):
+    if connection_string and connection_string.startswith(("http://", "https://")):
         _logger.info(
             "AnyVar client factory initializing HTTP-based AnyVar client under hostname %s",
             connection_string,
