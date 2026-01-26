@@ -70,7 +70,7 @@ BEACON_HANDOVER_URL="https://variants.example.org/"
 BEACON_NODE_ID="org.anyvlm.example"
 
 # AnyVar configuration
-UTA_DB_URL=postgresql://anonymous@localhost:5432/uta/uta_20241220
+UTA_DB_URL=postgresql://anonymous@localhost:5433/uta/uta_20241220
 SEQREPO_DATAPROXY_URI=seqrepo+file:///usr/local/share/seqrepo/2024-12-20
 ANYVAR_STORAGE_URI=postgresql://anyvar:anyvar-pw@localhost:5434/anyvar
 

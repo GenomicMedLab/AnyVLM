@@ -39,6 +39,25 @@ An example environment file is documented in :doc:`dotenv_example`. The values s
 
 If you are using the example targets documented below, those values can be used as-is.
 
+Beacon / handover configuration
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The following environment variables are set in ``compose.yaml`` and ``compose.dev.yaml`` and configure the VLM Spec:
+
+.. code-block:: yaml
+
+   environment:
+     - HANDOVER_TYPE_ID=GREGoR-NCH
+     - HANDOVER_TYPE_LABEL=GREGoR AnyVLM Reference
+     - BEACON_HANDOVER_URL=https://variants.gregorconsortium.org/
+     - BEACON_NODE_ID=org.anyvlm.gregor
+
+These defaults are configured for the GREGoR AnyVLM node.
+
+.. note::
+
+   You can change these values directly in ``compose.yaml`` and/or ``compose.dev.yaml`` if needed.
+
 Volumes
 -------
 
