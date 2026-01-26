@@ -50,7 +50,6 @@ A successful query returns a response like the following:
 
 See the [usage](https://anyvlm.readthedocs.org/en/stable/usage.html) page in the documentation for more information.
 
-
 ## Feedback and contributing
 
 We welcome [bug reports](https://github.com/genomicmedlab/anyvlm/issues/new?template=bug-report.md), [feature requests](https://github.com/genomicmedlab/anyvlm/issues/new?template=feature-request.md), and code contributions from users and interested collaborators. The [documentation](https://anyvlm.readthedocs.io/en/latest/contributing.html) contains guidance for submitting feedback and contributing new code.
