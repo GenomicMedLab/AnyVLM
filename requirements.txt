@@ -4,10 +4,10 @@ agct==0.2.0
 annotated-doc==0.0.4
 annotated-types==0.7.0
 anyio==4.12.1
+anyvar==1.0.0
 asn1crypto==1.5.1
 asttokens==3.0.1
 attrs==25.4.0
-biocommons-anyvar==1.0.0rc3
 biocommons-seqrepo==0.6.11
 bioutils==0.6.1
 boto3==1.42.29

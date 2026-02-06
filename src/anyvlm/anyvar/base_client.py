@@ -3,7 +3,7 @@
 import abc
 from collections.abc import Iterable, Sequence
 
-from anyvar.utils.liftover_utils import ReferenceAssembly
+from anyvar.mapping.liftover import ReferenceAssembly
 from ga4gh.vrs.models import Allele
 
 

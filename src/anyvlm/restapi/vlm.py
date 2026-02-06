@@ -7,7 +7,7 @@ import uuid
 from pathlib import Path
 from typing import Annotated, BinaryIO, Literal
 
-from anyvar.utils.liftover_utils import ReferenceAssembly
+from anyvar.mapping.liftover import ReferenceAssembly
 from fastapi import APIRouter, HTTPException, Query, Request, UploadFile
 from pydantic import BaseModel
 

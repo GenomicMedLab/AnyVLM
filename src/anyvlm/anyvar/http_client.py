@@ -6,8 +6,8 @@ from http import HTTPMethod, HTTPStatus
 from typing import Literal
 
 import requests
+from anyvar.mapping.liftover import ReferenceAssembly
 from anyvar.restapi.schema import GetObjectResponse, RegisterVariationResponse
-from anyvar.utils.liftover_utils import ReferenceAssembly
 from ga4gh.vrs import VrsType, models
 
 from anyvlm.anyvar.base_client import (
