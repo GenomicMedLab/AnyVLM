@@ -7,7 +7,7 @@ from timeit import default_timer as timer
 
 import click
 import requests
-from anyvar.utils.liftover_utils import ReferenceAssembly
+from anyvar.mapping.liftover import ReferenceAssembly
 
 import anyvlm
 from anyvlm.config import Settings, get_config

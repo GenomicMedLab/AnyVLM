@@ -4,10 +4,10 @@ import logging
 from collections.abc import Iterable, Sequence
 
 from anyvar import AnyVar
-from anyvar.storage.base_storage import Storage
-from anyvar.translate.translate import TranslationError, Translator
-from anyvar.utils.liftover_utils import ReferenceAssembly
-from anyvar.utils.types import SupportedVariationType
+from anyvar.mapping.liftover import ReferenceAssembly
+from anyvar.restapi.schema import SupportedVariationType
+from anyvar.storage.base import Storage
+from anyvar.translate.base import TranslationError, Translator
 from ga4gh.vrs.dataproxy import DataProxyValidationError
 from ga4gh.vrs.models import Allele
 

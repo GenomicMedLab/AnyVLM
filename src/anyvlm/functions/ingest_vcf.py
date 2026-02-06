@@ -6,7 +6,7 @@ from collections.abc import Iterator
 from pathlib import Path
 
 import pysam
-from anyvar.utils.liftover_utils import ReferenceAssembly
+from anyvar.mapping.liftover import ReferenceAssembly
 from ga4gh.core.models import iriReference
 from ga4gh.va_spec.base import StudyGroup
 

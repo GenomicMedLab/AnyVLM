@@ -1,6 +1,6 @@
 """SQLAlchemy ORM models for AnyVLM database schema."""
 
-from anyvar.utils.funcs import camel_case_to_snake_case
+from anyvar.storage.orm import _camel_to_snake
 from sqlalchemy import (
     Integer,
     String,
@@ -24,7 +24,7 @@ class Base(DeclarativeBase):
         # Default table name = class name, transformed from PascalCase into snake_case and pluralized.
         # Example: The table name created by the "AlleleFrequencyData" ORM class is `allele_frequency_data`
         # NOTE: Classes/tables that require a different pluralization scheme should override this function.
-        return camel_case_to_snake_case(cls.__name__, False) + "s"
+        return _camel_to_snake(cls.__name__, False) + "s"
 
     def to_dict(self) -> dict:
         """Convert the model fields to a dictionary (non-recursive)."""
