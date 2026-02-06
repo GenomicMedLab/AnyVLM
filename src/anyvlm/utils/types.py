@@ -4,7 +4,7 @@ from enum import Enum, StrEnum
 from types import MappingProxyType
 from typing import Annotated
 
-from anyvar.utils.liftover_utils import ReferenceAssembly
+from anyvar.mapping.liftover import ReferenceAssembly
 from ga4gh.va_spec.base import CohortAlleleFrequencyStudyResult
 from pydantic import AfterValidator, BaseModel, BeforeValidator, StringConstraints
 

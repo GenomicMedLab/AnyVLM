@@ -2,7 +2,7 @@ from collections.abc import Iterable, Sequence
 from pathlib import Path
 
 import pytest
-from anyvar.utils.liftover_utils import ReferenceAssembly
+from anyvar.mapping.liftover import ReferenceAssembly
 
 from anyvlm.anyvar.base_client import BaseAnyVarClient
 from anyvlm.functions.ingest_vcf import VcfAfColumnsError, ingest_vcf
