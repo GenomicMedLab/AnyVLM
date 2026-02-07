@@ -69,31 +69,35 @@ The following volumes may be required, depending on which services you run:
 
 * ``seqrepo_vol``: Storage for sequence repository data. Required when running ``compose.anyvar.yaml`` or ``compose.test.yaml``.
 
-.. note::
+   .. note::
 
-   If you already have a SeqRepo database on your local filesystem, you can use it directly instead of the Docker volume. Both ``compose.anyvar.yaml`` and ``compose.test.yaml`` can be updated to bind-mount your local SeqRepo directory in place of ``seqrepo_vol``.
+      If you already have a SeqRepo database on your local filesystem, you can use it directly instead of the Docker volume. Both ``compose.anyvar.yaml`` and ``compose.test.yaml`` can be updated to bind-mount your local SeqRepo directory in place of ``seqrepo_vol``.
 
-   For example, if your SeqRepo lives at ``/usr/local/share/seqrepo/2024-12-20``, replace:
+      For example, if your SeqRepo lives at ``/usr/local/share/seqrepo/2024-12-20``, replace:
 
-   .. code-block:: yaml
+      .. code-block:: yaml
 
-      volumes:
-        - seqrepo_vol:/usr/local/share/seqrepo
+         volumes:
+         - seqrepo_vol:/usr/local/share/seqrepo
 
-   with:
+      with:
 
-   .. code-block:: yaml
+      .. code-block:: yaml
 
-      volumes:
-        - $SEQREPO_ROOT_DIR:$SEQREPO_ROOT_DIR
+         volumes:
+         - $SEQREPO_ROOT_DIR:$SEQREPO_ROOT_DIR
 
-   Then export the path before starting the stack:
+      Then export the path before starting the stack:
 
-   .. code-block:: bash
+      .. code-block:: bash
 
-      export SEQREPO_ROOT_DIR=/usr/local/share/seqrepo/2024-12-20
+         export SEQREPO_ROOT_DIR=/usr/local/share/seqrepo/2024-12-20
 
 * ``uta_vol``: Storage for UTA database data. Required when running ``compose.anyvar.yaml``.
+
+   .. important::
+
+      You must download ``uta_20241220.pgd.gz`` from https://dl.biocommons.org/uta/ using a web browser and move it to the root of the repository.
 
 * ``anyvar_vol``: Storage for AnyVar application data. Required when running ``compose.anyvar.yaml``.
 
