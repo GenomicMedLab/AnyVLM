@@ -67,16 +67,16 @@ ASSEMBLY_MAP: MappingProxyType[GrcAssemblyId | UcscAssemblyBuild, ReferenceAssem
 )
 
 
-NucleotideSequence = Annotated[
+Nucleotide = Annotated[
     str,
     BeforeValidator(str.upper),
-    StringConstraints(pattern=r"^[ACGTURYKMSWBDHVN.-]*$"),
+    StringConstraints(pattern=r"^[ACGT]$"),
 ]
 
 
 def _normalize_chromosome_name(chromosome_name: str) -> str:
     """Normalize a chromosome name. Input must be a string consisting of either a number between 1-22,
-    or one of the values 'X', 'Y', or 'MT'; optionally prefixed with 'chr'.
+    or one of the values 'X', 'Y', or 'M'; optionally prefixed with 'chr'.
 
     :param chromosome_name: The name of the chromosome to normalize, following the rules stated above.
     :return: The chromosome name, stripped of it's 'chr' prefix if it was added
@@ -94,7 +94,7 @@ def _normalize_chromosome_name(chromosome_name: str) -> str:
 
     raise ValueError(
         "Invalid chromosome name. Must be a string consisting of either a number between 1-22, "
-        "or one of the values 'X', 'Y', or 'MT'; optionally prefixed with 'chr'."
+        "or one of the values 'X', 'Y', or 'M'; optionally prefixed with 'chr'."
     )
 
 

@@ -1,5 +1,7 @@
 """Tests for types and validator functions found in src/anyvlm/utils/types.py"""
 
+import re
+
 import pytest
 from pydantic import TypeAdapter, ValidationError
 
@@ -18,13 +20,13 @@ def valid_chromosomes() -> list[tuple[str, str]]:
         ("chr1", "1"),
         ("Chr22", "22"),
         ("cHrX", "X"),
-        ("chrMT", "MT"),
+        ("chrM", "M"),
     ]
 
 
 @pytest.fixture
 def invalid_chromosomes() -> list[str | None]:
-    return ["0", "23", "chr23", "M", "chrM", "XY", "", "chr", "1a", None]
+    return ["0", "23", "chr23", "M", "chrMT", "XY", "", "chr", "1a", None]
 
 
 @pytest.fixture
@@ -44,8 +46,9 @@ def test_normalize_chromosome_name_invalid(invalid_chromosomes):
             with pytest.raises(
                 ValueError,
                 match=(
-                    "Invalid chromosome name. Must be a string consisting of either a number between 1-22, "
-                    "or one of the values 'X', 'Y', or 'MT'; optionally prefixed with 'chr'."
+                    re.escape(
+                        "Invalid chromosome name. Must be a string consisting of either a number between 1-22, or one of the values 'X', 'Y', or 'MT'; optionally prefixed with 'chr'."
+                    )
                 ),
             ):
                 _normalize_chromosome_name(chromosome_name)
