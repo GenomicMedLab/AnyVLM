@@ -7,7 +7,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from anyvlm.utils.types import Zygosity
 
-# ruff: noqa: N815, N803, D107 (allow camelCase instead of snake_case to align with expected VLM protocol response + don't require init docstrings)
+# ruff: noqa: N815, D107 (allow camelCase instead of snake_case to align with expected VLM protocol response + don't require init docstrings)
 
 RESULT_ENTITY_TYPE = "genomicVariant"
 
@@ -115,13 +115,15 @@ class ResponseSummary(BaseModel):
 class ResultSet(BaseModel):
     """A set of cohort allele frequency results. The zygosity of the ResultSet is identified in the `id` field"""
 
-    exists: Literal[True] = Field(
-        default=True,
-        description="Indicates whether this ResultSet exists. This must always be `True`, even if `resultsCount` = `0`",
+    exists: bool = Field(
+        ...,
+        description="Indicates whether this ResultSet exists.",
     )
+    # ResultSet.id should be "<HandoverType.id> <the ResultSet's zygosity>"
+    # See `validate_resultset_ids` validator in `VlmResponse` class
     id: str = Field(
         ...,
-        description="id should be constructed of the `HandoverType.id` + the ResultSet's zygosity. See `validate_resultset_ids` validator in `VlmResponse` class.",
+        description="Indicate result set + zygosity combination",
         examples=["Geno2MP Homozygous", "MyGene2 Heterozygous"],
     )
     results: list = Field(
@@ -135,12 +137,9 @@ class ResultSet(BaseModel):
     )
     setType: str = Field(
         default=RESULT_ENTITY_TYPE,
+        pattern=RESULT_ENTITY_TYPE,
         description=f"The type of entity relevant to these results. Must always be set to '{RESULT_ENTITY_TYPE}'",
     )
-
-    # custom __init__ to prevent inadvertently overriding static fields
-    def __init__(self, resultset_id: str, resultsCount: int) -> None:
-        super().__init__(id=resultset_id, resultsCount=resultsCount)
 
 
 class ResponseField(BaseModel):

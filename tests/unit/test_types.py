@@ -16,7 +16,7 @@ def valid_chromosomes() -> list[tuple[str, str]]:
         ("22", "22"),
         ("X", "X"),
         ("Y", "Y"),
-        ("MT", "MT"),
+        ("M", "M"),
         ("chr1", "1"),
         ("Chr22", "22"),
         ("cHrX", "X"),
@@ -26,7 +26,7 @@ def valid_chromosomes() -> list[tuple[str, str]]:
 
 @pytest.fixture
 def invalid_chromosomes() -> list[str | None]:
-    return ["0", "23", "chr23", "M", "chrMT", "XY", "", "chr", "1a", None]
+    return ["0", "23", "chr23", "MT", "chrMT", "XY", "", "chr", "1a", None]
 
 
 @pytest.fixture
@@ -47,7 +47,7 @@ def test_normalize_chromosome_name_invalid(invalid_chromosomes):
                 ValueError,
                 match=(
                     re.escape(
-                        "Invalid chromosome name. Must be a string consisting of either a number between 1-22, or one of the values 'X', 'Y', or 'MT'; optionally prefixed with 'chr'."
+                        "Invalid chromosome name. Must be a string consisting of either a number between 1-22, or one of the values 'X', 'Y', or 'M'; optionally prefixed with 'chr'."
                     )
                 ),
             ):

@@ -30,38 +30,7 @@ def caf_data() -> list[AnyVlmCohortAlleleFrequencyResult]:
                 heterozygotes=211608,
                 hemizygotes=2,
             ),
-            cohort=StudyGroup(name="rare disease"),  # type: ignore
-        ),
-        AnyVlmCohortAlleleFrequencyResult(
-            focusAllele=iriReference("ga4gh:VA.J3Hi64dkKFKdnKIwB2419Qz3STDB2sJq"),
-            focusAlleleCount=0,
-            locusAlleleCount=0,
-            focusAlleleFrequency=0,
-            qualityMeasures=None,
-            ancillaryResults=None,
-            cohort=StudyGroup(name="rare disease"),  # type: ignore
-        ),
-        AnyVlmCohortAlleleFrequencyResult(
-            focusAllele=iriReference("ga4gh:VA.J3Hi64dkKFKdnKIwB2419Qz3STDB2sJq"),
-            focusAlleleCount=300300,
-            locusAlleleCount=600000000,
-            focusAlleleFrequency=0.00045005,
-            qualityMeasures=None,
-            ancillaryResults=AncillaryResults(
-                homozygotes=300,
-                heterozygotes=300000,
-                hemizygotes=None,
-            ),
-            cohort=StudyGroup(name="rare disease"),  # type: ignore
-        ),
-        AnyVlmCohortAlleleFrequencyResult(
-            focusAllele=iriReference("ga4gh:VA.J3Hi64dkKFKdnKIwB2419Qz3STDB2sJq"),
-            focusAlleleCount=150000,
-            locusAlleleCount=400000000,
-            focusAlleleFrequency=0.000375,
-            qualityMeasures=None,
-            ancillaryResults=None,
-            cohort=StudyGroup(name="rare disease"),  # type: ignore
+            cohort=StudyGroup(name="GREGoR-NCH"),
         ),
     ]
 
@@ -133,4 +102,4 @@ def test_build_vlm_response_no_data():
 
     # Test VlmResponse.response
     result_sets: list[ResultSet] = vlm_response.response.resultSets
-    assert len(result_sets) == 0
+    assert len(result_sets) == 4

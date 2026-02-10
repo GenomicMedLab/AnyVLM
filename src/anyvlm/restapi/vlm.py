@@ -19,7 +19,7 @@ from pydantic import BaseModel
 
 from anyvlm.anyvar.base_client import BaseAnyVarClient
 from anyvlm.functions.build_vlm_response import build_vlm_response
-from anyvlm.functions.get_caf import get_caf
+from anyvlm.functions.get_caf import VariantNotRegisteredError, get_caf
 from anyvlm.functions.ingest_vcf import VcfAfColumnsError
 from anyvlm.functions.ingest_vcf import ingest_vcf as ingest_vcf_function
 from anyvlm.schemas.vlm import VlmResponse
@@ -310,13 +310,17 @@ def variant_counts(
 ) -> VlmResponse:
     anyvar_client: BaseAnyVarClient = request.app.state.anyvar_client
     anyvlm_storage: Storage = request.app.state.anyvlm_storage
-    caf_data: list[AnyVlmCohortAlleleFrequencyResult] = get_caf(
-        anyvar_client,
-        anyvlm_storage,
-        assemblyId,
-        referenceName,
-        start,
-        referenceBases,
-        alternateBases,
-    )
+    try:
+        caf_data: list[AnyVlmCohortAlleleFrequencyResult] = get_caf(
+            anyvar_client,
+            anyvlm_storage,
+            assemblyId,
+            referenceName,
+            start,
+            referenceBases,
+            alternateBases,
+        )
+    except VariantNotRegisteredError:
+        caf_data = []
+
     return build_vlm_response(caf_data)

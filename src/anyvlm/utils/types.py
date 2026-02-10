@@ -1,6 +1,6 @@
 """Provide helpful type definitions, references, and type-based operations."""
 
-from enum import Enum, StrEnum
+from enum import StrEnum
 from types import MappingProxyType
 from typing import Annotated
 
@@ -33,7 +33,7 @@ class AnyVlmCohortAlleleFrequencyResult(CohortAlleleFrequencyStudyResult):
     qualityMeasures: QualityMeasures | None = None  # type: ignore # noqa: N815
 
 
-class EndpointTag(str, Enum):
+class EndpointTag(StrEnum):
     """Define tag names for endpoints."""
 
     META = "Meta"
@@ -86,7 +86,7 @@ def _normalize_chromosome_name(chromosome_name: str) -> str:
     min_chromosome_number = 1
     max_chromosome_number = 22
 
-    if chromosome_name in {"X", "Y", "MT"} or (
+    if chromosome_name in {"X", "Y", "M"} or (
         chromosome_name.isdigit()
         and min_chromosome_number <= int(chromosome_name) <= max_chromosome_number
     ):
@@ -107,4 +107,4 @@ class Zygosity(StrEnum):
     HOMOZYGOUS = "Homozygous"
     HETEROZYGOUS = "Heterozygous"
     HEMIZYGOUS = "Hemizygous"
-    UNKNOWN = "Unknown Zygosity"
+    UNKNOWN = "Unknown"

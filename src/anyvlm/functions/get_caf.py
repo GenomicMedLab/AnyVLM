@@ -54,9 +54,10 @@ def get_caf(
         raise ValueError(msg) from e
 
     vrs_variation = anyvar_client.get_registered_allele(gnomad_vcf, assembly)
-    _logger.debug(
-        "Variant %s %s is not registered in AnyVar", assembly.value, gnomad_vcf
-    )
+    if not vrs_variation:
+        msg = f"Variant {assembly.value} {gnomad_vcf} is not registered in AnyVar"
+        _logger.debug(msg)
+        raise VariantNotRegisteredError(msg)
 
     cafs: list[AnyVlmCohortAlleleFrequencyResult] = (
         anyvlm_storage.get_caf_by_vrs_allele_id(vrs_variation.id)  # type: ignore
