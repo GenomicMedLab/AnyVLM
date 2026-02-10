@@ -16,7 +16,7 @@ class HandoverType(BaseModel):
     """The type of handover the parent `BeaconHandover` represents."""
 
     id: str = Field(
-        default="gregor",  # TODO fix
+        default="CUSTOM:GREGoR",
         description="Definition of an identifier in the CURIE `prefix:local-part` format which is the default type of e.g. ontology term `id` values (used e.g. for filters or external identifiers).",
         pattern="^\\w[^:]+:.+$",
         examples=[
@@ -37,10 +37,11 @@ class BeaconHandover(BaseModel):
     handoverType: HandoverType = Field(
         ...,
         description='Handover type, as an Ontology_term object with CURIE syntax for the `id` value. Use "CUSTOM:123455" CURIE-style `id` when no ontology is available',
-        examples=[  # TODO update these with better examples
-            {"id": "EDAM:2572", "label": "BAM"},
-            {"id": "EDAM:3016", "label": "VCF"},
-            {"id": "CUSTOM:pgxseg", "label": "genomic variants in .pgxseg file format"},
+        examples=[
+            {
+                "id": "CUSTOM:GREGoR",
+                "label": "Genomics Research to Elucidate the Genetics of Rare diseases consortium",
+            },
         ],
     )
     url: str = Field(
