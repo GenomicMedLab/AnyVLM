@@ -47,7 +47,7 @@ The following environment variables are set in ``compose.yaml`` and ``compose.de
 .. code-block:: yaml
 
    environment:
-     - HANDOVER_TYPE_ID=GREGoR-NCH
+     - HANDOVER_TYPE_ID=CUSTOM:GREGoR-NCH
      - HANDOVER_TYPE_LABEL=GREGoR AnyVLM Reference
      - BEACON_HANDOVER_URL=https://variants.gregorconsortium.org/
      - BEACON_NODE_ID=org.anyvlm.gregor
