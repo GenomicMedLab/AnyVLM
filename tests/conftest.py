@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 from ga4gh.core.models import iriReference
 from ga4gh.va_spec.base import StudyGroup
 from ga4gh.vrs import models
+from helpers import EXPECTED_VRS_ID, build_caf
 from pydantic import BaseModel
 
 from anyvlm.anyvar.python_client import PythonAnyVarClient
@@ -99,6 +100,37 @@ def anyvar_populated_python_client(
     anyvar_python_client.put_allele_expressions(vcf_expressions)
 
     return anyvar_python_client
+
+
+@pytest.fixture
+def anyvar_minimal_populated_python_client(
+    anyvar_python_client: PythonAnyVarClient, alleles: dict
+):
+    """AnyVar client populated with allele alleles except the expected one"""
+    vcf_expressions = [
+        allele_fixture["vcf_expression"]
+        for allele_fixture in alleles.values()
+        if allele_fixture.get("vcf_expression")
+        and allele_fixture["variation"]["id"] != EXPECTED_VRS_ID
+    ]
+    anyvar_python_client.put_allele_expressions(vcf_expressions)
+
+    return anyvar_python_client
+
+
+@pytest.fixture
+def populated_postgres_storage(
+    postgres_storage: PostgresObjectStore,
+    alleles: dict,
+    caf_iri: AnyVlmCohortAlleleFrequencyResult,
+):
+    """Populate the postgres storage with allele frequencies for testing"""
+    cafs = [
+        build_caf(caf_iri, allele_id=allele["variation"]["id"])
+        for allele in alleles.values()
+    ]
+    postgres_storage.add_allele_frequencies(cafs)
+    return postgres_storage
 
 
 @pytest.fixture(scope="session")
