@@ -4,6 +4,7 @@ import gzip
 import logging
 import tempfile
 import uuid
+from http import HTTPStatus
 from pathlib import Path
 from typing import Annotated, BinaryIO, Literal
 
@@ -11,9 +12,9 @@ from anyvar.mapping.liftover import ReferenceAssembly
 from fastapi import APIRouter, HTTPException, Query, Request, UploadFile
 from pydantic import BaseModel
 
-from anyvlm.anyvar.base_client import BaseAnyVarClient
+from anyvlm.anyvar.base_client import AnyVarClientConnectionError, BaseAnyVarClient
 from anyvlm.functions.build_vlm_response import build_vlm_response
-from anyvlm.functions.get_caf import get_caf
+from anyvlm.functions.get_caf import VariantNotRegisteredError, get_caf
 from anyvlm.functions.ingest_vcf import VcfAfColumnsError
 from anyvlm.functions.ingest_vcf import ingest_vcf as ingest_vcf_function
 from anyvlm.schemas.vlm import VlmResponse
@@ -298,13 +299,22 @@ def variant_counts(
 ) -> VlmResponse:
     anyvar_client: BaseAnyVarClient = request.app.state.anyvar_client
     anyvlm_storage: Storage = request.app.state.anyvlm_storage
-    caf_data: list[AnyVlmCohortAlleleFrequencyResult] = get_caf(
-        anyvar_client,
-        anyvlm_storage,
-        assemblyId,
-        referenceName,
-        start,
-        referenceBases,
-        alternateBases,
-    )
+
+    try:
+        caf_data: list[AnyVlmCohortAlleleFrequencyResult] = get_caf(
+            anyvar_client,
+            anyvlm_storage,
+            assemblyId,
+            referenceName,
+            start,
+            referenceBases,
+            alternateBases,
+        )
+    except VariantNotRegisteredError as e:
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=str(e)) from e
+    except AnyVarClientConnectionError as e:
+        raise HTTPException(
+            status_code=HTTPStatus.SERVICE_UNAVAILABLE,
+            detail="Unable to establish AnyVar connection",
+        ) from e
     return build_vlm_response(caf_data)
