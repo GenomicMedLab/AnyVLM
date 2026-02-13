@@ -7,7 +7,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from anyvlm.utils.types import Zygosity
 
-# ruff: noqa: N815, N803, D107 (allow camelCase instead of snake_case to align with expected VLM protocol response + don't require init docstrings)
+# ruff: noqa: N815, D107 (allow camelCase instead of snake_case to align with expected VLM protocol response + don't require init docstrings)
 
 RESULT_ENTITY_TYPE = "genomicVariant"
 
@@ -15,9 +15,19 @@ RESULT_ENTITY_TYPE = "genomicVariant"
 class HandoverType(BaseModel):
     """The type of handover the parent `BeaconHandover` represents."""
 
-    id: str = Field(default="gregor", description="Node-specific identifier")
+    id: str = Field(
+        default="CUSTOM:GREGoR",
+        description="Definition of an identifier in the CURIE `prefix:local-part` format which is the default type of e.g. ontology term `id` values (used e.g. for filters or external identifiers).",
+        pattern="^\\w[^:]+:.+$",
+        examples=[
+            "ga4gh:GA.01234abcde",
+            "DUO:0000004",
+            "orcid:0000-0003-3463-0775",
+            "PMID:15254584",
+        ],
+    )
     label: str = Field(
-        description="Node-specific identifier",
+        description="The text that describes the term. By default it could be the preferred text of the term, but is it acceptable to customize it for a clearer description and understanding of the term in an specific context."
     )
 
 
@@ -25,14 +35,24 @@ class BeaconHandover(BaseModel):
     """Describes how users can get more information about the results provided in the parent `VlmResponse`"""
 
     handoverType: HandoverType = Field(
-        ..., description="The type of handover this represents"
+        ...,
+        description='Handover type, as an Ontology_term object with CURIE syntax for the `id` value. Use "CUSTOM:123455" CURIE-style `id` when no ontology is available',
+        examples=[
+            {
+                "id": "CUSTOM:GREGoR",
+                "label": "Genomics Research to Elucidate the Genetics of Rare diseases consortium",
+            },
+        ],
     )
     url: str = Field(
-        "",
-        description="""
-            A url which directs users to more detailed information about the results tabulated by the API. Must be human-readable.
-            Ideally links directly to the variant specified in the query, but can be a generic search page if necessary.
-        """,
+        ...,
+        pattern=r"^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?",
+        description="URL endpoint to where the handover process could progress, in RFC3986 format",
+    )
+    note: str | None = Field(
+        default=None,
+        description="An optional text including considerations on the handover link provided.",
+        examples=["This handover link provides access to a summarized VCF."],
     )
 
 
@@ -67,10 +87,7 @@ meta_settings = MetaSettings()  # type: ignore
 class Meta(BaseModel):
     """Relevant metadata about the results provided in the parent `VlmResponse`"""
 
-    apiVersion: str = Field(
-        default="v1.0",
-        description="The version of the VLM API that this response conforms to",
-    )
+    apiVersion: Literal["v1.0"] = "v1.0"
     beaconId: str = Field(
         default="",
         description=(
@@ -90,9 +107,7 @@ class Meta(BaseModel):
 class ResponseSummary(BaseModel):
     """A high-level summary of the results provided in the parent `VlmResponse"""
 
-    exists: bool = Field(
-        ..., description="Indicates whether the response contains any results."
-    )
+    exists: bool = Field(..., description="Whether the variant exists in the database.")
     numTotalResults: int = Field(
         ..., description="The total number of results found for the given query"
     )
@@ -101,13 +116,15 @@ class ResponseSummary(BaseModel):
 class ResultSet(BaseModel):
     """A set of cohort allele frequency results. The zygosity of the ResultSet is identified in the `id` field"""
 
-    exists: Literal[True] = Field(
-        default=True,
-        description="Indicates whether this ResultSet exists. This must always be `True`, even if `resultsCount` = `0`",
+    exists: bool = Field(
+        ...,
+        description="Indicates whether this ResultSet exists.",
     )
+    # ResultSet.id should be "<HandoverType.id> <the ResultSet's zygosity>"
+    # See `validate_resultset_ids` validator in `VlmResponse` class
     id: str = Field(
         ...,
-        description="id should be constructed of the `HandoverType.id` + the ResultSet's zygosity. See `validate_resultset_ids` validator in `VlmResponse` class.",
+        description="Indicate result set + zygosity combination",
         examples=["Geno2MP Homozygous", "MyGene2 Heterozygous"],
     )
     results: list = Field(
@@ -121,12 +138,9 @@ class ResultSet(BaseModel):
     )
     setType: str = Field(
         default=RESULT_ENTITY_TYPE,
+        pattern=RESULT_ENTITY_TYPE,
         description=f"The type of entity relevant to these results. Must always be set to '{RESULT_ENTITY_TYPE}'",
     )
-
-    # custom __init__ to prevent inadvertently overriding static fields
-    def __init__(self, resultset_id: str, resultsCount: int) -> None:
-        super().__init__(id=resultset_id, resultsCount=resultsCount)
 
 
 class ResponseField(BaseModel):

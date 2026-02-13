@@ -11,7 +11,10 @@ import anyio
 import yaml
 from anyvar.anyvar import create_storage, create_translator
 from dotenv import load_dotenv
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, Response, status
+from fastapi.exception_handlers import request_validation_exception_handler
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
 
 from anyvlm import __version__
 from anyvlm.anyvar.base_client import BaseAnyVarClient
@@ -159,6 +162,29 @@ app = FastAPI(
     lifespan=lifespan,
 )
 app.include_router(vlm_router)
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(
+    request: Request,
+    exc: RequestValidationError,
+) -> Response:
+    """Override default FastAPI request validation to return 400, not 422
+
+    This is part of the VLM response spec. Unfortunately, exception handler overrides get
+    set app-wide, but we want to preserve 422 as a validation error response outside of
+    the main VLM endpoint.
+
+    :param request: incoming request
+    :param exc: raised exception (based on the decorator, should always be RequestValidationError)
+    :return: custom response with same error msg and HTTP 400 status code
+    """
+    if request.url.path == "/variant_counts":
+        return JSONResponse(
+            exc.errors(),
+            status_code=status.HTTP_400_BAD_REQUEST,
+        )
+    return await request_validation_exception_handler(request, exc)
 
 
 @app.get(

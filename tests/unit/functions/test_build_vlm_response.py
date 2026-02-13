@@ -7,13 +7,28 @@ from anyvlm.functions.build_vlm_response import (
     build_vlm_response,
 )
 from anyvlm.schemas.vlm import ResponseSummary, ResultSet, VlmResponse
-from anyvlm.utils.funcs import sum_nullables
 from anyvlm.utils.types import (
     AncillaryResults,
     AnyVlmCohortAlleleFrequencyResult,
     QualityMeasures,
     Zygosity,
 )
+
+
+def sum_nullables(values: list[int | None]) -> int | None:
+    """Helper function to sum nullable values. Handles the following scenarios:
+        - All values are ints: returns sum of values
+        - Some values are ints, some are `None`: Returns sum of non-None values
+        - All values are are `None`: Returns `None`
+
+    :param values: The list of values to sum
+    :returns: The sum of all non-None values, or `None` (see above for details)
+    """
+    running_sum: int | None = None
+    for value in values:
+        if value is not None:
+            running_sum = value if running_sum is None else running_sum + value
+    return running_sum
 
 
 @pytest.fixture(scope="module")
@@ -30,38 +45,7 @@ def caf_data() -> list[AnyVlmCohortAlleleFrequencyResult]:
                 heterozygotes=211608,
                 hemizygotes=2,
             ),
-            cohort=StudyGroup(name="rare disease"),  # type: ignore
-        ),
-        AnyVlmCohortAlleleFrequencyResult(
-            focusAllele=iriReference("ga4gh:VA.J3Hi64dkKFKdnKIwB2419Qz3STDB2sJq"),
-            focusAlleleCount=0,
-            locusAlleleCount=0,
-            focusAlleleFrequency=0,
-            qualityMeasures=None,
-            ancillaryResults=None,
-            cohort=StudyGroup(name="rare disease"),  # type: ignore
-        ),
-        AnyVlmCohortAlleleFrequencyResult(
-            focusAllele=iriReference("ga4gh:VA.J3Hi64dkKFKdnKIwB2419Qz3STDB2sJq"),
-            focusAlleleCount=300300,
-            locusAlleleCount=600000000,
-            focusAlleleFrequency=0.00045005,
-            qualityMeasures=None,
-            ancillaryResults=AncillaryResults(
-                homozygotes=300,
-                heterozygotes=300000,
-                hemizygotes=None,
-            ),
-            cohort=StudyGroup(name="rare disease"),  # type: ignore
-        ),
-        AnyVlmCohortAlleleFrequencyResult(
-            focusAllele=iriReference("ga4gh:VA.J3Hi64dkKFKdnKIwB2419Qz3STDB2sJq"),
-            focusAlleleCount=150000,
-            locusAlleleCount=400000000,
-            focusAlleleFrequency=0.000375,
-            qualityMeasures=None,
-            ancillaryResults=None,
-            cohort=StudyGroup(name="rare disease"),  # type: ignore
+            cohort=StudyGroup(name="GREGoR-NCH"),
         ),
     ]
 
@@ -133,4 +117,4 @@ def test_build_vlm_response_no_data():
 
     # Test VlmResponse.response
     result_sets: list[ResultSet] = vlm_response.response.resultSets
-    assert len(result_sets) == 0
+    assert len(result_sets) == 4

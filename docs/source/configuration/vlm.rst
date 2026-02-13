@@ -13,8 +13,8 @@ The VLM API presently requires declaration of several values for service identif
      - Description
      - Example
    * - ``HANDOVER_TYPE_ID``
-     - Unique ID for the dataset or cohort
-     - ``"GREGoR-NCH"``
+     - Unique ID for the dataset or cohort. In keeping with the Beacon API, MUST be formatted as a CURIE; see `here <https://github.com/ga4gh-beacon/beacon-v2/blob/c6558bf2e6494df3905f7b2df66e903dfe509500/framework/json/common/beaconCommonComponents.json#L144>`_ for a description.
+     - ``"CUSTOM:GREGoR-NCH"``
    * - ``HANDOVER_TYPE_LABEL``
      - Description of the dataset or cohort
      - ``"GREGoR AnyVLM Reference"``

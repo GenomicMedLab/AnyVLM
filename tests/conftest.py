@@ -23,7 +23,7 @@ load_dotenv()
 
 # Set required environment variables for tests if not already set
 environ.setdefault("BEACON_NODE_ID", "org.anyvlm.test")
-environ.setdefault("HANDOVER_TYPE_ID", "test-id")
+environ.setdefault("HANDOVER_TYPE_ID", "CUSTOM:test-id")
 environ.setdefault("HANDOVER_TYPE_LABEL", "Test Label")
 environ.setdefault("BEACON_HANDOVER_URL", "https://test.example.com")
 

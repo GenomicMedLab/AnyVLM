@@ -9,7 +9,13 @@ from pathlib import Path
 from typing import Annotated, BinaryIO, Literal
 
 from anyvar.mapping.liftover import ReferenceAssembly
-from fastapi import APIRouter, HTTPException, Query, Request, UploadFile
+from fastapi import (
+    APIRouter,
+    HTTPException,
+    Query,
+    Request,
+    UploadFile,
+)
 from pydantic import BaseModel
 
 from anyvlm.anyvar.base_client import AnyVarClientConnectionError, BaseAnyVarClient
@@ -24,7 +30,7 @@ from anyvlm.utils.types import (
     ChromosomeName,
     EndpointTag,
     GrcAssemblyId,
-    NucleotideSequence,
+    Nucleotide,
     UcscAssemblyBuild,
 )
 
@@ -273,13 +279,19 @@ async def ingest_vcf_endpoint(
             temp_path.unlink()
 
 
+_allele_counts_description = """Search for a SNP and receive allele counts by zygosity, in accordance with the Variant-Level Matching protocol.
+
+* Unrecognized variants will return a `200 OK` response with a `resultsCount` of 0
+"""
+
+
 @router.get(
     "/variant_counts",
-    summary="Provides allele counts of a single sequence variant, broken down by zygosity",
-    description="Search for a single sequence variant and receive allele counts by zygosity, in accordance with the Variant-Level Matching protocol",
+    summary="Get allele counts of a single sequence variant, broken down by zygosity",
+    description=_allele_counts_description,
     tags=[EndpointTag.SEARCH],
 )
-# ruff: noqa: D103, N803 (allow camelCase args and don't require docstrings)
+# ruff: noqa: N803, D103
 def variant_counts(
     request: Request,
     assemblyId: Annotated[
@@ -291,10 +303,10 @@ def variant_counts(
     ],
     start: Annotated[int, Query(..., description="Variant position")],
     referenceBases: Annotated[
-        NucleotideSequence, Query(..., description="Genomic bases ('T', 'AC', etc.)")
+        Nucleotide, Query(..., description="Single genomic base (A/C/T/G)")
     ],
     alternateBases: Annotated[
-        NucleotideSequence, Query(..., description="Genomic bases ('T', 'AC', etc.)")
+        Nucleotide, Query(..., description="Single genomic base (A/C/T/G)")
     ],
 ) -> VlmResponse:
     anyvar_client: BaseAnyVarClient = request.app.state.anyvar_client
@@ -310,8 +322,8 @@ def variant_counts(
             referenceBases,
             alternateBases,
         )
-    except VariantNotRegisteredError as e:
-        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=str(e)) from e
+    except VariantNotRegisteredError:
+        caf_data = []
     except AnyVarClientConnectionError as e:
         raise HTTPException(
             status_code=HTTPStatus.SERVICE_UNAVAILABLE,

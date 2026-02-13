@@ -49,8 +49,9 @@ def test_valid_resultset_id(
     response = ResponseField(
         resultSets=[
             ResultSet(
-                resultset_id=f"{valid_handover_id} {Zygosity.HOMOZYGOUS}",
+                id=f"{valid_handover_id} {Zygosity.HOMOZYGOUS}",
                 resultsCount=0,
+                exists=True,
             )
         ]
     )
@@ -76,7 +77,8 @@ def test_invalid_resultset_ids(
         ResponseField(
             resultSets=[
                 ResultSet(
-                    resultset_id=f"invalid_handover_id {Zygosity.HOMOZYGOUS}",
+                    exists=True,
+                    id=f"invalid_handover_id {Zygosity.HOMOZYGOUS}",
                     resultsCount=0,
                 )
             ]
@@ -84,7 +86,8 @@ def test_invalid_resultset_ids(
         ResponseField(
             resultSets=[
                 ResultSet(
-                    resultset_id=f"{valid_handover_id} invalid_zygosity",
+                    exists=False,
+                    id=f"{valid_handover_id} invalid_zygosity",
                     resultsCount=0,
                 )
             ]
@@ -92,7 +95,8 @@ def test_invalid_resultset_ids(
         ResponseField(
             resultSets=[
                 ResultSet(
-                    resultset_id=f"{Zygosity.HOMOZYGOUS}-{valid_handover_id}",  # incorrect order/formatting
+                    exists=True,
+                    id=f"{Zygosity.HOMOZYGOUS}-{valid_handover_id}",  # incorrect order/formatting
                     resultsCount=0,
                 )
             ]

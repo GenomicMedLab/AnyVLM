@@ -1,5 +1,6 @@
 """Craft a VlmResponse object from a list of CohortAlleleFrequencyStudyResults"""
 
+import logging
 import os
 
 from anyvlm.schemas.vlm import (
@@ -10,12 +11,12 @@ from anyvlm.schemas.vlm import (
     ResultSet,
     VlmResponse,
 )
-from anyvlm.utils.funcs import sum_nullables
 from anyvlm.utils.types import (
-    AncillaryResults,
     AnyVlmCohortAlleleFrequencyResult,
     Zygosity,
 )
+
+_logger = logging.getLogger(__name__)
 
 
 class MissingEnvironmentVariableError(Exception):
@@ -36,12 +37,83 @@ def _get_environment_var(key: str) -> str:
     return value
 
 
+def build_nonexistent_vlm_resultsets(node_id: str) -> list[ResultSet]:
+    """Build ResultSets for cases where allele is unrecognized or CAF data isn't stored
+
+    :param node_id: Beacon node ID
+    :return: list of ResultSets where each entry has a count of 0 and ``exists=False``
+    """
+    return [
+        ResultSet(
+            exists=False,
+            id=f"{node_id} {zygosity.value}",
+            resultsCount=0,
+        )
+        for zygosity in Zygosity
+    ]
+
+
+def build_vlm_resultsets(
+    caf: AnyVlmCohortAlleleFrequencyResult, node_id: str
+) -> list[ResultSet]:
+    """Construct ResultSets from a given AnyVLM CAF
+
+    If an individual count is ``None``, we assume that means it doesn't exist
+
+    :param caf: cohort allele freq object stored by AnyVLM
+    :param node_id: beacon node ID associated with the CAF
+    :return: ResultSets for each kind of zygosity
+    """
+    ancillary_results = caf.ancillaryResults
+    if ancillary_results is None:
+        return build_nonexistent_vlm_resultsets(node_id)
+
+    return [
+        ResultSet(
+            id=f"{node_id} {Zygosity.HOMOZYGOUS.value}",
+            resultsCount=ancillary_results.homozygotes or 0,
+            exists=ancillary_results.homozygotes is not None,
+        ),
+        ResultSet(
+            id=f"{node_id} {Zygosity.HETEROZYGOUS.value}",
+            resultsCount=ancillary_results.heterozygotes or 0,
+            exists=ancillary_results.heterozygotes is not None,
+        ),
+        ResultSet(
+            id=f"{node_id} {Zygosity.HEMIZYGOUS.value}",
+            resultsCount=ancillary_results.hemizygotes or 0,
+            exists=ancillary_results.hemizygotes is not None,
+        ),
+        ResultSet(
+            id=f"{node_id} {Zygosity.UNKNOWN.value}", resultsCount=0, exists=False
+        ),
+    ]
+
+
+def _build_response_summary(result_sets: list[ResultSet]) -> ResponseSummary:
+    """Construct the VLM response summary from individual results
+
+    :param result_sets: list of all results sets, of all kinds of zygosity from all sources
+    :return: total count and whether variant exists in any source
+    """
+    count = 0
+    exists = False
+    for result_set in result_sets:
+        count += result_set.resultsCount
+        exists |= result_set.exists
+    return ResponseSummary(exists=exists, numTotalResults=count)
+
+
 def build_vlm_response(
     caf_data: list[AnyVlmCohortAlleleFrequencyResult],
 ) -> VlmResponse:
     """Craft a VlmResponse object from a list of CohortAlleleFrequencyStudyResults.
 
-    :param caf_data: A list of `AnyVlmCohortAlleleFrequencyResult` objects that will be used to build the VlmResponse
+    Heavily assumptive of a single data source and single allele. Will need to be modified
+    to indicate presence vs absence of requested allele(s) from one or more data sources.
+
+    :param caf_data: A list of `AnyVlmCohortAlleleFrequencyResult` objects that will
+        be used to build the VlmResponse. If empty, assumes non-existence.
     :return: A `VlmResponse` object.
     """
     # TODO - create `handover_type` and `beacon_handovers` dynamically,
@@ -57,46 +129,19 @@ def build_vlm_response(
         )
     ]
 
-    results: dict[Zygosity, int | None] = {
-        Zygosity.HOMOZYGOUS: None,
-        Zygosity.HETEROZYGOUS: None,
-        Zygosity.HEMIZYGOUS: None,
-        Zygosity.UNKNOWN: None,
-    }
+    if len(caf_data) > 1:
+        _logger.warning("Received more than 1 CAF data instance: %s", caf_data)
+        msg = "Only single allele/data source responses are currently supported"
+        raise NotImplementedError(msg)
+    if not caf_data:
+        result_sets = build_nonexistent_vlm_resultsets(handover_type.id)
+    else:
+        result_sets = build_vlm_resultsets(caf_data[0], handover_type.id)
 
-    for entry in caf_data:
-        ancillary_results: AncillaryResults | None = entry.ancillaryResults
-        if ancillary_results is not None:
-            results[Zygosity.HOMOZYGOUS] = sum_nullables(
-                [results[Zygosity.HOMOZYGOUS], ancillary_results.homozygotes]
-            )
-            results[Zygosity.HETEROZYGOUS] = sum_nullables(
-                [results[Zygosity.HETEROZYGOUS], ancillary_results.heterozygotes]
-            )
-            results[Zygosity.HEMIZYGOUS] = sum_nullables(
-                [results[Zygosity.HEMIZYGOUS], ancillary_results.hemizygotes]
-            )
-        else:
-            results[Zygosity.UNKNOWN] = sum_nullables(
-                [results[Zygosity.UNKNOWN], entry.focusAlleleCount]
-            )
-
-    result_sets: list[ResultSet] = []
-    total_num_results = 0
-    for zygosity_type, num_results in results.items():
-        if num_results is not None:
-            total_num_results += num_results
-            result_sets.append(
-                ResultSet(
-                    resultset_id=f"{_get_environment_var('HANDOVER_TYPE_ID')} {zygosity_type}",
-                    resultsCount=num_results,
-                )
-            )
+    summary = _build_response_summary(result_sets)
 
     return VlmResponse(
         beaconHandovers=beacon_handovers,
-        responseSummary=ResponseSummary(
-            exists=total_num_results > 0, numTotalResults=total_num_results
-        ),
+        responseSummary=summary,
         response=ResponseField(resultSets=result_sets),
     )

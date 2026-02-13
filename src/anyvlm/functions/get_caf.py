@@ -1,5 +1,7 @@
 """Perform search against variant(s) contained by an AnyVar node, and construct cohort allele frequency model(s)"""
 
+import logging
+
 from ga4gh.core.models import iriReference
 
 from anyvlm.anyvar.base_client import BaseAnyVarClient
@@ -9,9 +11,11 @@ from anyvlm.utils.types import (
     AnyVlmCohortAlleleFrequencyResult,
     ChromosomeName,
     GrcAssemblyId,
-    NucleotideSequence,
+    Nucleotide,
     UcscAssemblyBuild,
 )
+
+_logger = logging.getLogger(__name__)
 
 
 class VariantNotRegisteredError(Exception):
@@ -24,26 +28,25 @@ def get_caf(
     assembly_id: GrcAssemblyId | UcscAssemblyBuild,
     reference_name: ChromosomeName,
     start: int,
-    reference_bases: NucleotideSequence,
-    alternate_bases: NucleotideSequence,
+    reference_base: Nucleotide,
+    alternate_base: Nucleotide,
 ) -> list[AnyVlmCohortAlleleFrequencyResult]:
     """Retrieve Cohort Allele Frequency data for all known registered variants matching
     provided search params
 
     :param anyvar_client: AnyVar client (variant lookup)
     :param anyvlm_storage: AnyVLM Storage (CAF storage and retrieval)
-    :param assembly_id: The reference assembly to utilize - must be one of: "GRCh37",
-        "GRCh38", "hg38", "hg19"
+    :param assembly_id: The reference assembly to utilize
     :param reference_name: The chromosome to search on, with an optional "chr" prefix
         - e.g., "1", "chr22", "X", "chrY", etc.
     :param start: start of range search. Uses residue coordinates (1-based)
-    :param reference_bases: Genomic bases ('T', 'AC', etc.)
-    :param alternate_bases: Genomic bases ('T', 'AC', etc.)
+    :param reference_bases: Single genomic base (A/G/C/T)
+    :param alternate_bases: Single genomic base (A/G/C/T)
     :raises ValueError: if unsupported assembly ID is provided
     :raises VariantNotRegisteredError: if variant is not registered in AnyVar
     :return: list of AnyVlmCohortAlleleFrequencyResult objects for the provided variant
     """
-    gnomad_vcf: str = f"{reference_name}-{start}-{reference_bases}-{alternate_bases}"
+    gnomad_vcf: str = f"{reference_name}-{start}-{reference_base}-{alternate_base}"
     try:
         assembly = ASSEMBLY_MAP[assembly_id]
     except KeyError as e:
@@ -53,6 +56,7 @@ def get_caf(
     vrs_variation = anyvar_client.get_registered_allele(gnomad_vcf, assembly)
     if not vrs_variation:
         msg = f"Variant {assembly.value} {gnomad_vcf} is not registered in AnyVar"
+        _logger.debug(msg)
         raise VariantNotRegisteredError(msg)
 
     cafs: list[AnyVlmCohortAlleleFrequencyResult] = (

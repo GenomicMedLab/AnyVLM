@@ -26,9 +26,10 @@ def beacon_handovers_and_meta():
         "beaconHandovers": [
             {
                 "handoverType": {
-                    "id": "GREGoR-NCH",
+                    "id": "CUSTOM:GREGoR-NCH",
                     "label": "GREGoR AnyVLM Reference",
                 },
+                "note": None,
                 "url": "https://variants.gregorconsortium.org/",
             }
         ],
@@ -54,21 +55,28 @@ def expected_response_with_match(beacon_handovers_and_meta):
             "resultSets": [
                 {
                     "exists": True,
-                    "id": "GREGoR-NCH Homozygous",
+                    "id": "CUSTOM:GREGoR-NCH Homozygous",
                     "results": [],
                     "resultsCount": 0,
                     "setType": "genomicVariant",
                 },
                 {
                     "exists": True,
-                    "id": "GREGoR-NCH Heterozygous",
+                    "id": "CUSTOM:GREGoR-NCH Heterozygous",
                     "results": [],
                     "resultsCount": 1,
                     "setType": "genomicVariant",
                 },
                 {
                     "exists": True,
-                    "id": "GREGoR-NCH Hemizygous",
+                    "id": "CUSTOM:GREGoR-NCH Hemizygous",
+                    "results": [],
+                    "resultsCount": 0,
+                    "setType": "genomicVariant",
+                },
+                {
+                    "exists": False,
+                    "id": "CUSTOM:GREGoR-NCH Unknown",
                     "results": [],
                     "resultsCount": 0,
                     "setType": "genomicVariant",
@@ -85,7 +93,38 @@ def expected_response_with_no_match(beacon_handovers_and_meta):
     """Create test fixture for response with match not found in AnyVar"""
     response = {
         "responseSummary": {"exists": False, "numTotalResults": 0},
-        "response": {"resultSets": []},
+        "response": {
+            "resultSets": [
+                {
+                    "exists": False,
+                    "id": "CUSTOM:GREGoR-NCH Homozygous",
+                    "results": [],
+                    "resultsCount": 0,
+                    "setType": "genomicVariant",
+                },
+                {
+                    "exists": False,
+                    "id": "CUSTOM:GREGoR-NCH Heterozygous",
+                    "results": [],
+                    "resultsCount": 0,
+                    "setType": "genomicVariant",
+                },
+                {
+                    "exists": False,
+                    "id": "CUSTOM:GREGoR-NCH Hemizygous",
+                    "results": [],
+                    "resultsCount": 0,
+                    "setType": "genomicVariant",
+                },
+                {
+                    "exists": False,
+                    "id": "CUSTOM:GREGoR-NCH Unknown",
+                    "results": [],
+                    "resultsCount": 0,
+                    "setType": "genomicVariant",
+                },
+            ]
+        },
     }
     beacon_handovers_and_meta.update(response)
     return beacon_handovers_and_meta
@@ -144,19 +183,18 @@ def client_with_variant_not_registered(
 
 @pytest.mark.vcr
 def test_variant_counts_endpoint_match_found(
-    client_with_populated_dbs, expected_response_with_match
+    client_with_populated_dbs, expected_response_with_match: dict
 ):
     """Test case where variant counts returns a match"""
     response = client_with_populated_dbs.get(ENDPOINT, params=TEST_QUERY)
 
     assert response.status_code == HTTPStatus.OK
-
     assert response.json() == expected_response_with_match
 
 
 @pytest.mark.vcr
 def test_variant_counts_endpoint_no_results(
-    client_with_registered_variant_no_caf, expected_response_with_no_match
+    client_with_registered_variant_no_caf, expected_response_with_no_match: dict
 ):
     """Test case where variant counts does not return a match"""
     response = client_with_registered_variant_no_caf.get(ENDPOINT, params=TEST_QUERY)
@@ -167,15 +205,13 @@ def test_variant_counts_endpoint_no_results(
 
 @pytest.mark.vcr
 def test_variant_counts_endpoint_not_registered(
-    client_with_variant_not_registered,
+    client_with_registered_variant_no_caf, expected_response_with_no_match: dict
 ):
     """Test case where variant not registered in AnyVar"""
-    response = client_with_variant_not_registered.get(ENDPOINT, params=TEST_QUERY)
+    response = client_with_registered_variant_no_caf.get(ENDPOINT, params=TEST_QUERY)
 
-    assert response.status_code == HTTPStatus.NOT_FOUND
-    assert response.json() == {
-        "detail": "Variant GRCh38 Y-2781761-C-A is not registered in AnyVar"
-    }
+    assert response.status_code == HTTPStatus.OK
+    assert response.json() == expected_response_with_no_match
 
 
 @pytest.mark.vcr
