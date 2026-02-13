@@ -73,3 +73,8 @@ def linkcode_resolve(domain, info):
 # -- code block style --------------------------------------------------------
 pygments_style = "default"
 pygements_dark_style = "monokai"
+
+# -- set default env vars ----------------------------------------------------
+import os
+
+os.environ.setdefault("BEACON_NODE_ID", "docs_dummy_beacon_node_id")

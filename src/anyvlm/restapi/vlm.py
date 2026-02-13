@@ -311,6 +311,7 @@ def variant_counts(
 ) -> VlmResponse:
     anyvar_client: BaseAnyVarClient = request.app.state.anyvar_client
     anyvlm_storage: Storage = request.app.state.anyvlm_storage
+
     try:
         caf_data: list[AnyVlmCohortAlleleFrequencyResult] = get_caf(
             anyvar_client,
