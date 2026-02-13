@@ -4,6 +4,7 @@ import gzip
 import logging
 import tempfile
 import uuid
+from http import HTTPStatus
 from pathlib import Path
 from typing import Annotated, BinaryIO, Literal
 
@@ -17,7 +18,7 @@ from fastapi import (
 )
 from pydantic import BaseModel
 
-from anyvlm.anyvar.base_client import BaseAnyVarClient
+from anyvlm.anyvar.base_client import AnyVarClientConnectionError, BaseAnyVarClient
 from anyvlm.functions.build_vlm_response import build_vlm_response
 from anyvlm.functions.get_caf import VariantNotRegisteredError, get_caf
 from anyvlm.functions.ingest_vcf import VcfAfColumnsError
@@ -322,5 +323,9 @@ def variant_counts(
         )
     except VariantNotRegisteredError:
         caf_data = []
-
+    except AnyVarClientConnectionError as e:
+        raise HTTPException(
+            status_code=HTTPStatus.SERVICE_UNAVAILABLE,
+            detail="Unable to establish AnyVar connection",
+        ) from e
     return build_vlm_response(caf_data)
