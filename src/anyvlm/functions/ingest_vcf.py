@@ -106,11 +106,15 @@ def ingest_vcf(
         for variant_id, af in zip(variant_ids, afs, strict=True):
             if variant_id is None:
                 continue
+            try:
+                allele_frequency = af.ac / af.an
+            except ZeroDivisionError:
+                continue
             caf = AnyVlmCohortAlleleFrequencyResult(
                 focusAllele=iriReference(variant_id),
                 focusAlleleCount=af.ac,
                 locusAlleleCount=af.an,
-                focusAlleleFrequency=af.ac / af.an,
+                focusAlleleFrequency=allele_frequency,
                 qualityMeasures=QualityMeasures(qcFilters=af.filters),
                 ancillaryResults=AncillaryResults(
                     heterozygotes=af.ac_het,
