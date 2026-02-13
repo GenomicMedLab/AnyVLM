@@ -130,7 +130,7 @@ def build_vlm_response(
     ]
 
     if len(caf_data) > 1:
-        _logger.warning("Received more than 1 CAF data instance: %s")
+        _logger.warning("Received more than 1 CAF data instance: %s", caf_data)
         msg = "Only single allele/data source responses are currently supported"
         raise NotImplementedError(msg)
     if len(caf_data) == 0:
