@@ -133,7 +133,7 @@ def build_vlm_response(
         _logger.warning("Received more than 1 CAF data instance: %s", caf_data)
         msg = "Only single allele/data source responses are currently supported"
         raise NotImplementedError(msg)
-    if len(caf_data) == 0:
+    if not caf_data:
         result_sets = build_nonexistent_vlm_resultsets(handover_type.id)
     else:
         result_sets = build_vlm_resultsets(caf_data[0], handover_type.id)
