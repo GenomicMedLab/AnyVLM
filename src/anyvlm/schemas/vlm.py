@@ -49,8 +49,8 @@ class BeaconHandover(BaseModel):
         pattern=r"^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?",
         description="URL endpoint to where the handover process could progress, in RFC3986 format",
     )
-    note: str = Field(
-        default="",
+    note: str | None = Field(
+        default=None,
         description="An optional text including considerations on the handover link provided.",
         examples=["This handover link provides access to a summarized VCF."],
     )

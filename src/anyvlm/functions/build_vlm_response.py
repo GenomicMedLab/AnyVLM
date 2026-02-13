@@ -75,14 +75,14 @@ def build_vlm_resultsets(
             exists=ancillary_results.homozygotes is not None,
         ),
         ResultSet(
-            id=f"{node_id} {Zygosity.HEMIZYGOUS.value}",
-            resultsCount=ancillary_results.hemizygotes or 0,
-            exists=ancillary_results.hemizygotes is not None,
-        ),
-        ResultSet(
             id=f"{node_id} {Zygosity.HETEROZYGOUS.value}",
             resultsCount=ancillary_results.heterozygotes or 0,
             exists=ancillary_results.heterozygotes is not None,
+        ),
+        ResultSet(
+            id=f"{node_id} {Zygosity.HEMIZYGOUS.value}",
+            resultsCount=ancillary_results.hemizygotes or 0,
+            exists=ancillary_results.hemizygotes is not None,
         ),
         ResultSet(
             id=f"{node_id} {Zygosity.UNKNOWN.value}", resultsCount=0, exists=False
