@@ -2,9 +2,6 @@ services:
   anyvlm:
     build:
       context: .
-      args:
-        # NOTE: Makefile sets this to ANYVLM_VERSION=$(git describe --tags --abbrev=0 2>/dev/null || echo 0.0.0)
-        ANYVLM_VERSION: ${ANYVLM_VERSION:?ANYVLM_VERSION must be set to the AnyVLM version being used}
     depends_on:
       anyvlm_db:
         required: true
