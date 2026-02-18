@@ -32,14 +32,14 @@ A set of Docker Compose resources are provided as part of the AnyVLM project. Se
 Given an available AnyVLM node, submit a VCF which contains allele frequency data:
 
 ```bash
-curl -X POST "http://localhost:8080/ingest_vcf?assembly=grch38" \
+curl -X POST "http://localhost:8080/anyvlm/ingest_vcf?assembly=grch38" \
   -F "file=@/path/to/variants.vcf.gz"
 ```
 
 Then, submit a query for allele frequency
 
 ```bash
-curl "http://localhost:8080/variant_counts?assemblyId=GRCh38&referenceName=7&start=140714556&referenceBases=A&alternateBases=T"
+curl "http://localhost:8080/anyvlm/variant_counts?assemblyId=GRCh38&referenceName=7&start=140714556&referenceBases=A&alternateBases=T"
 ```
 
 A successful query returns a response like the following:
