@@ -14,6 +14,7 @@ from anyvlm.main import app
 # Constants for testing
 MAX_FILE_SIZE = 5 * 1024 * 1024 * 1024  # 5GB
 UPLOAD_CHUNK_SIZE = 1024 * 1024  # 1MB
+ENDPOINT = "/anyvlm/ingest_vcf"
 
 
 @pytest.fixture(scope="module")
@@ -160,14 +161,14 @@ class TestIngestVcfEndpoint:
 
     def test_endpoint_exists(self, client: TestClient):
         """Test that the endpoint exists and accepts POST."""
-        response = client.post("/ingest_vcf")
+        response = client.post(ENDPOINT)
         # Should not be 404
         assert response.status_code != 404
 
     def test_missing_file_parameter(self, client: TestClient):
         """Test request without file parameter."""
         response = client.post(
-            "/ingest_vcf",
+            ENDPOINT,
             params={"assembly": "GRCh38"},
         )
         assert response.status_code == 422  # Unprocessable Entity
@@ -177,7 +178,7 @@ class TestIngestVcfEndpoint:
         """Test request without assembly parameter."""
         with valid_vcf_gz.open("rb") as f:
             files = {"file": ("test.vcf.gz", f, "application/gzip")}
-            response = client.post("/ingest_vcf", files=files)
+            response = client.post(ENDPOINT, files=files)
 
         assert response.status_code == 422
         assert (
@@ -189,7 +190,7 @@ class TestIngestVcfEndpoint:
         with valid_vcf_gz.open("rb") as f:
             files = {"file": ("test.vcf.gz", f, "application/gzip")}
             response = client.post(
-                "/ingest_vcf",
+                ENDPOINT,
                 params={"assembly": "GRCh99"},  # Invalid
                 files=files,
             )
@@ -202,7 +203,7 @@ class TestIngestVcfEndpoint:
             # Use .vcf extension (should be .vcf.gz)
             files = {"file": ("test.vcf", f, "application/gzip")}
             response = client.post(
-                "/ingest_vcf",
+                ENDPOINT,
                 params={"assembly": "GRCh38"},
                 files=files,
             )
@@ -219,7 +220,7 @@ class TestIngestVcfEndpoint:
         files = {"file": ("test.vcf.gz", io.BytesIO(content), "application/gzip")}
 
         response = client.post(
-            "/ingest_vcf",
+            ENDPOINT,
             params={"assembly": "GRCh38"},
             files=files,
         )
@@ -234,7 +235,7 @@ class TestIngestVcfEndpoint:
         with not_vcf_gz.open("rb") as f:
             files = {"file": ("test.vcf.gz", f, "application/gzip")}
             response = client.post(
-                "/ingest_vcf",
+                ENDPOINT,
                 params={"assembly": "GRCh38"},
                 files=files,
             )
@@ -251,7 +252,7 @@ class TestIngestVcfEndpoint:
         with missing_fields_vcf_gz.open("rb") as f:
             files = {"file": ("test.vcf.gz", f, "application/gzip")}
             response = client.post(
-                "/ingest_vcf",
+                ENDPOINT,
                 params={"assembly": "GRCh38"},
                 files=files,
             )
@@ -275,7 +276,7 @@ class TestIngestVcfEndpoint:
         with valid_vcf_gz.open("rb") as f:
             files = {"file": ("test.vcf.gz", f, "application/gzip")}
             response = client.post(
-                "/ingest_vcf",
+                ENDPOINT,
                 params={"assembly": "GRCh38"},
                 files=files,
             )
@@ -312,7 +313,7 @@ class TestIngestVcfEndpoint:
         with valid_vcf_gz.open("rb") as f:
             files = {"file": ("test.vcf.gz", f, "application/gzip")}
             response = client.post(
-                "/ingest_vcf",
+                ENDPOINT,
                 params={"assembly": "GRCh38"},
                 files=files,
             )
@@ -330,7 +331,7 @@ class TestIngestVcfEndpoint:
             with valid_vcf_gz.open("rb") as f:
                 files = {"file": ("test.vcf.gz", f, "application/gzip")}
                 response = client.post(
-                    "/ingest_vcf",
+                    ENDPOINT,
                     params={"assembly": "GRCh38"},
                     files=files,
                 )
@@ -350,7 +351,7 @@ class TestIngestVcfEndpoint:
             with valid_vcf_gz.open("rb") as f:
                 files = {"file": ("test.vcf.gz", f, "application/gzip")}
                 response = client.post(
-                    "/ingest_vcf",
+                    ENDPOINT,
                     params={"assembly": "GRCh38"},
                     files=files,
                 )
@@ -372,7 +373,7 @@ class TestIngestVcfEndpoint:
             with valid_vcf_gz.open("rb") as f:
                 files = {"file": ("test.vcf.gz", f, "application/gzip")}
                 response = client.post(
-                    "/ingest_vcf",
+                    ENDPOINT,
                     params={"assembly": "GRCh37"},
                     files=files,
                 )

@@ -16,7 +16,7 @@ def restapi_client():
 
 
 def test_service_info(restapi_client: TestClient, test_data_dir: Path):
-    response = restapi_client.get("/service-info")
+    response = restapi_client.get("/anyvlm/service-info")
     response.raise_for_status()
 
     with (test_data_dir / "ga4gh-service-info" / "service-info.yaml").open() as f:
