@@ -1,5 +1,6 @@
 [project]
 name = "anyvlm"
+version="1.0.0-rc2"
 authors = [
   { name="biocommons contributors", email="biocommons-dev@googlegroups.com" },
 ]
@@ -31,7 +32,6 @@ dependencies = [
     "pysam==0.23.0",  # see https://github.com/ga4gh/vrs-python/issues/560
     "pyyaml",
 ]
-dynamic = ["version"]
 
 [project.optional-dependencies]
 test = [
@@ -70,15 +70,9 @@ Source = "https://github.com/genomicmedlab/anyvlm/"
 [project.scripts]
 anyvlm = "anyvlm.cli:_cli"
 
-
 [build-system]
-requires = [
-    "setuptools >= 65.3",
-    "setuptools_scm >= 8"
-]
+requires = ["setuptools >= 65.3"]
 build-backend = "setuptools.build_meta"
-
-[tool.setuptools_scm]
 
 [tool.pytest.ini_options]
 addopts = "--cov=anyvlm --cov-report term-missing"

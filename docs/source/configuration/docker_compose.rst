@@ -22,10 +22,6 @@ The Docker Compose configuration is split across multiple files to separate conc
 * ``compose.dev.yaml``
    Defines AnyVLM-specific development services, including FastAPI and PostgreSQL services built from local Dockerfiles. This file is intended for developers working on the AnyVLM codebase.
 
-   .. note::
-
-      ``compose.dev.yaml`` and the ``Dockerfile`` expect ``ANYVLM_VERSION`` to be set to the AnyVLM version being used (for example, ``1.0.0``) when running Docker Compose or building the image directly. This is handled automatically when using the Makefile.
-
 * ``compose.anyvar.yaml``
    Defines the services required to run the AnyVar REST service and its dependencies. This file is optional and is provided as a convenience for users who do not already have AnyVar running.
 

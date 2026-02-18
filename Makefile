@@ -21,8 +21,6 @@ else
 endif
 XRM=xargs -0${_XRM_R} rm
 
-# Provide version for container builds
-export ANYVLM_VERSION := $(shell git describe --tags --abbrev=0 2>/dev/null || echo 0.0.0)
 
 ############################################################################
 #= BASIC USAGE
