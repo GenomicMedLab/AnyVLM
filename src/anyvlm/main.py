@@ -144,11 +144,14 @@ async def lifespan(app: FastAPI) -> AsyncGenerator:
     app.state.anyvlm_storage.close()
 
 
+API_PREFIX = "/anyvlm"
+
 app = FastAPI(
     title="AnyVLM",
     description=SERVICE_DESCRIPTION,
     version=__version__,
-    docs_url="/",
+    docs_url=API_PREFIX,
+    openapi_url=f"{API_PREFIX}/openapi.json",
     license={
         "name": "Apache 2.0",
         "url": "https://github.com/genomicmedlab/anyvlm/blob/main/LICENSE",
@@ -161,7 +164,7 @@ app = FastAPI(
     swagger_ui_parameters={"tryItOutEnabled": True},
     lifespan=lifespan,
 )
-app.include_router(vlm_router)
+app.include_router(vlm_router, prefix=API_PREFIX)
 
 
 @app.exception_handler(RequestValidationError)
@@ -188,7 +191,7 @@ async def validation_exception_handler(
 
 
 @app.get(
-    "/service-info",
+    f"{API_PREFIX}/service-info",
     summary="Get basic service information",
     description="Retrieve service metadata, such as versioning and contact info. Structured in conformance with the [GA4GH service info API specification](https://www.ga4gh.org/product/service-info/)",
     tags=[EndpointTag.META],
