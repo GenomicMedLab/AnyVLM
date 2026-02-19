@@ -16,7 +16,7 @@ TEST_QUERY = {
     "referenceBases": TEST_VARIANT.ref,
     "alternateBases": TEST_VARIANT.alt,
 }
-ENDPOINT = "/variant_counts"
+ENDPOINT = "/anyvlm/variant_counts"
 
 
 @pytest.fixture(scope="session")

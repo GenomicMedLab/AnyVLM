@@ -32,20 +32,20 @@ A set of Docker Compose resources are provided as part of the AnyVLM project. Se
 Given an available AnyVLM node, submit a VCF which contains allele frequency data:
 
 ```bash
-curl -X POST "http://localhost:8080/ingest_vcf?assembly=grch38" \
+curl -X POST "http://localhost:8080/anyvlm/ingest_vcf?assembly=grch38" \
   -F "file=@/path/to/variants.vcf.gz"
 ```
 
 Then, submit a query for allele frequency
 
 ```bash
-curl "http://localhost:8080/variant_counts?assemblyId=GRCh38&referenceName=22&start=44389414&referenceBases=A&alternateBases=G"
+curl "http://localhost:8080/anyvlm/variant_counts?assemblyId=GRCh38&referenceName=7&start=140714556&referenceBases=A&alternateBases=T"
 ```
 
 A successful query returns a response like the following:
 
 ```json
-{"beaconHandovers":[{"handoverType":{"id":"GREGoR-NCH","label":"GREGoR AnyVLM Reference"},"url":"https://variants.gregorconsortium.org/"}],"meta":{"apiVersion":"v1.0","beaconId":"org.anyvlm.gregor","returnedSchemas":[{"entityType":"genomicVariant","schema":"ga4gh-beacon-variant-v2.0.0"}]},"responseSummary":{"exists":true,"numTotalResults":2},"response":{"resultSets":[{"exists":true,"id":"GREGoR-NCH Homozygous","results":[],"resultsCount":2,"setType":"genomicVariant"},{"exists":true,"id":"GREGoR-NCH Heterozygous","results":[],"resultsCount":0,"setType":"genomicVariant"},{"exists":true,"id":"GREGoR-NCH Hemizygous","results":[],"resultsCount":0,"setType":"genomicVariant"}]}}
+{"beaconHandovers":[{"handoverType":{"id":"CUSTOM:GREGoR-NCH","label":"GREGoR AnyVLM Reference"},"url":"https://variants.gregorconsortium.org/","note":null}],"meta":{"apiVersion":"v1.0","beaconId":"org.anyvlm.gregor","returnedSchemas":[{"entityType":"genomicVariant","schema":"ga4gh-beacon-variant-v2.0.0"}]},"responseSummary":{"exists":true,"numTotalResults":34},"response":{"resultSets":[{"exists":true,"id":"CUSTOM:GREGoR-NCH Homozygous","results":[],"resultsCount":0,"setType":"genomicVariant"},{"exists":true,"id":"CUSTOM:GREGoR-NCH Heterozygous","results":[],"resultsCount":34,"setType":"genomicVariant"},{"exists":true,"id":"CUSTOM:GREGoR-NCH Hemizygous","results":[],"resultsCount":0,"setType":"genomicVariant"},{"exists":false,"id":"CUSTOM:GREGoR-NCH Unknown","results":[],"resultsCount":0,"setType":"genomicVariant"}]}}
 ```
 
 See the [usage](https://anyvlm.readthedocs.org/en/stable/usage.html) page in the documentation for more information.

@@ -1,14 +1,17 @@
 """Define REST API schemas"""
 
-from enum import Enum
+from enum import StrEnum
 from typing import Literal
 
+from anyvar.restapi.schema import ImplMetadata
+from ga4gh.va_spec import VASPEC_VERSION
+from ga4gh.vrs import VRS_VERSION
 from pydantic import BaseModel
 
 from anyvlm import __version__
 
 
-class ServiceEnvironment(str, Enum):
+class ServiceEnvironment(StrEnum):
     """Define current runtime environment."""
 
     LOCAL = "local"
@@ -36,6 +39,13 @@ class ServiceType(BaseModel):
 SERVICE_DESCRIPTION = "An AnyVLM instance"
 
 
+class SpecMetadata(BaseModel):
+    """Define substructure for reporting specification metadata."""
+
+    vrs_version: str = VRS_VERSION
+    vaspec_version: str = VASPEC_VERSION
+
+
 class ServiceInfo(BaseModel):
     """Define response structure for GA4GH /service_info endpoint."""
 
@@ -54,3 +64,5 @@ class ServiceInfo(BaseModel):
     updatedAt: Literal["2025-06-01T00:00:00Z"] = "2025-06-01T00:00:00Z"  # noqa: N815
     environment: ServiceEnvironment
     version: str = __version__
+    spec_metadata: SpecMetadata = SpecMetadata()
+    impl_metadata: ImplMetadata = ImplMetadata()

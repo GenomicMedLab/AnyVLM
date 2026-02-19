@@ -12,7 +12,7 @@ Given a VCF describing cohort-level allele frequency, submit a ``POST`` request 
 
 .. code-block:: console
 
-   % curl -X POST "http://localhost:8080/ingest_vcf?assembly=grch38" \
+   % curl -X POST "http://localhost:8080/anyvlm/ingest_vcf?assembly=grch38" \
      -F "file=@/path/to/variants.vcf.gz"
 
 VCF Requirements
@@ -42,7 +42,7 @@ Issue a ``GET`` request to ``/variant_counts`` with arguments for reference sequ
 
 .. code-block:: console
 
-   % curl "http://localhost:8080/variant_counts?assemblyId=GRCh38&referenceName=22&start=10510105&referenceBases=T&alternateBases=A"
+   % curl "http://localhost:8080/anyvlm/variant_counts?assemblyId=GRCh38&referenceName=22&start=10510105&referenceBases=T&alternateBases=A"
 
 Parameters
 ----------
