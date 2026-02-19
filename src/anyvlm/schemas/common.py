@@ -1,14 +1,15 @@
 """Define REST API schemas"""
 
-from enum import Enum
+from enum import StrEnum
 from typing import Literal
 
+from anyvar.restapi.schema import ImplMetadata, SpecMetadata
 from pydantic import BaseModel
 
 from anyvlm import __version__
 
 
-class ServiceEnvironment(str, Enum):
+class ServiceEnvironment(StrEnum):
     """Define current runtime environment."""
 
     LOCAL = "local"
@@ -54,3 +55,5 @@ class ServiceInfo(BaseModel):
     updatedAt: Literal["2025-06-01T00:00:00Z"] = "2025-06-01T00:00:00Z"  # noqa: N815
     environment: ServiceEnvironment
     version: str = __version__
+    spec_metadata: SpecMetadata = SpecMetadata()
+    impl_metadata: ImplMetadata = ImplMetadata()
