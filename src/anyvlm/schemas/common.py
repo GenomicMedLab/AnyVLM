@@ -3,7 +3,9 @@
 from enum import StrEnum
 from typing import Literal
 
-from anyvar.restapi.schema import ImplMetadata, SpecMetadata
+from anyvar.restapi.schema import ImplMetadata
+from ga4gh.va_spec import VASPEC_VERSION
+from ga4gh.vrs import VRS_VERSION
 from pydantic import BaseModel
 
 from anyvlm import __version__
@@ -35,6 +37,13 @@ class ServiceType(BaseModel):
 
 
 SERVICE_DESCRIPTION = "An AnyVLM instance"
+
+
+class SpecMetadata(BaseModel):
+    """Define substructure for reporting specification metadata."""
+
+    vrs_version: str = VRS_VERSION
+    vaspec_version: str = VASPEC_VERSION
 
 
 class ServiceInfo(BaseModel):

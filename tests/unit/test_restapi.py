@@ -31,4 +31,5 @@ def test_service_info(restapi_client: TestClient, test_data_dir: Path):
     jsonschema.validate(instance=data, schema=resp_schema, resolver=resolver)
 
     assert data["spec_metadata"]["vrs_version"] is not None
+    assert data["spec_metadata"]["vaspec_version"] is not None
     assert data["impl_metadata"]["vrs_python_version"] is not None
