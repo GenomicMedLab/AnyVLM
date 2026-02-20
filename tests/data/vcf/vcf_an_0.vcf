@@ -1,0 +1,15 @@
+##fileformat=VCFv4.2
+##FILTER=<ID=LowQual,Description="Low quality">
+##FILTER=<ID=NO_HQ_GENOTYPES,Description="Site has no high quality variant genotypes">
+##INFO=<ID=AC,Number=A,Type=Integer,Description="Allele count in genotypes, for each ALT allele, in the same order as listed">
+##INFO=<ID=AC_Hemi,Number=A,Type=Integer,Description="Allele counts in hemizygous genotypes">
+##INFO=<ID=AC_Het,Number=A,Type=Integer,Description="Allele counts in heterozygous genotypes">
+##INFO=<ID=AC_Hom,Number=A,Type=Integer,Description="Allele counts in homozygous genotypes">
+##INFO=<ID=AF,Number=A,Type=Float,Description="Allele Frequency, for each ALT allele, in the same order as listed">
+##INFO=<ID=AN,Number=1,Type=Integer,Description="Total number of alleles in called genotypes">
+##INFO=<ID=AS_QUALapprox,Number=1,Type=String,Description="Allele-specific QUAL approximations">
+##contig=<ID=chr14,length=107043718>
+##source=SelectVariants
+##INFO=<ID=VRS_Allele_IDs,Number=R,Type=String,Description="The computed identifiers for the GA4GH VRS Alleles corresponding to the GT indexes of the REF and ALT alleles">
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
+chr14	18223529	.	C	A	.	LowQual;NO_HQ_GENOTYPES	AC=0;AC_Hemi=0;AC_Het=0;AC_Hom=0;AF=0.00;AN=0;AS_QUALapprox=0|55;VRS_Allele_IDs=ga4gh:VA.8OSPHYmhyg9hJTpFQ8aNcmLgYMR77ZyJ,ga4gh:VA.slgr2fnRKaUnQrJZvYNDGMrfZHw6QCr6

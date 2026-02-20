@@ -62,6 +62,14 @@ def _yield_expression_af_batches(
                 msg = f"One or more required INFO column is missing: {'AC' in info}, {'AN' in info}, {'AC_Het' in info}, {'AC_Hom' in info}, {'AC_Hemi' in info}"
                 _logger.exception(msg)
                 raise VcfAfColumnsError(msg) from e
+            if af.an == 0:
+                _logger.debug(
+                    "Encountered AN=0 in VCF at %s-%s-%s-%s; this will be skipped during ingest.",
+                    record.chrom,
+                    record.pos,
+                    record.ref,
+                    alt,
+                )
             batch.append((expression, af))
             if len(batch) >= batch_size:
                 _logger.debug("Yielding next batch")
@@ -106,11 +114,15 @@ def ingest_vcf(
         for variant_id, af in zip(variant_ids, afs, strict=True):
             if variant_id is None:
                 continue
+            try:
+                allele_frequency = af.ac / af.an
+            except ZeroDivisionError:
+                continue
             caf = AnyVlmCohortAlleleFrequencyResult(
                 focusAllele=iriReference(variant_id),
                 focusAlleleCount=af.ac,
                 locusAlleleCount=af.an,
-                focusAlleleFrequency=af.ac / af.an,
+                focusAlleleFrequency=allele_frequency,
                 qualityMeasures=QualityMeasures(qcFilters=af.filters),
                 ancillaryResults=AncillaryResults(
                     heterozygotes=af.ac_het,

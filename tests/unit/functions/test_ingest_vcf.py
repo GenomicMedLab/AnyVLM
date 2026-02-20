@@ -115,3 +115,14 @@ def test_ingest_vcf_infocol_missing(
             stub_anyvar_client,
             postgres_storage,
         )
+
+
+def test_ingest_vcf_an_zero(
+    stub_anyvar_client: BaseAnyVarClient, test_data_dir: Path, postgres_storage: Storage
+):
+    """Test smooth handling of VCF row where AN=0"""
+    ingest_vcf(
+        test_data_dir / "vcf" / "vcf_an_0.vcf",
+        stub_anyvar_client,
+        postgres_storage,
+    )
