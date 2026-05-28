@@ -182,7 +182,7 @@ class HttpAnyVarClient(BaseAnyVarClient):
 
         mapping_result: VariationMapping = validated_response.mappings[0]
 
-        return mapping_result.dest_id
+        return mapping_result.dest_id if as_source else mapping_result.source_id
 
     def close(self) -> None:
         """Clean up AnyVar connection.

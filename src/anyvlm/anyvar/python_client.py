@@ -4,6 +4,7 @@ import logging
 from collections.abc import Iterable, Sequence
 
 from anyvar import AnyVar
+from anyvar.core.metadata import VariationMapping, VariationMappingType
 from anyvar.core.objects import VrsObject
 from anyvar.mapping.liftover import ReferenceAssembly
 from anyvar.restapi.schema import SupportedVariationType
@@ -127,7 +128,19 @@ class PythonAnyVarClient(BaseAnyVarClient):
         :param starting_assembly: The assembly to liftover FROM (i.e., the assembly of the starting variant)
         :return: The VRS ID of the lifted-over variation, or `None` if liftover is unsuccessful
         """
-        # TODO - fill this in
+        as_source: bool = starting_assembly == ReferenceAssembly.GRCH37
+        liftover_mappings: Iterable[VariationMapping] = self.av.get_object_mappings(
+            source_object_id=vrs_id, mapping_type=VariationMappingType.LIFTOVER
+        )
+        # liftover_mappings: VariationMapping = self.av.get_object_mappings(source_object_id=vrs_id, mapping_type=VariationMappingType.LIFTOVER, as_source=as_source)
+        liftover_mapping: VariationMapping | None = next(
+            iter(liftover_mappings), None
+        )  # TODO: replace this line with the one above once AnyVar version is updated
+        return (
+            (liftover_mapping.dest_id if as_source else liftover_mapping.source_id)
+            if liftover_mapping
+            else None
+        )
 
     def close(self) -> None:
         """Clean up AnyVar instance."""
