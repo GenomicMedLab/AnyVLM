@@ -3,6 +3,7 @@
 import logging
 
 from ga4gh.core.models import iriReference
+from ga4gh.vrs.models import Allele
 
 from anyvlm.anyvar.base_client import BaseAnyVarClient
 from anyvlm.storage.base_storage import Storage
@@ -20,6 +21,20 @@ _logger = logging.getLogger(__name__)
 
 class VariantNotRegisteredError(Exception):
     """Raised when a variant is not registered in the AnyVar client"""
+
+
+def _retrieve_caf_with_resolved_alleles(
+    variation: Allele, anyvlm_storage: Storage
+) -> list[AnyVlmCohortAlleleFrequencyResult]:
+    cafs: list[AnyVlmCohortAlleleFrequencyResult] = (
+        anyvlm_storage.get_caf_by_vrs_allele_id(vrs_allele_id=variation.id)
+    )
+
+    for caf in cafs:
+        if isinstance(caf.focusAllele, iriReference):
+            caf.focusAllele = variation
+
+    return cafs
 
 
 def get_caf(
@@ -53,18 +68,23 @@ def get_caf(
         msg = "Unsupported assembly ID: {assembly_id}"
         raise ValueError(msg) from e
 
-    vrs_variation = anyvar_client.get_registered_allele(gnomad_vcf, assembly)
-    if not vrs_variation:
-        msg = f"Variant {assembly.value} {gnomad_vcf} is not registered in AnyVar"
-        _logger.debug(msg)
-        raise VariantNotRegisteredError(msg)
-
-    cafs: list[AnyVlmCohortAlleleFrequencyResult] = (
-        anyvlm_storage.get_caf_by_vrs_allele_id(vrs_variation.id)  # type: ignore
+    vrs_variation = anyvar_client.retrieve_allele_by_expression(gnomad_vcf, assembly)
+    cafs: list[AnyVlmCohortAlleleFrequencyResult] = _retrieve_caf_with_resolved_alleles(
+        variation=vrs_variation, anyvlm_storage=anyvlm_storage
     )
 
-    for caf in cafs:
-        if isinstance(caf.focusAllele, iriReference):
-            caf.focusAllele = vrs_variation
+    liftover_vrs_id: str = anyvar_client.get_liftover_variation_id(
+        vrs_id=vrs_variation.id, starting_assembly=assembly
+    )
+    liftover_variation: Allele | None = anyvar_client.retrieve_allele_by_id(
+        vrs_id=liftover_vrs_id
+    )
+    if liftover_variation:
+        liftover_cafs: list[AnyVlmCohortAlleleFrequencyResult] = (
+            _retrieve_caf_with_resolved_alleles(
+                variation=liftover_variation, anyvlm_storage=anyvlm_storage
+            )
+        )
+        cafs.extend(liftover_cafs)
 
     return cafs

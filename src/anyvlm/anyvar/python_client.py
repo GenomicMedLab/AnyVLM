@@ -53,7 +53,7 @@ class PythonAnyVarClient(BaseAnyVarClient):
             _logger.exception("Failed to translate expression: %s", expression)
         return translated_variation  # type: ignore
 
-    def get_registered_allele(
+    def retrieve_allele_by_expression(
         self, expression: str, assembly: ReferenceAssembly = ReferenceAssembly.GRCH38
     ) -> Allele | None:
         """Retrieve registered VRS Allele for given allele expression
@@ -108,6 +108,17 @@ class PythonAnyVarClient(BaseAnyVarClient):
             else:
                 results.append(None)
         return results
+
+    def get_liftover_variation_id(
+        self, vrs_id: str, starting_assembly: ReferenceAssembly
+    ) -> str | None:
+        """Get the VRS ID for the lifted-over equivalent of the variation specified by the provided VRS ID.
+
+        :param vrs_id: The VRS ID of the variation to lift over
+        :param starting_assembly: The assembly to liftover FROM (i.e., the assembly of the starting variant)
+        :return: The VRS ID of the lifted-over variation, or `None` if liftover is unsuccessful
+        """
+        # TODO - fill this in
 
     def close(self) -> None:
         """Clean up AnyVar instance."""

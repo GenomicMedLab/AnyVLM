@@ -62,7 +62,9 @@ def test_get_registered_allele_expressions_unpopulated(
         if "vcf_expression" not in allele_fixture:
             continue
         assert (
-            anyvar_client.get_registered_allele(allele_fixture["vcf_expression"])
+            anyvar_client.retrieve_allele_by_expression(
+                allele_fixture["vcf_expression"]
+            )
             is None
         )
 
@@ -76,7 +78,7 @@ def test_get_registered_allele_expressions_populated(
     for allele_fixture in alleles.values():
         if "vcf_expression" not in allele_fixture:
             continue
-        assert anyvar_client.get_registered_allele(
+        assert anyvar_client.retrieve_allele_by_expression(
             allele_fixture["vcf_expression"]
         ) == models.Allele(**allele_fixture["variation"])
 
