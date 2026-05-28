@@ -4,6 +4,7 @@ import logging
 from collections.abc import Iterable, Sequence
 
 from anyvar import AnyVar
+from anyvar.core.objects import VrsObject
 from anyvar.mapping.liftover import ReferenceAssembly
 from anyvar.restapi.schema import SupportedVariationType
 from anyvar.storage.base import Storage
@@ -53,10 +54,18 @@ class PythonAnyVarClient(BaseAnyVarClient):
             _logger.exception("Failed to translate expression: %s", expression)
         return translated_variation  # type: ignore
 
+    def retrieve_allele_by_id(self, vrs_id: str) -> VrsObject | None:
+        """Retrieve VRS Allele for given VRS ID
+
+        :param vrs_id: The ID to dereference
+        :return: The VRS Allele, or `None` if unable to retrieve the Allele.
+        """
+        return self.av.get_object(object_id=vrs_id, object_type=Allele)
+
     def retrieve_allele_by_expression(
         self, expression: str, assembly: ReferenceAssembly = ReferenceAssembly.GRCH38
     ) -> Allele | None:
-        """Retrieve registered VRS Allele for given allele expression
+        """Retrieve VRS Allele for given allele expression
 
         Currently, only expressions supported by the VRS-Python translator are supported.
         This could change depending on the AnyVar implementation, though, and probably
@@ -64,7 +73,7 @@ class PythonAnyVarClient(BaseAnyVarClient):
 
         :param expression: variation expression to get VRS Allele for
         :param assembly: reference assembly used in expression
-        :return: VRS Allele if translation succeeds and VRS Allele has already been registered, else `None`
+        :return: VRS Allele if translation succeeds, else `None`
         """
         translated_variation = self._translate_allele_expression(expression, assembly)
         if not translated_variation:

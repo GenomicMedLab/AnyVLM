@@ -81,10 +81,10 @@ class HttpAnyVarClient(BaseAnyVarClient):
         return response
 
     def retrieve_allele_by_id(self, vrs_id: str) -> VrsObject | None:
-        """Retrieve a VRS Allele by ID
+        """Retrieve VRS Allele for given VRS ID
 
-        :param vrs_id: The ID of the VRS Allele to retrieve
-        :return: The full VRS Allele.
+        :param vrs_id: The ID to dereference
+        :return: The VRS Allele, or `None` if unable to retrieve the Allele.
         """
         url = f"{self.hostname}/object/{vrs_id}"
         try:
