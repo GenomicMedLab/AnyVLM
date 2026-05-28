@@ -15,6 +15,7 @@ from anyvar.restapi.schema import (
     RegisterVariationResponse,
 )
 from ga4gh.vrs import VrsType, models
+from requests.models import Response
 
 from anyvlm.anyvar.base_client import (
     AnyVarClientConnectionError,
@@ -114,13 +115,13 @@ class HttpAnyVarClient(BaseAnyVarClient):
             "input_type": VrsType.ALLELE.value,
         }
         try:
-            response = self._make_http_request(HTTPMethod.PUT, url, payload)
+            response: Response = self._make_http_request(HTTPMethod.PUT, url, payload)
         except requests.HTTPError as e:
             if e.response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY:
                 _logger.debug(
                     "Translation failed for variant expression '%s'", expression
                 )
-                return None
+            return None
 
         validated_response = RegisterVariationResponse(**response.json())  # type ignore
         return validated_response.object  # type: ignore (input_type=Allele guarantees return type)
