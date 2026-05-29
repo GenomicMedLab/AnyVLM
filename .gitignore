@@ -220,3 +220,7 @@ uv.lock
 
 # Mac things:
 .DS_Store
+
+
+# UTA download
+uta_20241220.pgd.gz

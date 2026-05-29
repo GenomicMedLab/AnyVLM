@@ -2,6 +2,7 @@
 
 import logging
 
+from anyvar.core.objects import VrsVariation
 from ga4gh.core.models import iriReference
 from ga4gh.vrs.models import Allele
 
@@ -23,9 +24,45 @@ class VariantNotRegisteredError(Exception):
     """Raised when a variant is not registered in the AnyVar client"""
 
 
+class VariantLookupError(Exception):
+    """Raised when a variant cannot be retrieved from AnyVar"""
+
+
+class IncompleteVariantError(Exception):
+    """Raised when a variant is missing one or more properties required by AnyVLM"""
+
+
+class UnexpectedVariantTypeError(Exception):
+    """Raised when <vrs_variant>.type is not of the type expected by AnyVLM"""
+
+
+def _validate_allele(variant: VrsVariation | None) -> Allele:
+    if not variant:
+        raise VariantLookupError
+
+    variant_id: str | None = variant.id
+    if not variant_id:
+        raise IncompleteVariantError
+
+    if not variant.type == "Allele":
+        raise UnexpectedVariantTypeError
+
+    return variant
+
+
 def _retrieve_caf_with_resolved_alleles(
     variation: Allele, anyvlm_storage: Storage
 ) -> list[AnyVlmCohortAlleleFrequencyResult]:
+    """Retrieve CAF data for a resolved allele.
+
+    :param variation: The allele to retrieve CAF data for
+    :param anyvlm_storage: The storage for this AnyVLM instance
+    :return: A list of AnyVlmCohortAlleleFrequencyResult objects
+    """
+    if not variation.id:
+        error_message: str = "Variants must include an 'id'"
+        raise IncompleteVariantError(error_message)
+
     cafs: list[AnyVlmCohortAlleleFrequencyResult] = (
         anyvlm_storage.get_caf_by_vrs_allele_id(vrs_allele_id=variation.id)
     )
@@ -68,23 +105,30 @@ def get_caf(
         msg = "Unsupported assembly ID: {assembly_id}"
         raise ValueError(msg) from e
 
-    vrs_variation = anyvar_client.retrieve_allele_by_expression(gnomad_vcf, assembly)
+    vrs_variation: Allele = _validate_allele(
+        variant=anyvar_client.retrieve_allele_by_expression(gnomad_vcf, assembly)
+    )
+
     cafs: list[AnyVlmCohortAlleleFrequencyResult] = _retrieve_caf_with_resolved_alleles(
         variation=vrs_variation, anyvlm_storage=anyvlm_storage
     )
 
-    liftover_vrs_id: str = anyvar_client.get_liftover_variation_id(
-        vrs_id=vrs_variation.id, starting_assembly=assembly
+    liftover_vrs_id: str | None = anyvar_client.get_liftover_variation_id(
+        vrs_id=vrs_variation.id,  # type: ignore
+        starting_assembly=assembly,
     )
-    liftover_variation: Allele | None = anyvar_client.retrieve_allele_by_id(
-        vrs_id=liftover_vrs_id
-    )
-    if liftover_variation:
+
+    if liftover_vrs_id:
+        liftover_variation: Allele | None = _validate_allele(
+            variant=anyvar_client.retrieve_allele_by_id(vrs_id=liftover_vrs_id)
+        )
+
         liftover_cafs: list[AnyVlmCohortAlleleFrequencyResult] = (
             _retrieve_caf_with_resolved_alleles(
                 variation=liftover_variation, anyvlm_storage=anyvlm_storage
             )
         )
+
         cafs.extend(liftover_cafs)
 
     return cafs

@@ -7,7 +7,7 @@ from typing import Literal
 
 import requests
 from anyvar.core.metadata import VariationMapping
-from anyvar.core.objects import VrsObject
+from anyvar.core.objects import VrsVariation
 from anyvar.mapping.liftover import ReferenceAssembly
 from anyvar.restapi.schema import (
     GetMappingResponse,
@@ -80,7 +80,7 @@ class HttpAnyVarClient(BaseAnyVarClient):
             raise
         return response
 
-    def retrieve_allele_by_id(self, vrs_id: str) -> VrsObject | None:
+    def retrieve_allele_by_id(self, vrs_id: str) -> VrsVariation | None:
         """Retrieve VRS Allele for given VRS ID
 
         :param vrs_id: The ID to dereference
