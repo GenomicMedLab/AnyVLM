@@ -221,14 +221,14 @@ def test_variant_counts_endpoint_anyvar_unavailable(
 ):
     """Test case where AnyVarClientConnectionError is raised"""
 
-    def mock_get_registered_allele(*args, **kwargs):
+    def mock_retrieve_allele_by_id(*args, **kwargs):
         raise AnyVarClientConnectionError
 
     anyvar_client = client_with_populated_dbs.app.state.anyvar_client
     monkeypatch.setattr(
         anyvar_client,
-        "get_registered_allele",
-        mock_get_registered_allele,
+        "retrieve_allele_by_id",
+        mock_retrieve_allele_by_id,
     )
 
     response = client_with_populated_dbs.get(ENDPOINT, params=TEST_QUERY)
