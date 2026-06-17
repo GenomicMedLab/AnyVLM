@@ -54,7 +54,7 @@ POPULATED_CLIENTS = [
 
 @pytest.mark.vcr
 @pytest.mark.parametrize("anyvar_client", UNPOPULATED_CLIENTS, indirect=True)
-def test_get_registered_allele_expressions_unpopulated(
+def test_retrieve_allele_by_expression_unpopulated(
     anyvar_client: BaseAnyVarClient, alleles: dict
 ):
     """Test `retrieve_allele_by_expression` for an unpopulated client"""
@@ -71,7 +71,7 @@ def test_get_registered_allele_expressions_unpopulated(
 
 @pytest.mark.vcr
 @pytest.mark.parametrize("anyvar_client", POPULATED_CLIENTS, indirect=True)
-def test_get_registered_allele_expressions_populated(
+def test_retrieve_allele_by_expression_populated(
     anyvar_client: BaseAnyVarClient, alleles: dict
 ):
     """Test `retrieve_allele_by_expression` for a populated client"""
