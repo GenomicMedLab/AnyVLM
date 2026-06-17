@@ -130,12 +130,12 @@ class PythonAnyVarClient(BaseAnyVarClient):
         """
         as_source: bool = starting_assembly == ReferenceAssembly.GRCH37
         liftover_mappings: Iterable[VariationMapping] = self.av.get_object_mappings(
-            source_object_id=vrs_id, mapping_type=VariationMappingType.LIFTOVER
+            object_id=vrs_id,
+            mapping_type=VariationMappingType.LIFTOVER_TO,
+            as_source=as_source,
         )
-        # liftover_mappings: VariationMapping = self.av.get_object_mappings(source_object_id=vrs_id, mapping_type=VariationMappingType.LIFTOVER, as_source=as_source)
-        liftover_mapping: VariationMapping | None = next(
-            iter(liftover_mappings), None
-        )  # TODO: replace this line with the one above once AnyVar version is updated
+        liftover_mapping: VariationMapping | None = next(iter(liftover_mappings), None)
+
         return (
             (liftover_mapping.dest_id if as_source else liftover_mapping.source_id)
             if liftover_mapping
