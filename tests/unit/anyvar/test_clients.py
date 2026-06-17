@@ -57,7 +57,7 @@ POPULATED_CLIENTS = [
 def test_get_registered_allele_expressions_unpopulated(
     anyvar_client: BaseAnyVarClient, alleles: dict
 ):
-    """Test `get_registered_allele_expressions` for an unpopulated client"""
+    """Test `retrieve_allele_by_expression` for an unpopulated client"""
     for allele_fixture in alleles.values():
         if "vcf_expression" not in allele_fixture:
             continue
@@ -74,7 +74,7 @@ def test_get_registered_allele_expressions_unpopulated(
 def test_get_registered_allele_expressions_populated(
     anyvar_client: BaseAnyVarClient, alleles: dict
 ):
-    """Test `get_registered_allele_expressions` for a populated client"""
+    """Test `retrieve_allele_by_expression` for a populated client"""
     for allele_fixture in alleles.values():
         if "vcf_expression" not in allele_fixture:
             continue

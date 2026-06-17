@@ -123,8 +123,8 @@ class HttpAnyVarClient(BaseAnyVarClient):
                 )
             return None
 
-        validated_response = RegisterVariationResponse(**response.json())  # type ignore
-        return validated_response.object  # type: ignore (input_type=Allele guarantees return type)
+        validated_response = RegisterVariationResponse(**response.json())
+        return validated_response.object
 
     def put_allele_expressions(
         self,
