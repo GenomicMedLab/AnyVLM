@@ -5,7 +5,7 @@ from deepdiff import DeepDiff
 from helpers import EXPECTED_VRS_ID, TEST_VARIANT, build_caf
 
 from anyvlm.anyvar.python_client import PythonAnyVarClient
-from anyvlm.functions.get_caf import get_caf
+from anyvlm.functions.get_caf import VariantLookupError, get_caf
 from anyvlm.storage.postgres import PostgresObjectStore
 from anyvlm.utils.types import AnyVlmCohortAlleleFrequencyResult
 
@@ -49,7 +49,7 @@ def test_get_caf_no_results_returned(
     postgres_storage: PostgresObjectStore,
 ):
     """Test get_caf when variants are registered but no results are expected"""
-    cafs = get_caf(
+    cafs: list[AnyVlmCohortAlleleFrequencyResult] = get_caf(
         anyvar_populated_python_client,
         postgres_storage,
         TEST_VARIANT.assembly,
@@ -67,13 +67,13 @@ def test_get_caf_variant_not_registered(
     populated_postgres_storage: PostgresObjectStore,
 ):
     """Test get_caf raises exception due to variant not being registered"""
-    cafs = get_caf(
-        anyvar_minimal_populated_python_client,
-        populated_postgres_storage,
-        TEST_VARIANT.assembly,
-        TEST_VARIANT.chromosome,
-        TEST_VARIANT.position,
-        TEST_VARIANT.ref,
-        TEST_VARIANT.alt,
-    )
-    assert cafs == []
+    with pytest.raises(VariantLookupError):
+        get_caf(
+            anyvar_client=anyvar_minimal_populated_python_client,
+            anyvlm_storage=populated_postgres_storage,
+            assembly_id=TEST_VARIANT.assembly,
+            reference_name=TEST_VARIANT.chromosome,
+            start=TEST_VARIANT.position,
+            reference_base=TEST_VARIANT.ref,
+            alternate_base=TEST_VARIANT.alt,
+        )

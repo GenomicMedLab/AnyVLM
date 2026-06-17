@@ -20,10 +20,6 @@ from anyvlm.utils.types import (
 _logger = logging.getLogger(__name__)
 
 
-class VariantNotRegisteredError(Exception):
-    """Raised when a variant is not registered in the AnyVar client"""
-
-
 class VariantLookupError(Exception):
     """Raised when a variant cannot be retrieved from AnyVar"""
 
@@ -95,7 +91,7 @@ def get_caf(
     :param reference_bases: Single genomic base (A/G/C/T)
     :param alternate_bases: Single genomic base (A/G/C/T)
     :raises ValueError: if unsupported assembly ID is provided
-    :raises VariantNotRegisteredError: if variant is not registered in AnyVar
+    :raises VariantLookupError: if variant is not registered in AnyVar
     :return: list of AnyVlmCohortAlleleFrequencyResult objects for the provided variant
     """
     gnomad_vcf: str = f"{reference_name}-{start}-{reference_base}-{alternate_base}"

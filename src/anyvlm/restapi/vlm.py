@@ -20,7 +20,7 @@ from pydantic import BaseModel
 
 from anyvlm.anyvar.base_client import AnyVarClientConnectionError, BaseAnyVarClient
 from anyvlm.functions.build_vlm_response import build_vlm_response
-from anyvlm.functions.get_caf import VariantNotRegisteredError, get_caf
+from anyvlm.functions.get_caf import VariantLookupError, get_caf
 from anyvlm.functions.ingest_vcf import VcfAfColumnsError
 from anyvlm.functions.ingest_vcf import ingest_vcf as ingest_vcf_function
 from anyvlm.schemas.vlm import VlmResponse
@@ -322,7 +322,7 @@ def variant_counts(
             referenceBases,
             alternateBases,
         )
-    except VariantNotRegisteredError:
+    except VariantLookupError:
         caf_data = []
     except AnyVarClientConnectionError as e:
         raise HTTPException(
