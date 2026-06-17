@@ -3,7 +3,7 @@
 import abc
 from collections.abc import Iterable, Sequence
 
-from anyvar.core.objects import VrsVariation
+from anyvar.core.objects import SupportedVrsVariation
 from anyvar.mapping.liftover import ReferenceAssembly
 from ga4gh.vrs.models import Allele
 
@@ -23,7 +23,7 @@ class BaseAnyVarClient(abc.ABC):
     """Interface elements for an AnyVar client"""
 
     @abc.abstractmethod
-    def retrieve_allele_by_id(self, vrs_id: str) -> VrsVariation | None:
+    def retrieve_allele_by_id(self, vrs_id: str) -> SupportedVrsVariation | None:
         """Retrieve VRS Allele for given VRS ID
 
         :param vrs_id: The ID to dereference

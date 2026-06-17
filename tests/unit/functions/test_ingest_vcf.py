@@ -2,7 +2,7 @@ from collections.abc import Iterable, Sequence
 from pathlib import Path
 
 import pytest
-from anyvar.core.objects import VrsVariation
+from anyvar.core.objects import SupportedVrsVariation
 from anyvar.mapping.liftover import ReferenceAssembly
 from ga4gh.vrs.models import Allele
 
@@ -50,7 +50,7 @@ def stub_anyvar_client():
             self,
             vrs_id: str,
             starting_assembly: ReferenceAssembly = ReferenceAssembly.GRCH38,
-        ) -> VrsVariation | None:
+        ) -> SupportedVrsVariation | None:
             raise NotImplementedError
 
         def retrieve_allele_by_expression(

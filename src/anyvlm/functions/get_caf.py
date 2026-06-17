@@ -2,7 +2,7 @@
 
 import logging
 
-from anyvar.core.objects import VrsVariation
+from anyvar.core.objects import SupportedVrsVariation
 from ga4gh.core.models import iriReference
 from ga4gh.vrs.models import Allele
 
@@ -36,7 +36,7 @@ class UnexpectedVariantTypeError(Exception):
     """Raised when <vrs_variant>.type is not of the type expected by AnyVLM"""
 
 
-def _validate_allele(variant: VrsVariation | None) -> Allele:
+def _validate_allele(variant: SupportedVrsVariation | None) -> Allele:
     if not variant:
         raise VariantLookupError
 
