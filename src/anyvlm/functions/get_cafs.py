@@ -54,12 +54,8 @@ def _retrieve_cafs_with_resolved_alleles(
     :param anyvlm_storage: The storage for this AnyVLM instance
     :return: A list of AnyVlmCohortAlleleFrequencyResult objects
     """
-    if not variation.id:
-        error_message: str = "Variants must include an 'id'"
-        raise IncompleteVariantError(error_message)
-
     cafs: list[AnyVlmCohortAlleleFrequencyResult] = (
-        anyvlm_storage.get_cafs_by_vrs_allele_id(vrs_allele_id=variation.id)
+        anyvlm_storage.get_cafs_by_vrs_allele_id(vrs_allele_id=variation.id)  # pyright: ignore[reportArgumentType]
     )
 
     for caf in cafs:
