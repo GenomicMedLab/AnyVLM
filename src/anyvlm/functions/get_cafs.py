@@ -36,17 +36,16 @@ def _validate_allele(variant: SupportedVrsVariation | None) -> Allele:
     if not variant:
         raise VariantLookupError
 
-    variant_id: str | None = variant.id
-    if not variant_id:
+    if not variant.id:
         raise IncompleteVariantError
 
-    if not variant.type == str(VrsType.ALLELE):
+    if not variant.type == str(VrsType.ALLELE.value):
         raise UnexpectedVariantTypeError
 
     return variant
 
 
-def _retrieve_caf_with_resolved_alleles(
+def _retrieve_cafs_with_resolved_alleles(
     variation: Allele, anyvlm_storage: Storage
 ) -> list[AnyVlmCohortAlleleFrequencyResult]:
     """Retrieve CAF data for a resolved allele.
@@ -60,7 +59,7 @@ def _retrieve_caf_with_resolved_alleles(
         raise IncompleteVariantError(error_message)
 
     cafs: list[AnyVlmCohortAlleleFrequencyResult] = (
-        anyvlm_storage.get_caf_by_vrs_allele_id(vrs_allele_id=variation.id)
+        anyvlm_storage.get_cafs_by_vrs_allele_id(vrs_allele_id=variation.id)
     )
 
     for caf in cafs:
@@ -70,7 +69,7 @@ def _retrieve_caf_with_resolved_alleles(
     return cafs
 
 
-def get_caf(
+def get_cafs(
     anyvar_client: BaseAnyVarClient,
     anyvlm_storage: Storage,
     assembly_id: GrcAssemblyId | UcscAssemblyBuild,
@@ -105,8 +104,10 @@ def get_caf(
         variant=anyvar_client.retrieve_allele_by_expression(gnomad_vcf, assembly)
     )
 
-    cafs: list[AnyVlmCohortAlleleFrequencyResult] = _retrieve_caf_with_resolved_alleles(
-        variation=vrs_variation, anyvlm_storage=anyvlm_storage
+    cafs: list[AnyVlmCohortAlleleFrequencyResult] = (
+        _retrieve_cafs_with_resolved_alleles(
+            variation=vrs_variation, anyvlm_storage=anyvlm_storage
+        )
     )
 
     liftover_vrs_id: str | None = anyvar_client.get_liftover_variation_id(
@@ -115,12 +116,12 @@ def get_caf(
     )
 
     if liftover_vrs_id:
-        liftover_variation: Allele | None = _validate_allele(
+        liftover_variation: Allele = _validate_allele(
             variant=anyvar_client.retrieve_allele_by_id(vrs_id=liftover_vrs_id)
         )
 
         liftover_cafs: list[AnyVlmCohortAlleleFrequencyResult] = (
-            _retrieve_caf_with_resolved_alleles(
+            _retrieve_cafs_with_resolved_alleles(
                 variation=liftover_variation, anyvlm_storage=anyvlm_storage
             )
         )
