@@ -4,7 +4,7 @@ import logging
 
 from anyvar.core.objects import SupportedVrsVariation
 from ga4gh.core.models import iriReference
-from ga4gh.vrs.models import Allele
+from ga4gh.vrs.models import Allele, VrsType
 
 from anyvlm.anyvar.base_client import BaseAnyVarClient
 from anyvlm.storage.base_storage import Storage
@@ -40,7 +40,7 @@ def _validate_allele(variant: SupportedVrsVariation | None) -> Allele:
     if not variant_id:
         raise IncompleteVariantError
 
-    if not variant.type == "Allele":
+    if not variant.type == str(VrsType.ALLELE):
         raise UnexpectedVariantTypeError
 
     return variant
