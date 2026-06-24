@@ -7,7 +7,6 @@ from typing import Literal
 
 import requests
 from anyvar.core.metadata import VariationMapping
-from anyvar.core.objects import SupportedVrsVariation
 from anyvar.mapping.liftover import ReferenceAssembly
 from anyvar.restapi.schema import (
     GetMappingResponse,
@@ -22,6 +21,8 @@ from anyvlm.anyvar.base_client import (
     AnyVarClientError,
     BaseAnyVarClient,
 )
+from anyvlm.utils.exceptions import LiftoverError
+from anyvlm.utils.functions import validate_allele
 
 _logger = logging.getLogger(__name__)
 
@@ -80,20 +81,16 @@ class HttpAnyVarClient(BaseAnyVarClient):
             raise
         return response
 
-    def retrieve_allele_by_id(self, vrs_id: str) -> SupportedVrsVariation | None:
+    def retrieve_allele_by_id(self, vrs_id: str) -> models.Allele | None:
         """Retrieve VRS Allele for given VRS ID
 
         :param vrs_id: The ID to dereference
         :return: The VRS Allele, or `None` if unable to retrieve the Allele.
         """
         url = f"{self.hostname}/object/{vrs_id}"
-        try:
-            response = self._make_http_request(method=HTTPMethod.GET, url=url)
-        except requests.HTTPError:
-            return None  # TODO: add logging
-
+        response = self._make_http_request(method=HTTPMethod.GET, url=url)
         validated_response: GetObjectResponse = GetObjectResponse(**response.json())
-        return validated_response.data
+        return validate_allele(allele=validated_response.data)
 
     def retrieve_allele_by_expression(
         self, expression: str, assembly: ReferenceAssembly = ReferenceAssembly.GRCH38
@@ -169,19 +166,15 @@ class HttpAnyVarClient(BaseAnyVarClient):
         """
         as_source: bool = starting_assembly == ReferenceAssembly.GRCH37
         url: str = f"{self.hostname}/object/{vrs_id}/mappings/liftover_to?as_source={as_source}"
-        try:
-            response = self._make_http_request(HTTPMethod.GET, url)
-        except requests.HTTPError:
-            return None
-            # TODO - handle this (raise exception or return qqch)
-
+        response = self._make_http_request(HTTPMethod.GET, url)
         validated_response: GetMappingResponse = GetMappingResponse(**response.json())
-        if len(validated_response.mappings) > 1:
-            pass
-            # raise Exception  # TODO - use more specific exception
 
-        mapping_result: VariationMapping = validated_response.mappings[0]
+        variation_mappings: list[VariationMapping] = list(validated_response.mappings)
+        if len(variation_mappings) > 1:
+            error_message: str = "Multiple liftover mappings found"
+            raise LiftoverError(error_message)
 
+        mapping_result: VariationMapping = variation_mappings[0]
         return mapping_result.dest_id if as_source else mapping_result.source_id
 
     def close(self) -> None:

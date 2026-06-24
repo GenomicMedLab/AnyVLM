@@ -5,8 +5,9 @@ from deepdiff import DeepDiff
 from helpers import EXPECTED_VRS_ID, TEST_VARIANT, build_caf
 
 from anyvlm.anyvar.python_client import PythonAnyVarClient
-from anyvlm.functions.get_cafs import VariantLookupError, get_cafs
+from anyvlm.functions.get_cafs import get_cafs
 from anyvlm.storage.postgres import PostgresObjectStore
+from anyvlm.utils.exceptions import VariantLookupError
 from anyvlm.utils.types import AnyVlmCohortAlleleFrequencyResult
 
 

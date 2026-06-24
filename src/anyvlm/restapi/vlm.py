@@ -20,11 +20,12 @@ from pydantic import BaseModel
 
 from anyvlm.anyvar.base_client import AnyVarClientConnectionError, BaseAnyVarClient
 from anyvlm.functions.build_vlm_response import build_vlm_response
-from anyvlm.functions.get_cafs import VariantLookupError, get_cafs
+from anyvlm.functions.get_cafs import get_cafs
 from anyvlm.functions.ingest_vcf import VcfAfColumnsError
 from anyvlm.functions.ingest_vcf import ingest_vcf as ingest_vcf_function
 from anyvlm.schemas.vlm import VlmResponse
 from anyvlm.storage.base_storage import Storage
+from anyvlm.utils.exceptions import VariantLookupError
 from anyvlm.utils.types import (
     AnyVlmCohortAlleleFrequencyResult,
     ChromosomeName,

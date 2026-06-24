@@ -2,12 +2,12 @@
 
 import logging
 
-from anyvar.core.objects import SupportedVrsVariation
 from ga4gh.core.models import iriReference
-from ga4gh.vrs.models import Allele, VrsType
+from ga4gh.vrs.models import Allele
 
 from anyvlm.anyvar.base_client import BaseAnyVarClient
 from anyvlm.storage.base_storage import Storage
+from anyvlm.utils.functions import validate_allele
 from anyvlm.utils.types import (
     ASSEMBLY_MAP,
     AnyVlmCohortAlleleFrequencyResult,
@@ -18,31 +18,6 @@ from anyvlm.utils.types import (
 )
 
 _logger = logging.getLogger(__name__)
-
-
-class VariantLookupError(Exception):
-    """Raised when a variant cannot be retrieved from AnyVar"""
-
-
-class IncompleteVariantError(Exception):
-    """Raised when a variant is missing one or more properties required by AnyVLM"""
-
-
-class UnexpectedVariantTypeError(Exception):
-    """Raised when <vrs_variant>.type is not of the type expected by AnyVLM"""
-
-
-def _validate_allele(variant: SupportedVrsVariation | None) -> Allele:
-    if not variant:
-        raise VariantLookupError
-
-    if not variant.id:
-        raise IncompleteVariantError
-
-    if not variant.type == str(VrsType.ALLELE.value):
-        raise UnexpectedVariantTypeError
-
-    return variant
 
 
 def _retrieve_cafs_with_resolved_alleles(
@@ -96,8 +71,8 @@ def get_cafs(
         msg = "Unsupported assembly ID: {assembly_id}"
         raise ValueError(msg) from e
 
-    vrs_variation: Allele = _validate_allele(
-        variant=anyvar_client.retrieve_allele_by_expression(gnomad_vcf, assembly)
+    vrs_variation: Allele = validate_allele(
+        allele=anyvar_client.retrieve_allele_by_expression(gnomad_vcf, assembly)
     )
 
     cafs: list[AnyVlmCohortAlleleFrequencyResult] = (
@@ -112,8 +87,8 @@ def get_cafs(
     )
 
     if liftover_vrs_id:
-        liftover_variation: Allele = _validate_allele(
-            variant=anyvar_client.retrieve_allele_by_id(vrs_id=liftover_vrs_id)
+        liftover_variation: Allele = validate_allele(
+            allele=anyvar_client.retrieve_allele_by_id(vrs_id=liftover_vrs_id)
         )
 
         liftover_cafs: list[AnyVlmCohortAlleleFrequencyResult] = (
