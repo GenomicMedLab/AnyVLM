@@ -70,7 +70,7 @@ ASSEMBLY_MAP: MappingProxyType[GrcAssemblyId | UcscAssemblyBuild, ReferenceAssem
 Nucleotide = Annotated[
     str,
     BeforeValidator(str.upper),
-    StringConstraints(pattern=r"^[ACGT]+$"),
+    StringConstraints(pattern=r"^[ACGT]$"),
 ]
 
 
