@@ -1,16 +1,18 @@
 """CLI for interacting with AnyVLM instance"""
 
 import logging
-from http import HTTPStatus
 from pathlib import Path
 from timeit import default_timer as timer
 
 import click
-import requests
 from anyvar.mapping.liftover import ReferenceAssembly
 
 import anyvlm
+from anyvlm.anyvar.base_client import BaseAnyVarClient
 from anyvlm.config import Settings, get_config
+from anyvlm.functions.ingest_vcf import ingest_vcf
+from anyvlm.main import create_anyvar_client, create_anyvlm_storage
+from anyvlm.storage import Storage
 
 _logger = logging.getLogger(__name__)
 
@@ -23,6 +25,7 @@ def _cli() -> None:
 
 
 @_cli.command()
+@click.command(name="ingest-vcf")
 @click.option(
     "--file",
     "vcf_path",
@@ -39,7 +42,7 @@ def _cli() -> None:
     callback=lambda _, __, value: ReferenceAssembly(value),
     help="Reference genome assembly",
 )
-def ingest_vcf(vcf_path: Path, assembly: ReferenceAssembly) -> None:
+def ingest_vcf_cli(vcf_path: Path, assembly: ReferenceAssembly) -> None:
     """Deposit variants and allele frequencies from VCF into AnyVLM instance
 
     $ anyvlm ingest-vcf --file path/to/file.vcf.gz --assembly grch38
@@ -53,29 +56,35 @@ def ingest_vcf(vcf_path: Path, assembly: ReferenceAssembly) -> None:
     )
 
     config: Settings = get_config()
-    endpoint: str = f"{config.service_uri}/ingest_vcf"
 
-    params = {"assembly": assembly.value}
+    anyvar_client: BaseAnyVarClient = create_anyvar_client(
+        connection_string=config.anyvar_uri
+    )
+    anyvlm_storage: Storage = create_anyvlm_storage(uri=config.storage_uri)
 
-    with vcf_path.open("rb") as fh:
-        files = {"file": (vcf_path.name, fh, "application/gzip")}
+    ingest_vcf(vcf_path, anyvar_client, anyvlm_storage, assembly)
 
-        try:
-            response: requests.Response = requests.post(
-                endpoint,
-                files=files,
-                params=params,
-                timeout=3600,  # 1 hour
-            )
-        except requests.RequestException as e:
-            _logger.exception("HTTP POST request to AnyVLM '/ingest_vcf' failed")
-            raise click.ClickException(str(e)) from e
+    # params = {"assembly": assembly.value}
 
-    if response.status_code != HTTPStatus.OK:
-        _logger.error("Request failed with status code %s", response.status_code)
-        raise click.ClickException(
-            f"Request failed with status code: {response.status_code}"
-        )
+    # with vcf_path.open("rb") as fh:
+    #     files = {"file": (vcf_path.name, fh, "application/gzip")}
+
+    #     try:
+    #         response: requests.Response = requests.post(
+    #             endpoint,
+    #             files=files,
+    #             params=params,
+    #             timeout=3600,  # 1 hour
+    #         )
+    #     except requests.RequestException as e:
+    #         _logger.exception("HTTP POST request to AnyVLM '/ingest_vcf' failed")
+    #         raise click.ClickException(str(e)) from e
+
+    # if response.status_code != HTTPStatus.OK:
+    #     _logger.error("Request failed with status code %s", response.status_code)
+    #     raise click.ClickException(
+    #         f"Request failed with status code: {response.status_code}"
+    #     )
 
     end: float = timer()
     duration: float = end - start
