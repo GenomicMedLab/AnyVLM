@@ -2,7 +2,9 @@ from collections.abc import Iterable, Sequence
 from pathlib import Path
 
 import pytest
+from anyvar.core.objects import SupportedVrsVariation
 from anyvar.mapping.liftover import ReferenceAssembly
+from ga4gh.vrs.models import Allele
 
 from anyvlm.anyvar.base_client import BaseAnyVarClient
 from anyvlm.functions.ingest_vcf import VcfAfColumnsError, ingest_vcf
@@ -44,11 +46,18 @@ def stub_anyvar_client():
     }
 
     class TestAnyVarClient(BaseAnyVarClient):
-        def get_registered_allele(
+        def retrieve_allele_by_id(
+            self,
+            vrs_id: str,
+            starting_assembly: ReferenceAssembly = ReferenceAssembly.GRCH38,
+        ) -> SupportedVrsVariation | None:
+            raise NotImplementedError
+
+        def retrieve_allele_by_expression(
             self,
             expression: str,
             assembly: ReferenceAssembly = ReferenceAssembly.GRCH38,
-        ):
+        ) -> Allele | None:
             raise NotImplementedError
 
         def put_allele_expressions(
@@ -60,6 +69,11 @@ def stub_anyvar_client():
                 put_allele_expressions_responses[(expr, assembly)]
                 for expr in expressions
             ]
+
+        def get_liftover_variation_id(
+            self, vrs_id: str, starting_assembly: ReferenceAssembly
+        ) -> str | None:
+            raise NotImplementedError
 
         def close(self) -> None:
             """Clean up AnyVar connection."""

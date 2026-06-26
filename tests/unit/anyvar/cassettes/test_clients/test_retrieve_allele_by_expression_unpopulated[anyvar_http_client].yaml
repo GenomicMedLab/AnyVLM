@@ -3,7 +3,7 @@ interactions:
     body: '{"definition": "7-140753336-A-T", "assembly_name": "GRCh38", "input_type":
       "Allele"}'
     headers: {}
-    method: POST
+    method: PUT
     uri: http://localhost:8000/variation
   response:
     body:
@@ -17,7 +17,7 @@ interactions:
     body: '{"definition": "Y-2781704-G-G", "assembly_name": "GRCh38", "input_type":
       "Allele"}'
     headers: {}
-    method: POST
+    method: PUT
     uri: http://localhost:8000/variation
   response:
     body:
@@ -31,7 +31,7 @@ interactions:
     body: '{"definition": "Y-2781761-C-C", "assembly_name": "GRCh38", "input_type":
       "Allele"}'
     headers: {}
-    method: POST
+    method: PUT
     uri: http://localhost:8000/variation
   response:
     body:
@@ -45,7 +45,7 @@ interactions:
     body: '{"definition": "Y-2781761-C-A", "assembly_name": "GRCh38", "input_type":
       "Allele"}'
     headers: {}
-    method: POST
+    method: PUT
     uri: http://localhost:8000/variation
   response:
     body:
@@ -59,7 +59,7 @@ interactions:
     body: '{"definition": "Y-2781761-CA-C", "assembly_name": "GRCh38", "input_type":
       "Allele"}'
     headers: {}
-    method: POST
+    method: PUT
     uri: http://localhost:8000/variation
   response:
     body:

@@ -6,15 +6,23 @@ from http import HTTPMethod, HTTPStatus
 from typing import Literal
 
 import requests
+from anyvar.core.metadata import VariationMapping
 from anyvar.mapping.liftover import ReferenceAssembly
-from anyvar.restapi.schema import GetObjectResponse, RegisterVariationResponse
+from anyvar.restapi.schema import (
+    GetMappingResponse,
+    GetObjectResponse,
+    RegisterVariationResponse,
+)
 from ga4gh.vrs import VrsType, models
+from requests.models import Response
 
 from anyvlm.anyvar.base_client import (
     AnyVarClientConnectionError,
     AnyVarClientError,
     BaseAnyVarClient,
 )
+from anyvlm.utils.exceptions import LiftoverError
+from anyvlm.utils.functions import validate_allele
 
 _logger = logging.getLogger(__name__)
 
@@ -36,9 +44,11 @@ class HttpAnyVarClient(BaseAnyVarClient):
 
     def _make_http_request(
         self,
-        method: Literal[HTTPMethod.POST] | Literal[HTTPMethod.PUT],
+        method: Literal[HTTPMethod.POST]
+        | Literal[HTTPMethod.PUT]
+        | Literal[HTTPMethod.GET],
         url: str,
-        payload: dict | list,
+        payload: dict | list | None = None,
     ) -> requests.Response:
         """Issue an HTTP request to an AnyVar server.
 
@@ -71,10 +81,21 @@ class HttpAnyVarClient(BaseAnyVarClient):
             raise
         return response
 
-    def get_registered_allele(
+    def retrieve_allele_by_id(self, vrs_id: str) -> models.Allele | None:
+        """Retrieve VRS Allele for given VRS ID
+
+        :param vrs_id: The ID to dereference
+        :return: The VRS Allele, or `None` if unable to retrieve the Allele.
+        """
+        url = f"{self.hostname}/object/{vrs_id}"
+        response = self._make_http_request(method=HTTPMethod.GET, url=url)
+        validated_response: GetObjectResponse = GetObjectResponse(**response.json())
+        return validate_allele(allele=validated_response.data)
+
+    def retrieve_allele_by_expression(
         self, expression: str, assembly: ReferenceAssembly = ReferenceAssembly.GRCH38
     ) -> models.Allele | None:
-        """Retrieve registered VRS Allele for given allele expression
+        """Retrieve VRS Allele for given allele expression
 
         Currently, only expressions supported by the VRS-Python translator are supported.
         This could change depending on the AnyVar implementation, though, and probably
@@ -82,7 +103,7 @@ class HttpAnyVarClient(BaseAnyVarClient):
 
         :param expression: variation expression to get VRS Allele for
         :param assembly: reference assembly used in expression
-        :return: VRS Allele if translation succeeds and VRS Allele has already been registered, else `None`
+        :return: VRS Allele if translation succeeds, else `None`
         """
         url = f"{self.hostname}/variation"
         payload = {
@@ -91,21 +112,16 @@ class HttpAnyVarClient(BaseAnyVarClient):
             "input_type": VrsType.ALLELE.value,
         }
         try:
-            response = self._make_http_request(HTTPMethod.POST, url, payload)
+            response: Response = self._make_http_request(HTTPMethod.PUT, url, payload)
         except requests.HTTPError as e:
             if e.response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY:
                 _logger.debug(
                     "Translation failed for variant expression '%s'", expression
                 )
-                return None
+            return None
 
-            if e.response.status_code == HTTPStatus.NOT_FOUND:
-                _logger.debug("No variation found for expression '%s'", expression)
-                return None
-            raise AnyVarClientError from e
-
-        validated_response = GetObjectResponse(**response.json())
-        return validated_response.data  # type: ignore (input_type=Allele guarantees return type)
+        validated_response = RegisterVariationResponse(**response.json())
+        return validated_response.object
 
     def put_allele_expressions(
         self,
@@ -138,6 +154,28 @@ class HttpAnyVarClient(BaseAnyVarClient):
         except requests.HTTPError as e:
             raise AnyVarClientError from e
         return [RegisterVariationResponse(**r).object_id for r in response.json()]
+
+    def get_liftover_variation_id(
+        self, vrs_id: str, starting_assembly: ReferenceAssembly
+    ) -> str | None:
+        """Get the VRS ID for the lifted-over equivalent of the variation specified by the provided VRS ID.
+
+        :param vrs_id: The VRS ID of the variation to lift over
+        :param starting_assembly: The assembly to liftover FROM (i.e., the assembly of the starting variant)
+        :return: The VRS ID of the lifted-over variation, or `None` if liftover is unsuccessful
+        """
+        as_source: bool = starting_assembly == ReferenceAssembly.GRCH37
+        url: str = f"{self.hostname}/object/{vrs_id}/mappings/liftover_to?as_source={as_source}"
+        response = self._make_http_request(HTTPMethod.GET, url)
+        validated_response: GetMappingResponse = GetMappingResponse(**response.json())
+
+        variation_mappings: list[VariationMapping] = list(validated_response.mappings)
+        if len(variation_mappings) > 1:
+            error_message: str = "Multiple liftover mappings found"
+            raise LiftoverError(error_message)
+
+        mapping_result: VariationMapping = variation_mappings[0]
+        return mapping_result.dest_id if as_source else mapping_result.source_id
 
     def close(self) -> None:
         """Clean up AnyVar connection.

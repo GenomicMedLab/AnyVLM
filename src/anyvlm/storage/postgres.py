@@ -70,7 +70,7 @@ class PostgresObjectStore(Storage):
         with self.session_factory() as session, session.begin():
             session.execute(stmt, [entity.to_dict() for entity in db_entities])
 
-    def get_caf_by_vrs_allele_id(
+    def get_cafs_by_vrs_allele_id(
         self, vrs_allele_id: str
     ) -> list[AnyVlmCohortAlleleFrequencyResult]:
         """Retrieve cohort allele frequency study results by VRS Allele ID
