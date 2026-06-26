@@ -64,28 +64,6 @@ def ingest_vcf_cli(vcf_path: Path, assembly: ReferenceAssembly) -> None:
 
     ingest_vcf(vcf_path, anyvar_client, anyvlm_storage, assembly)
 
-    # params = {"assembly": assembly.value}
-
-    # with vcf_path.open("rb") as fh:
-    #     files = {"file": (vcf_path.name, fh, "application/gzip")}
-
-    #     try:
-    #         response: requests.Response = requests.post(
-    #             endpoint,
-    #             files=files,
-    #             params=params,
-    #             timeout=3600,  # 1 hour
-    #         )
-    #     except requests.RequestException as e:
-    #         _logger.exception("HTTP POST request to AnyVLM '/ingest_vcf' failed")
-    #         raise click.ClickException(str(e)) from e
-
-    # if response.status_code != HTTPStatus.OK:
-    #     _logger.error("Request failed with status code %s", response.status_code)
-    #     raise click.ClickException(
-    #         f"Request failed with status code: {response.status_code}"
-    #     )
-
     end: float = timer()
     duration: float = end - start
     _logger.info("Ingestion complete in %s", f"{duration:.3f} seconds")
