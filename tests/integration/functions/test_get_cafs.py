@@ -1,12 +1,13 @@
-"""Test that get_caf function works correctly"""
+"""Test that get_cafs function works correctly"""
 
 import pytest
 from deepdiff import DeepDiff
 from helpers import EXPECTED_VRS_ID, TEST_VARIANT, build_caf
 
 from anyvlm.anyvar.python_client import PythonAnyVarClient
-from anyvlm.functions.get_caf import VariantNotRegisteredError, get_caf
+from anyvlm.functions.get_cafs import get_cafs
 from anyvlm.storage.postgres import PostgresObjectStore
+from anyvlm.utils.exceptions import VariantLookupError
 from anyvlm.utils.types import AnyVlmCohortAlleleFrequencyResult
 
 
@@ -20,13 +21,13 @@ def expected_cafs(caf_iri: AnyVlmCohortAlleleFrequencyResult, alleles: dict):
 
 
 @pytest.mark.vcr
-def test_get_caf_results_returned(
+def test_get_cafs_results_returned(
     anyvar_populated_python_client: PythonAnyVarClient,
     populated_postgres_storage: PostgresObjectStore,
     expected_cafs: list[AnyVlmCohortAlleleFrequencyResult],
 ):
-    """Test get_caf when variants are registered and results are expected"""
-    cafs = get_caf(
+    """Test get_cafs when variants are registered and results are expected"""
+    cafs = get_cafs(
         anyvar_populated_python_client,
         populated_postgres_storage,
         TEST_VARIANT.assembly,
@@ -44,12 +45,12 @@ def test_get_caf_results_returned(
 
 
 @pytest.mark.vcr
-def test_get_caf_no_results_returned(
+def test_get_cafs_no_results_returned(
     anyvar_populated_python_client: PythonAnyVarClient,
     postgres_storage: PostgresObjectStore,
 ):
-    """Test get_caf when variants are registered but no results are expected"""
-    cafs = get_caf(
+    """Test get_cafs when variants are registered but no results are expected"""
+    cafs: list[AnyVlmCohortAlleleFrequencyResult] = get_cafs(
         anyvar_populated_python_client,
         postgres_storage,
         TEST_VARIANT.assembly,
@@ -62,21 +63,18 @@ def test_get_caf_no_results_returned(
 
 
 @pytest.mark.vcr
-def test_get_caf_variant_not_registered(
+def test_get_cafs_variant_not_registered(
     anyvar_minimal_populated_python_client: PythonAnyVarClient,
     populated_postgres_storage: PostgresObjectStore,
 ):
-    """Test get_caf raises exception due to variant not being registered"""
-    with pytest.raises(
-        VariantNotRegisteredError,
-        match="Variant GRCh38 chrY-2781761-C-A is not registered in AnyVar",
-    ):
-        get_caf(
-            anyvar_minimal_populated_python_client,
-            populated_postgres_storage,
-            TEST_VARIANT.assembly,
-            TEST_VARIANT.chromosome,
-            TEST_VARIANT.position,
-            TEST_VARIANT.ref,
-            TEST_VARIANT.alt,
+    """Test get_cafs raises exception due to variant not being registered"""
+    with pytest.raises(VariantLookupError):
+        get_cafs(
+            anyvar_client=anyvar_minimal_populated_python_client,
+            anyvlm_storage=populated_postgres_storage,
+            assembly_id=TEST_VARIANT.assembly,
+            reference_name=TEST_VARIANT.chromosome,
+            start=TEST_VARIANT.position,
+            reference_base=TEST_VARIANT.ref,
+            alternate_base=TEST_VARIANT.alt,
         )

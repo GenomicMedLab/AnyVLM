@@ -20,7 +20,7 @@ classifiers = [
 dependencies = [
     "ga4gh.vrs>=2.3.0,<3.0",
     "ga4gh.va_spec~=0.4.3",
-    "anyvar>=1.0,<2.0",
+    "anyvar @ git+https://github.com/biocommons/anyvar.git@79cf327aa9f50d4236664d76ad840cc007498549", # Points to the most recent AnyVar commit on `main` as of 06-17-26. TODO: Replace with the latest version of AnyVar once we do the next release
     "fastapi>=0.95.0",
     "python-multipart",  # required for fastapi file uploads
     "uvicorn",

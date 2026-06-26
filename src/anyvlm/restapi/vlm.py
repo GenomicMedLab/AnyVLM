@@ -20,11 +20,12 @@ from pydantic import BaseModel
 
 from anyvlm.anyvar.base_client import AnyVarClientConnectionError, BaseAnyVarClient
 from anyvlm.functions.build_vlm_response import build_vlm_response
-from anyvlm.functions.get_caf import VariantNotRegisteredError, get_caf
+from anyvlm.functions.get_cafs import get_cafs
 from anyvlm.functions.ingest_vcf import VcfAfColumnsError
 from anyvlm.functions.ingest_vcf import ingest_vcf as ingest_vcf_function
 from anyvlm.schemas.vlm import VlmResponse
 from anyvlm.storage.base_storage import Storage
+from anyvlm.utils.exceptions import VariantLookupError
 from anyvlm.utils.types import (
     AnyVlmCohortAlleleFrequencyResult,
     ChromosomeName,
@@ -313,7 +314,7 @@ def variant_counts(
     anyvlm_storage: Storage = request.app.state.anyvlm_storage
 
     try:
-        caf_data: list[AnyVlmCohortAlleleFrequencyResult] = get_caf(
+        caf_data: list[AnyVlmCohortAlleleFrequencyResult] = get_cafs(
             anyvar_client,
             anyvlm_storage,
             assemblyId,
@@ -322,7 +323,7 @@ def variant_counts(
             referenceBases,
             alternateBases,
         )
-    except VariantNotRegisteredError:
+    except VariantLookupError:
         caf_data = []
     except AnyVarClientConnectionError as e:
         raise HTTPException(
