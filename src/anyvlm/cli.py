@@ -2,14 +2,11 @@
 
 import gzip
 import logging
-import tempfile
-import uuid
 from pathlib import Path
 from timeit import default_timer as timer
 
 import click
 from anyvar.mapping.liftover import ReferenceAssembly
-from fastapi import HTTPException, UploadFile
 
 import anyvlm
 from anyvlm.anyvar.base_client import BaseAnyVarClient
@@ -38,6 +35,13 @@ def _cli() -> None:
     logging.basicConfig(filename="anyvlm.log", level=logging.INFO)
 
 
+def _raise_vcf_ingestion_error(error_message: str, initial_error: Exception) -> None:
+    _logger.exception(msg=error_message)
+    raise VcfIngestionError(
+        f"Upload failed - {error_message}: {initial_error}"
+    ) from initial_error
+
+
 # ====================
 # Validation Helpers
 # ====================
@@ -53,37 +57,39 @@ def validate_filename_extension(filename: str) -> None:
         raise ValueError("Only .vcf.gz files are accepted")
 
 
-def validate_gzip_magic_bytes(file_obj: Path) -> None:
+def validate_gzip_magic_bytes(vcf_file_path: Path) -> None:
     """Validate that file has gzip magic bytes.
 
-    :param file_obj: path to file to validate
+    :param vcf_file_path: path to file to validate
     :raise ValueError: if file is not gzipped
     """
-    with file_obj.open("rb") as f:
+    with vcf_file_path.open("rb") as f:
         header = f.read(2)
 
     if header != b"\x1f\x8b":
         raise ValueError("File is not a valid gzip file")
 
 
-def validate_file_size(size: int) -> None:
+def validate_file_size(vcf_file_path: Path) -> None:
     """Validate that file size is within limits.
 
-    :param size: file size in bytes
+    :param file_path: path to VCF file
     :raise ValueError: if file exceeds maximum size
     """
+    size = vcf_file_path.stat().st_size
     if size > MAX_FILE_SIZE:
         max_gb = MAX_FILE_SIZE / (1024**3)
         raise ValueError(f"File too large. Maximum size: {max_gb:.1f}GB")
+    _logger.info("Validated input file %s (%d bytes)", vcf_file_path.name, size)
 
 
-def validate_vcf_header(file_path: Path) -> None:
+def validate_vcf_header(vcf_file_path: Path) -> None:
     """Validate VCF file format and required INFO fields.
 
-    :param file_path: path to VCF file
+    :param vcf_file_path: path to VCF file
     :raise ValueError: if VCF is malformed or missing required fields
     """
-    with gzip.open(file_path, "rt") as f:
+    with gzip.open(vcf_file_path, "rt") as f:
         # Check first line is VCF format declaration
         first_line = f.readline().strip()
         if not first_line.startswith("##fileformat=VCF"):
@@ -108,41 +114,11 @@ def validate_vcf_header(file_path: Path) -> None:
             )
 
 
-# ====================
-# File Handling
-# ====================
-
-
-async def save_upload_file_temp(upload_file: UploadFile) -> Path:
-    """Save uploaded file to temporary location using streaming.
-
-    :param upload_file: FastAPI UploadFile object
-    :return: path to saved temporary file
-    :raise: Any exceptions during file operations (caller should handle cleanup)
-    """
-    temp_dir = Path(tempfile.gettempdir())
-    temp_path = temp_dir / f"anyvlm_{uuid.uuid4()}.vcf.gz"
-
-    try:
-        # Stream upload to disk (memory efficient)
-        # Using blocking I/O here is acceptable as we're writing to local disk
-        with temp_path.open("wb") as f:
-            while chunk := await upload_file.read(UPLOAD_CHUNK_SIZE):
-                f.write(chunk)
-    except Exception:
-        # Cleanup on error
-        if temp_path.exists():
-            temp_path.unlink()
-        raise
-    else:
-        return temp_path
-
-
 @_cli.command()
 @click.command(name="ingest-vcf")
 @click.option(
     "--file",
-    "vcf_file",
+    "vcf_file_path",
     type=click.Path(exists=True, dir_okay=False, path_type=Path),
     required=True,
     help="Path to a gzip-compressed VCF file (.vcf.gz)",
@@ -156,62 +132,47 @@ async def save_upload_file_temp(upload_file: UploadFile) -> Path:
     callback=lambda _, __, value: ReferenceAssembly(value),
     help="Reference genome assembly",
 )
-def ingest_vcf_cli(vcf_file: Path, assembly: ReferenceAssembly) -> None:
+def ingest_vcf_cli_wrapper(vcf_file_path: Path, assembly: ReferenceAssembly) -> None:
     """Deposit variants and allele frequencies from VCF into AnyVLM instance
 
     $ anyvlm ingest-vcf --file path/to/file.vcf.gz --assembly grch38
     """
     start: float = timer()
-
     _logger.info(
         "Starting VCF ingestion: file='%s', assembly='%s'",
-        str(vcf_file),
+        str(vcf_file_path),
         assembly.value,
     )
 
     config: Settings = get_config()
-
     anyvar_client: BaseAnyVarClient = create_anyvar_client(
         connection_string=config.anyvar_uri
     )
     anyvlm_storage: Storage = create_anyvlm_storage(uri=config.storage_uri)
 
     try:
-        validate_filename_extension(filename=vcf_file.name)
+        # Validate VCF format and required fields. All raise a `ValueError` on validation failure
+        validate_filename_extension(filename=vcf_file_path.name)
+        validate_gzip_magic_bytes(vcf_file_path=vcf_file_path)
+        validate_file_size(vcf_file_path=vcf_file_path)
+        validate_vcf_header(vcf_file_path)
 
-        # Validate gzip magic bytes
-        validate_gzip_magic_bytes(file_obj=vcf_file)
-
-        # Check file size
-        file_size = vcf_file.stat().st_size
-
-        validate_file_size(file_size)
-
-        _logger.info("Validated input file %s (%d bytes)", vcf_file.name, file_size)
-
-        # Validate VCF format and required fields
-        try:
-            validate_vcf_header(vcf_file)
-        except ValueError as e:
-            raise HTTPException(
-                422,
-                f"VCF validation failed: {e!s}",
-            ) from e
-
-        _logger.info("Starting VCF ingestion for %s", vcf_file.name)
-        try:
-            ingest_vcf_function(vcf_file, anyvar_client, anyvlm_storage, assembly)
-        except VcfAfColumnsError as e:
-            _logger.exception("VCF missing required INFO columns")
-            raise HTTPException(422, f"VCF validation failed: {e}") from e
-        except Exception as e:
-            _logger.exception("VCF ingestion failed")
-            raise HTTPException(500, f"Ingestion failed: {e}") from e
-
-        _logger.info("Successfully ingested VCF: %s", vcf_file.name)
-    except Exception as e:
-        _logger.exception("Unexpected error during VCF upload")
-        raise VcfIngestionError(f"Upload failed: {e}") from e
+        _logger.info("Starting VCF ingestion for %s", vcf_file_path.name)
+        # Raises a VcfAfColumnsError if one or more required INFO column is missing
+        ingest_vcf_function(vcf_file_path, anyvar_client, anyvlm_storage, assembly)
+        _logger.info("Successfully ingested VCF: %s", vcf_file_path.name)
+    except ValueError as e:
+        _raise_vcf_ingestion_error(
+            error_message="VCF validation failed", initial_error=e
+        )
+    except VcfAfColumnsError as e:
+        _raise_vcf_ingestion_error(
+            error_message="VCF missing required INFO columns", initial_error=e
+        )
+    except Exception as e:  # noqa: BLE001
+        _raise_vcf_ingestion_error(
+            error_message="Unexpected error during VCF upload", initial_error=e
+        )
 
     end: float = timer()
     duration: float = end - start
