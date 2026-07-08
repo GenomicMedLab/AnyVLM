@@ -2,11 +2,11 @@ from collections.abc import Iterable, Sequence
 from pathlib import Path
 
 import pytest
-from anyvar.core.objects import SupportedVrsVariation
 from anyvar.mapping.liftover import ReferenceAssembly
 from ga4gh.vrs.models import Allele
 
 from anyvlm.anyvar.base_client import BaseAnyVarClient
+from anyvlm.anyvar.types import SupportedVrsVariation
 from anyvlm.functions.ingest_vcf import VcfAfColumnsError, ingest_vcf
 from anyvlm.storage.base_storage import Storage
 

@@ -3,9 +3,10 @@
 import abc
 from collections.abc import Iterable, Sequence
 
-from anyvar.core.objects import SupportedVrsVariation
 from anyvar.mapping.liftover import ReferenceAssembly
 from ga4gh.vrs.models import Allele
+
+from anyvlm.anyvar.types import SupportedVrsVariation
 
 
 class AnyVarClientError(Exception):

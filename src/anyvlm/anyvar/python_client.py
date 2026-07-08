@@ -5,7 +5,6 @@ from collections.abc import Iterable, Sequence
 
 from anyvar import AnyVar
 from anyvar.core.metadata import VariationMapping, VariationMappingType
-from anyvar.core.objects import SupportedVrsVariation
 from anyvar.mapping.liftover import ReferenceAssembly
 from anyvar.restapi.schema import SupportedVariationType
 from anyvar.storage.base import Storage
@@ -14,6 +13,7 @@ from ga4gh.vrs.dataproxy import DataProxyValidationError
 from ga4gh.vrs.models import Allele
 
 from anyvlm.anyvar.base_client import BaseAnyVarClient
+from anyvlm.anyvar.types import SupportedVrsVariation
 
 _logger = logging.getLogger(__name__)
 
