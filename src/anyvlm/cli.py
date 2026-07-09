@@ -114,8 +114,7 @@ def validate_vcf_header(vcf_file_path: Path) -> None:
             )
 
 
-@_cli.command()
-@click.command(name="ingest-vcf")
+@_cli.command(name="ingest-vcf")
 @click.option(
     "--file",
     "vcf_file_path",
@@ -177,3 +176,4 @@ def ingest_vcf_cli_wrapper(vcf_file_path: Path, assembly: ReferenceAssembly) -> 
     end: float = timer()
     duration: float = end - start
     _logger.info("Ingestion complete in %s", f"{duration:.3f} seconds")
+    print("✅ Ingestion complete")  # noqa: T201
