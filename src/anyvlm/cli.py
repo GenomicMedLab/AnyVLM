@@ -76,7 +76,7 @@ def validate_file_size(vcf_file_path: Path) -> None:
     :param file_path: path to VCF file
     :raise ValueError: if file exceeds maximum size
     """
-    size = vcf_file_path.stat().st_size
+    size: int = vcf_file_path.stat().st_size
     if size > MAX_FILE_SIZE:
         max_gb = MAX_FILE_SIZE / (1024**3)
         raise ValueError(f"File too large. Maximum size: {max_gb:.1f}GB")
