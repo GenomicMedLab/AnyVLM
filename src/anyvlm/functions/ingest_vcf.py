@@ -104,13 +104,19 @@ def ingest_vcf(
     :raise VcfAfColumnsError: if VCF is missing required columns
     """
     pysam.set_verbosity(0)  # silences warning re: lack of an index for the vcf file
-    vcf = pysam.VariantFile(filename=vcf_path.absolute().as_uri(), mode="r")
+
+    try:
+        vcf = pysam.VariantFile(filename=vcf_path.absolute().as_uri(), mode="r")
+    except ValueError:
+        error_message: str = "Unreadable VCF file"
+        _logger.exception(msg=error_message)
+        raise
 
     for batch in _yield_expression_af_batches(vcf):
         expressions, afs = zip(*batch, strict=True)
         variant_ids = av.put_allele_expressions(expressions, assembly)
 
-        cafs = []
+        cafs: list[AnyVlmCohortAlleleFrequencyResult] = []
         for variant_id, af in zip(variant_ids, afs, strict=True):
             if variant_id is None:
                 continue

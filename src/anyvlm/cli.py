@@ -11,11 +11,9 @@ from anyvar.mapping.liftover import ReferenceAssembly
 import anyvlm
 from anyvlm.anyvar.base_client import BaseAnyVarClient
 from anyvlm.config import Settings, get_config
-from anyvlm.functions.ingest_vcf import VcfAfColumnsError
 from anyvlm.functions.ingest_vcf import ingest_vcf as ingest_vcf_function
 from anyvlm.main import create_anyvar_client, create_anyvlm_storage
 from anyvlm.storage import Storage
-from anyvlm.utils.exceptions import VcfIngestionError
 
 # Create alias for easier mocking in tests
 ingest_vcf = ingest_vcf_function
@@ -35,26 +33,9 @@ def _cli() -> None:
     logging.basicConfig(filename="anyvlm.log", level=logging.INFO)
 
 
-def _raise_vcf_ingestion_error(error_message: str, initial_error: Exception) -> None:
-    _logger.exception(msg=error_message)
-    raise VcfIngestionError(
-        f"Upload failed - {error_message}: {initial_error}"
-    ) from initial_error
-
-
 # ====================
 # Validation Helpers
 # ====================
-
-
-def validate_filename_extension(filename: str) -> None:
-    """Validate that filename has .vcf.gz extension.
-
-    :param filename: name of uploaded file
-    :raise ValueError: if extension is not .vcf.gz
-    """
-    if not filename.endswith(".vcf.gz"):
-        raise ValueError("Only .vcf.gz files are accepted")
 
 
 def validate_gzip_magic_bytes(vcf_file_path: Path) -> None:
@@ -67,20 +48,7 @@ def validate_gzip_magic_bytes(vcf_file_path: Path) -> None:
         header = f.read(2)
 
     if header != b"\x1f\x8b":
-        raise ValueError("File is not a valid gzip file")
-
-
-def validate_file_size(vcf_file_path: Path) -> None:
-    """Validate that file size is within limits.
-
-    :param file_path: path to VCF file
-    :raise ValueError: if file exceeds maximum size
-    """
-    size: int = vcf_file_path.stat().st_size
-    if size > MAX_FILE_SIZE:
-        max_gb = MAX_FILE_SIZE / (1024**3)
-        raise ValueError(f"File too large. Maximum size: {max_gb:.1f}GB")
-    _logger.info("Validated input file %s (%d bytes)", vcf_file_path.name, size)
+        raise ValueError("VCF ingestion failed: File is not a valid gzip file")
 
 
 def validate_vcf_header(vcf_file_path: Path) -> None:
@@ -93,7 +61,9 @@ def validate_vcf_header(vcf_file_path: Path) -> None:
         # Check first line is VCF format declaration
         first_line = f.readline().strip()
         if not first_line.startswith("##fileformat=VCF"):
-            raise ValueError("Not a valid VCF file (missing format declaration)")
+            raise ValueError(
+                "VCF ingestion failed: Not a valid VCF file (missing format declaration)"
+            )
 
         # Scan headers for required INFO fields
         found_fields = set()
@@ -110,7 +80,7 @@ def validate_vcf_header(vcf_file_path: Path) -> None:
         missing = REQUIRED_INFO_FIELDS - found_fields
         if missing:
             raise ValueError(
-                f"VCF missing required INFO fields: {', '.join(sorted(missing))}"
+                f"VCF ingestion failed: missing required INFO fields: {', '.join(sorted(missing))}"
             )
 
 
@@ -143,35 +113,21 @@ def ingest_vcf_cli_wrapper(vcf_file_path: Path, assembly: ReferenceAssembly) -> 
         assembly.value,
     )
 
+    # Validate VCF format and required fields. All raise a `ValueError` on validation failure
+    validate_gzip_magic_bytes(vcf_file_path=vcf_file_path)
+    validate_vcf_header(vcf_file_path)
+
     config: Settings = get_config()
     anyvar_client: BaseAnyVarClient = create_anyvar_client(
         connection_string=config.anyvar_uri
     )
     anyvlm_storage: Storage = create_anyvlm_storage(uri=config.storage_uri)
-
-    try:
-        # Validate VCF format and required fields. All raise a `ValueError` on validation failure
-        validate_filename_extension(filename=vcf_file_path.name)
-        validate_gzip_magic_bytes(vcf_file_path=vcf_file_path)
-        validate_file_size(vcf_file_path=vcf_file_path)
-        validate_vcf_header(vcf_file_path)
-
-        _logger.info("Starting VCF ingestion for %s", vcf_file_path.name)
-        # Raises a VcfAfColumnsError if one or more required INFO column is missing
-        ingest_vcf_function(vcf_file_path, anyvar_client, anyvlm_storage, assembly)
-        _logger.info("Successfully ingested VCF: %s", vcf_file_path.name)
-    except ValueError as e:
-        _raise_vcf_ingestion_error(
-            error_message="VCF validation failed", initial_error=e
-        )
-    except VcfAfColumnsError as e:
-        _raise_vcf_ingestion_error(
-            error_message="VCF missing required INFO columns", initial_error=e
-        )
-    except Exception as e:  # noqa: BLE001
-        _raise_vcf_ingestion_error(
-            error_message="Unexpected error during VCF upload", initial_error=e
-        )
+    ingest_vcf_function(
+        vcf_path=vcf_file_path,
+        av=anyvar_client,
+        storage=anyvlm_storage,
+        assembly=assembly,
+    )
 
     end: float = timer()
     duration: float = end - start
