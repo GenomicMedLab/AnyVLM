@@ -1,9 +1,9 @@
 """Get a VCF, register its contained variants, and add cohort frequency data to storage"""
 
 import logging
-from collections import namedtuple
 from collections.abc import Iterator
 from pathlib import Path
+from typing import NamedTuple
 
 import pysam
 from anyvar.mapping.liftover import ReferenceAssembly
@@ -21,7 +21,15 @@ from anyvlm.utils.types import (
 _logger = logging.getLogger(__name__)
 
 
-AfData = namedtuple("AfData", ("ac", "an", "ac_het", "ac_hom", "ac_hemi", "filters"))
+class AfData(NamedTuple):
+    """Represents Af data"""
+
+    ac: int
+    an: int
+    ac_het: int
+    ac_hom: int
+    ac_hemi: int
+    filters: object
 
 
 class VcfAfColumnsError(Exception):
