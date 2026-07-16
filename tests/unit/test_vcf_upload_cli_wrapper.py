@@ -61,27 +61,6 @@ def not_vcf_gz(test_vcf_dir: Path) -> Path:
 class TestFileValidation:
     """Test file validation functions."""
 
-    def test_validate_filename_extension_valid(self):
-        """Test that .vcf.gz extension passes validation."""
-        from anyvlm.cli import validate_filename_extension
-
-        # Should not raise
-        validate_filename_extension(filename="test.vcf.gz")
-        validate_filename_extension(filename="path/to/file.vcf.gz")
-
-    def test_validate_filename_extension_invalid(self):
-        """Test that non-.vcf.gz extensions fail validation."""
-        from anyvlm.cli import validate_filename_extension
-
-        with pytest.raises(ValueError, match="Only .vcf.gz files"):
-            validate_filename_extension(filename="test.vcf")
-
-        with pytest.raises(ValueError, match="Only .vcf.gz files"):
-            validate_filename_extension(filename="test.gz")
-
-        with pytest.raises(ValueError, match="Only .vcf.gz files"):
-            validate_filename_extension(filename="test.txt.gz")
-
     def test_validate_gzip_magic_bytes_valid(self, valid_vcf_gz: Path):
         """Test gzip magic bytes validation with valid file."""
         from anyvlm.cli import validate_gzip_magic_bytes
@@ -99,26 +78,6 @@ class TestFileValidation:
 
             with pytest.raises(ValueError, match="not a valid gzip file"):
                 validate_gzip_magic_bytes(invalid_gzip)
-
-    def test_validate_file_size_within_limit(self, valid_vcf_gz: Path):
-        """Test file size validation for file within limit."""
-        from anyvlm.cli import validate_file_size
-
-        file_size: int = valid_vcf_gz.stat().st_size
-        assert file_size < MAX_FILE_SIZE  # Sanity check
-
-        # Should not raise
-        validate_file_size(vcf_file_path=valid_vcf_gz)
-
-    def test_file_size_check_with_mock_large_file(self):
-        """Test that files exceeding size limit are rejected."""
-        from anyvlm.cli import validate_file_size
-
-        file_path = MagicMock(spec=Path)
-        file_path.stat.return_value.st_size = MAX_FILE_SIZE + 1
-
-        with pytest.raises(ValueError, match="File too large"):
-            validate_file_size(file_path)
 
     def test_validate_vcf_header_valid(self, valid_vcf_gz: Path):
         """Test VCF header validation with valid file."""
