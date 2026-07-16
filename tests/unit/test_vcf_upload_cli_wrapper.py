@@ -65,6 +65,7 @@ class TestFileValidation:
         """Test gzip magic bytes validation with valid file."""
         from anyvlm.cli import validate_gzip_magic_bytes
 
+        # Should not raise an error
         validate_gzip_magic_bytes(vcf_file_path=valid_vcf_gz)
 
     def test_validate_gzip_magic_bytes_invalid(self):
@@ -101,7 +102,9 @@ class TestFileValidation:
         """Test VCF header validation fails on missing INFO fields."""
         from anyvlm.cli import validate_vcf_header
 
-        with pytest.raises(ValueError, match="VCF missing required INFO fields.*AN"):
+        with pytest.raises(
+            ValueError, match="VCF ingestion failed: missing required INFO field.*AN"
+        ):
             validate_vcf_header(vcf_file_path=missing_fields_vcf_gz)
 
 
