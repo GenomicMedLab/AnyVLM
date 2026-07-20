@@ -58,25 +58,6 @@ def not_vcf_gz(test_vcf_dir: Path) -> Path:
 class TestFileValidation:
     """Test file validation functions."""
 
-    def test_validate_gzip_magic_bytes_valid(self, valid_vcf_gz: Path):
-        """Test gzip magic bytes validation with valid file."""
-        from anyvlm.cli import validate_gzip_magic_bytes
-
-        # Should not raise an error
-        validate_gzip_magic_bytes(vcf_file_path=valid_vcf_gz)
-
-    def test_validate_gzip_magic_bytes_invalid(self):
-        """Test gzip magic bytes validation with invalid file."""
-        from anyvlm.cli import validate_gzip_magic_bytes
-
-        runner = CliRunner()
-        with runner.isolated_filesystem():
-            invalid_gzip = Path("not_gzip.vcf.gz")
-            invalid_gzip.write_bytes(b"Not a gzip file")
-
-            with pytest.raises(ValueError, match="not a valid gzip file"):
-                validate_gzip_magic_bytes(invalid_gzip)
-
     def test_validate_vcf_header_valid(self, valid_vcf_gz: Path):
         """Test VCF header validation with valid file."""
         from anyvlm.cli import validate_vcf_header

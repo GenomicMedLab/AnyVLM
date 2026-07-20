@@ -33,24 +33,6 @@ def _cli() -> None:
     logging.basicConfig(filename="anyvlm.log", level=logging.INFO)
 
 
-# ====================
-# Validation Helpers
-# ====================
-
-
-def validate_gzip_magic_bytes(vcf_file_path: Path) -> None:
-    """Validate that file has gzip magic bytes.
-
-    :param vcf_file_path: path to file to validate
-    :raise ValueError: if file is not gzipped
-    """
-    with vcf_file_path.open("rb") as f:
-        header = f.read(2)
-
-    if header != b"\x1f\x8b":
-        raise ValueError("VCF ingestion failed: File is not a valid gzip file")
-
-
 def validate_vcf_header(vcf_file_path: Path) -> None:
     """Validate VCF file format and required INFO fields.
 
@@ -114,7 +96,6 @@ def ingest_vcf_cli_wrapper(vcf_file_path: Path, assembly: ReferenceAssembly) -> 
     )
 
     # Validate VCF format and required fields. All raise a `ValueError` on validation failure
-    validate_gzip_magic_bytes(vcf_file_path=vcf_file_path)
     validate_vcf_header(vcf_file_path)
 
     config: Settings = get_config()
