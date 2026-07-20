@@ -2,6 +2,7 @@
 
 import logging
 from collections.abc import Iterator
+from enum import StrEnum
 from logging import Logger
 from pathlib import Path
 from typing import NamedTuple
@@ -21,7 +22,19 @@ from anyvlm.utils.types import (
 )
 
 _logger: Logger = logging.getLogger(__name__)
-REQUIRED_INFO_FIELDS: set[str] = {"AC", "AN", "AC_Het", "AC_Hom", "AC_Hemi"}
+
+
+class VcfInfoField(StrEnum):
+    """Represents required info fields"""
+
+    AC = "AC"
+    AN = "AN"
+    AC_HET = "AC_Het"
+    AC_HOM = "AC_Hom"
+    AC_HEMI = "AC_Hemi"
+
+
+REQUIRED_INFO_FIELDS: frozenset[VcfInfoField] = frozenset(VcfInfoField)
 
 
 class AfData(NamedTuple):
@@ -41,10 +54,10 @@ class VcfAfColumnsError(Exception):
 
 def _validate_vcf_header(vcf: pysam.VariantFile) -> None:
     """Validate that a VCF header includes the required INFO fields."""
-    found_fields = set(vcf.header.info.keys())
-    missing = REQUIRED_INFO_FIELDS - found_fields
+    found_fields: set[str] = set[str](vcf.header.info.keys())
+    missing: frozenset[VcfInfoField] = REQUIRED_INFO_FIELDS - found_fields
     if missing:
-        raise ValueError(
+        raise VcfAfColumnsError(
             f"VCF ingestion failed: missing required INFO fields: {', '.join(sorted(missing))}"
         )
 
@@ -68,9 +81,9 @@ def _yield_expression_af_batches(
             if record.ref is None or "*" in record.ref or "*" in alt:
                 _logger.info("Skipping missing allele at %s", record)
                 continue
-            expression = f"{record.chrom}-{record.pos}-{record.ref}-{alt}"
+            expression: str = f"{record.chrom}-{record.pos}-{record.ref}-{alt}"
             try:
-                af = AfData(
+                af: AfData = AfData(
                     ac=record.info["AC"][i],
                     an=record.info["AN"],
                     ac_het=record.info["AC_Het"][i],
@@ -80,7 +93,7 @@ def _yield_expression_af_batches(
                 )
             except KeyError as e:
                 info: VariantRecordInfo = record.info
-                msg: str = f"One or more required INFO column is missing: {'AC' in info}, {'AN' in info}, {'AC_Het' in info}, {'AC_Hom' in info}, {'AC_Hemi' in info}"
+                msg: str = f"One or more required INFO column is missing: {VcfInfoField.AC in info}, {VcfInfoField.AN in info}, {VcfInfoField.AC_HET in info}, {VcfInfoField.AC_HOM in info}, {VcfInfoField.AC_HEMI in info}"
                 _logger.exception(msg)
                 raise VcfAfColumnsError(msg) from e
             if af.an == 0:

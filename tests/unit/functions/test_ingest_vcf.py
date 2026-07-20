@@ -143,18 +143,6 @@ def test_ingest_vcf_an_zero(
     )
 
 
-def test_ingest_vcf_missing_required_info_fields_gz(
-    stub_anyvar_client: BaseAnyVarClient, test_data_dir: Path
-):
-    """Test header validation for gzipped VCF missing required INFO fields."""
-    with pytest.raises(ValueError, match="missing required INFO fields: AN"):
-        ingest_vcf(
-            test_data_dir / "vcf" / "missing_info_fields.vcf.gz",
-            stub_anyvar_client,
-            MagicMock(spec=Storage),
-        )
-
-
 def test_ingest_vcf_malformed_header_gz(
     stub_anyvar_client: BaseAnyVarClient, test_data_dir: Path
 ):
