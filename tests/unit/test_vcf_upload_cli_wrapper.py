@@ -51,42 +51,6 @@ def not_vcf_gz(test_vcf_dir: Path) -> Path:
 
 
 # ====================
-# Validation Helper Tests
-# ====================
-
-
-class TestFileValidation:
-    """Test file validation functions."""
-
-    def test_validate_vcf_header_valid(self, valid_vcf_gz: Path):
-        """Test VCF header validation with valid file."""
-        from anyvlm.cli import validate_vcf_header
-
-        # Should not raise
-        validate_vcf_header(vcf_file_path=valid_vcf_gz)
-
-    def test_validate_vcf_header_missing_format_declaration(
-        self, malformed_vcf_gz: Path
-    ):
-        """Test VCF header validation fails on missing fileformat."""
-        from anyvlm.cli import validate_vcf_header
-
-        with pytest.raises(ValueError, match="Not a valid VCF"):
-            validate_vcf_header(vcf_file_path=malformed_vcf_gz)
-
-    def test_validate_vcf_header_missing_required_fields(
-        self, missing_fields_vcf_gz: Path
-    ):
-        """Test VCF header validation fails on missing INFO fields."""
-        from anyvlm.cli import validate_vcf_header
-
-        with pytest.raises(
-            ValueError, match="VCF ingestion failed: missing required INFO field.*AN"
-        ):
-            validate_vcf_header(vcf_file_path=missing_fields_vcf_gz)
-
-
-# ====================
 # CLI Wrapper Integration Tests
 # ====================
 

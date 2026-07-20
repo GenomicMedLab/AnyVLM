@@ -1,6 +1,5 @@
 """CLI for interacting with AnyVLM instance"""
 
-import gzip
 import logging
 from pathlib import Path
 from timeit import default_timer as timer
@@ -31,39 +30,6 @@ REQUIRED_INFO_FIELDS = {"AC", "AN", "AC_Het", "AC_Hom", "AC_Hemi"}
 def _cli() -> None:
     """Manage AnyVLM data."""
     logging.basicConfig(filename="anyvlm.log", level=logging.INFO)
-
-
-def validate_vcf_header(vcf_file_path: Path) -> None:
-    """Validate VCF file format and required INFO fields.
-
-    :param vcf_file_path: path to VCF file
-    :raise ValueError: if VCF is malformed or missing required fields
-    """
-    with gzip.open(vcf_file_path, "rt") as f:
-        # Check first line is VCF format declaration
-        first_line = f.readline().strip()
-        if not first_line.startswith("##fileformat=VCF"):
-            raise ValueError(
-                "VCF ingestion failed: Not a valid VCF file (missing format declaration)"
-            )
-
-        # Scan headers for required INFO fields
-        found_fields = set()
-
-        for line in f:
-            if line.startswith("##INFO=<ID="):
-                # Extract field ID
-                field_id = line.split("ID=")[1].split(",")[0]
-                found_fields.add(field_id)
-            elif line.startswith("#CHROM"):
-                # End of headers
-                break
-
-        missing = REQUIRED_INFO_FIELDS - found_fields
-        if missing:
-            raise ValueError(
-                f"VCF ingestion failed: missing required INFO fields: {', '.join(sorted(missing))}"
-            )
 
 
 @_cli.command(name="ingest-vcf")
