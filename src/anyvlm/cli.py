@@ -95,9 +95,6 @@ def ingest_vcf_cli_wrapper(vcf_file_path: Path, assembly: ReferenceAssembly) -> 
         assembly.value,
     )
 
-    # Validate VCF format and required fields. All raise a `ValueError` on validation failure
-    validate_vcf_header(vcf_file_path)
-
     config: Settings = get_config()
     anyvar_client: BaseAnyVarClient = create_anyvar_client(
         connection_string=config.anyvar_uri

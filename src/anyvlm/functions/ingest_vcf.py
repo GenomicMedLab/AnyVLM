@@ -2,6 +2,7 @@
 
 import logging
 from collections.abc import Iterator
+from logging import Logger
 from pathlib import Path
 from typing import NamedTuple
 
@@ -9,6 +10,7 @@ import pysam
 from anyvar.mapping.liftover import ReferenceAssembly
 from ga4gh.core.models import iriReference
 from ga4gh.va_spec.base import StudyGroup
+from pysam.libcbcf import VariantRecordInfo
 
 from anyvlm.anyvar.base_client import BaseAnyVarClient
 from anyvlm.storage.base_storage import Storage
@@ -18,7 +20,8 @@ from anyvlm.utils.types import (
     QualityMeasures,
 )
 
-_logger = logging.getLogger(__name__)
+_logger: Logger = logging.getLogger(__name__)
+REQUIRED_INFO_FIELDS: set[str] = {"AC", "AN", "AC_Het", "AC_Hom", "AC_Hemi"}
 
 
 class AfData(NamedTuple):
@@ -34,6 +37,16 @@ class AfData(NamedTuple):
 
 class VcfAfColumnsError(Exception):
     """Raise for missing VCF INFO columns that are required for AF ingestion"""
+
+
+def _validate_vcf_header(vcf: pysam.VariantFile) -> None:
+    """Validate that a VCF header includes the required INFO fields."""
+    found_fields = set(vcf.header.info.keys())
+    missing = REQUIRED_INFO_FIELDS - found_fields
+    if missing:
+        raise ValueError(
+            f"VCF ingestion failed: missing required INFO fields: {', '.join(sorted(missing))}"
+        )
 
 
 def _yield_expression_af_batches(
@@ -66,8 +79,8 @@ def _yield_expression_af_batches(
                     filters=record.filter.keys(),
                 )
             except KeyError as e:
-                info = record.info
-                msg = f"One or more required INFO column is missing: {'AC' in info}, {'AN' in info}, {'AC_Het' in info}, {'AC_Hom' in info}, {'AC_Hemi' in info}"
+                info: VariantRecordInfo = record.info
+                msg: str = f"One or more required INFO column is missing: {'AC' in info}, {'AN' in info}, {'AC_Het' in info}, {'AC_Hom' in info}, {'AC_Hemi' in info}"
                 _logger.exception(msg)
                 raise VcfAfColumnsError(msg) from e
             if af.an == 0:
@@ -109,16 +122,21 @@ def ingest_vcf(
     :param av: AnyVar client
     :param storage: AnyVLM storage instance
     :param assembly: reference assembly used by VCF
+    :raise ValueError: if VCF is unreadable or missing required INFO fields
     :raise VcfAfColumnsError: if VCF is missing required columns
     """
     pysam.set_verbosity(0)  # silences warning re: lack of an index for the vcf file
 
     try:
         vcf = pysam.VariantFile(filename=vcf_path.absolute().as_uri(), mode="r")
-    except ValueError:
-        error_message: str = "Unreadable VCF file"
+    except ValueError as e:
+        error_message = (
+            "VCF ingestion failed: Not a valid VCF file (missing format declaration)"
+        )
         _logger.exception(msg=error_message)
-        raise
+        raise ValueError(error_message) from e
+
+    _validate_vcf_header(vcf)
 
     for batch in _yield_expression_af_batches(vcf):
         expressions, afs = zip(*batch, strict=True)
