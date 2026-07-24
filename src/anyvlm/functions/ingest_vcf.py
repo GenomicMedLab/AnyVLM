@@ -1,14 +1,17 @@
 """Get a VCF, register its contained variants, and add cohort frequency data to storage"""
 
 import logging
-from collections import namedtuple
 from collections.abc import Iterator
+from enum import StrEnum
+from logging import Logger
 from pathlib import Path
+from typing import NamedTuple
 
 import pysam
 from anyvar.mapping.liftover import ReferenceAssembly
 from ga4gh.core.models import iriReference
 from ga4gh.va_spec.base import StudyGroup
+from pysam.libcbcf import VariantRecordInfo
 
 from anyvlm.anyvar.base_client import BaseAnyVarClient
 from anyvlm.storage.base_storage import Storage
@@ -18,14 +21,45 @@ from anyvlm.utils.types import (
     QualityMeasures,
 )
 
-_logger = logging.getLogger(__name__)
+_logger: Logger = logging.getLogger(__name__)
 
 
-AfData = namedtuple("AfData", ("ac", "an", "ac_het", "ac_hom", "ac_hemi", "filters"))
+class VcfInfoField(StrEnum):
+    """Represents required info fields"""
+
+    AC = "AC"
+    AN = "AN"
+    AC_HET = "AC_Het"
+    AC_HOM = "AC_Hom"
+    AC_HEMI = "AC_Hemi"
+
+
+REQUIRED_INFO_FIELDS: frozenset[VcfInfoField] = frozenset(VcfInfoField)
+
+
+class AfData(NamedTuple):
+    """Represents Af data"""
+
+    ac: int
+    an: int
+    ac_het: int
+    ac_hom: int
+    ac_hemi: int
+    filters: object
 
 
 class VcfAfColumnsError(Exception):
     """Raise for missing VCF INFO columns that are required for AF ingestion"""
+
+
+def _validate_vcf_header(vcf: pysam.VariantFile) -> None:
+    """Validate that a VCF header includes the required INFO fields."""
+    found_fields: set[str] = set[str](vcf.header.info.keys())
+    missing: frozenset[VcfInfoField] = REQUIRED_INFO_FIELDS - found_fields
+    if missing:
+        raise VcfAfColumnsError(
+            f"VCF ingestion failed: missing required INFO fields: {', '.join(sorted(missing))}"
+        )
 
 
 def _yield_expression_af_batches(
@@ -47,9 +81,9 @@ def _yield_expression_af_batches(
             if record.ref is None or "*" in record.ref or "*" in alt:
                 _logger.info("Skipping missing allele at %s", record)
                 continue
-            expression = f"{record.chrom}-{record.pos}-{record.ref}-{alt}"
+            expression: str = f"{record.chrom}-{record.pos}-{record.ref}-{alt}"
             try:
-                af = AfData(
+                af: AfData = AfData(
                     ac=record.info["AC"][i],
                     an=record.info["AN"],
                     ac_het=record.info["AC_Het"][i],
@@ -58,8 +92,8 @@ def _yield_expression_af_batches(
                     filters=record.filter.keys(),
                 )
             except KeyError as e:
-                info = record.info
-                msg = f"One or more required INFO column is missing: {'AC' in info}, {'AN' in info}, {'AC_Het' in info}, {'AC_Hom' in info}, {'AC_Hemi' in info}"
+                info: VariantRecordInfo = record.info
+                msg: str = f"One or more required INFO column is missing: {VcfInfoField.AC in info}, {VcfInfoField.AN in info}, {VcfInfoField.AC_HET in info}, {VcfInfoField.AC_HOM in info}, {VcfInfoField.AC_HEMI in info}"
                 _logger.exception(msg)
                 raise VcfAfColumnsError(msg) from e
             if af.an == 0:
@@ -101,16 +135,27 @@ def ingest_vcf(
     :param av: AnyVar client
     :param storage: AnyVLM storage instance
     :param assembly: reference assembly used by VCF
+    :raise ValueError: if VCF is unreadable or missing required INFO fields
     :raise VcfAfColumnsError: if VCF is missing required columns
     """
     pysam.set_verbosity(0)  # silences warning re: lack of an index for the vcf file
-    vcf = pysam.VariantFile(filename=vcf_path.absolute().as_uri(), mode="r")
+
+    try:
+        vcf = pysam.VariantFile(filename=vcf_path.absolute().as_uri(), mode="r")
+    except ValueError as e:
+        error_message = (
+            "VCF ingestion failed: Not a valid VCF file (missing format declaration)"
+        )
+        _logger.exception(msg=error_message)
+        raise ValueError(error_message) from e
+
+    _validate_vcf_header(vcf)
 
     for batch in _yield_expression_af_batches(vcf):
         expressions, afs = zip(*batch, strict=True)
         variant_ids = av.put_allele_expressions(expressions, assembly)
 
-        cafs = []
+        cafs: list[AnyVlmCohortAlleleFrequencyResult] = []
         for variant_id, af in zip(variant_ids, afs, strict=True):
             if variant_id is None:
                 continue

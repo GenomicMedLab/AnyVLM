@@ -2,9 +2,9 @@
 
 from typing import cast
 
-from anyvar.core.objects import SupportedVrsObject
 from ga4gh.vrs.models import Allele
 
+from anyvlm.anyvar.types import SupportedVrsObject
 from anyvlm.utils.exceptions import (
     IncompleteVariantError,
     UnexpectedVariantTypeError,

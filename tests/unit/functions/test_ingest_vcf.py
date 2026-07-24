@@ -1,12 +1,13 @@
 from collections.abc import Iterable, Sequence
 from pathlib import Path
+from unittest.mock import MagicMock
 
 import pytest
-from anyvar.core.objects import SupportedVrsVariation
 from anyvar.mapping.liftover import ReferenceAssembly
 from ga4gh.vrs.models import Allele
 
 from anyvlm.anyvar.base_client import BaseAnyVarClient
+from anyvlm.anyvar.types import SupportedVrsVariation
 from anyvlm.functions.ingest_vcf import VcfAfColumnsError, ingest_vcf
 from anyvlm.storage.base_storage import Storage
 
@@ -140,3 +141,27 @@ def test_ingest_vcf_an_zero(
         stub_anyvar_client,
         postgres_storage,
     )
+
+
+def test_ingest_vcf_malformed_header_gz(
+    stub_anyvar_client: BaseAnyVarClient, test_data_dir: Path
+):
+    """Test malformed gzipped VCF header is rejected during open."""
+    with pytest.raises(ValueError, match="Not a valid VCF file"):
+        ingest_vcf(
+            test_data_dir / "vcf" / "malformed_header.vcf.gz",
+            stub_anyvar_client,
+            MagicMock(spec=Storage),
+        )
+
+
+def test_ingest_vcf_not_a_vcf_gz(
+    stub_anyvar_client: BaseAnyVarClient, test_data_dir: Path
+):
+    """Test gzipped non-VCF content is rejected during open."""
+    with pytest.raises(ValueError, match="Not a valid VCF file"):
+        ingest_vcf(
+            test_data_dir / "vcf" / "not_a_vcf.txt.gz",
+            stub_anyvar_client,
+            MagicMock(spec=Storage),
+        )
