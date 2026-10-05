@@ -13,7 +13,7 @@ _logger: Logger = logging.getLogger(__name__)
 VLM_AUTH_API = "https://vlm-auth.us.auth0.com/"
 
 
-async def authenticate(request: Request) -> None:
+def authenticate_request(request: Request) -> None:
     """Authenticate JWT token from incoming match requests
 
     :param request: The incoming request object

@@ -12,6 +12,7 @@ from fastapi import (
 )
 
 from anyvlm.anyvar.base_client import AnyVarClientConnectionError, BaseAnyVarClient
+from anyvlm.functions.authenticate_request import authenticate_request
 from anyvlm.functions.build_vlm_response import build_vlm_response
 from anyvlm.functions.get_cafs import get_cafs
 from anyvlm.schemas.vlm import VlmResponse
@@ -65,6 +66,8 @@ def variant_counts(
         Nucleotide, Query(..., description="Single genomic base (A/C/T/G)")
     ],
 ) -> VlmResponse:
+    authenticate_request(request=request)
+
     anyvar_client: BaseAnyVarClient = request.app.state.anyvar_client
     anyvlm_storage: Storage = request.app.state.anyvlm_storage
 
