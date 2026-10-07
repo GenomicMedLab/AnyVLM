@@ -35,7 +35,7 @@ class AuthManager:
     _token_expiry: datetime
 
     def __init__(self) -> None:  # noqa: D107
-        self.refresh_known_nodes()
+        self._refresh_known_nodes()
 
     def _get_or_refresh_value(
         self, value_name: str, refresh_value: Callable[[], None]
@@ -53,7 +53,7 @@ class AuthManager:
             refresh_value()
         return getattr(self, value_name)
 
-    def refresh_known_nodes(self) -> None:
+    def _refresh_known_nodes(self) -> None:
         """Retrieve an updated list of known nodes on the VLM Network + reset the expiry time for the next check"""
         response: Response = requests.get(url=self.KNOWN_NODES_REQUEST_URL, timeout=10)
 
@@ -77,10 +77,10 @@ class AuthManager:
     def get_known_nodes(self) -> dict[str, list[str]]:
         """Retrieves a list of all known nodes on the VLM Network"""
         return self._get_or_refresh_value(
-            value_name="known_nodes", refresh_value=self.refresh_known_nodes
+            value_name="known_nodes", refresh_value=self._refresh_known_nodes
         )
 
-    def refresh_token(self) -> None:
+    def _refresh_token(self) -> None:
         """Sets a new JWT token and updates the token expiry time"""
         response: Response = requests.post(
             url=self.TOKEN_REQUEST_URL,
@@ -96,7 +96,7 @@ class AuthManager:
         data = response.json()
 
         self._token = data["access_token"]
-        self._token_expiry = datetime.now(tz=UTC) + data["expires_in"]
+        self._token_expiry = datetime.now(tz=UTC) + timedelta(data["expires_in"])
 
     def get_token(self) -> str:
         """Retrieve a current JWT token. Will set a new token if there
@@ -105,7 +105,7 @@ class AuthManager:
         :return: a JWT token
         """
         return self._get_or_refresh_value(
-            value_name="token", refresh_value=self.refresh_token
+            value_name="token", refresh_value=self._refresh_token
         )
 
     def authenticate_request(self, request: Request) -> None:
