@@ -2,12 +2,13 @@
 
 from datetime import UTC, datetime, timedelta
 from http import HTTPStatus
+from typing import Any
 
 import pytest
 from fastapi import HTTPException, Request
 
 from anyvlm.restapi import auth_manager
-from anyvlm.restapi.auth_manager import AuthManager
+from anyvlm.restapi.auth_manager import AuthManager, VlmNetworkNodeMetadata
 from anyvlm.utils.exceptions import Auth0Error
 
 
@@ -23,11 +24,11 @@ class MockResponse:
 
 
 @pytest.fixture
-def auth0_success(monkeypatch):
+def auth0_success(monkeypatch: pytest.MonkeyPatch) -> tuple[list[Any], list[Any]]:
     """Patch successful Auth0 token and client-list responses."""
-    post_calls = []
-    get_calls = []
-    nodes = [
+    post_calls: list[Any] = []
+    get_calls: list[Any] = []
+    nodes: list[dict[str, str | dict[str, str]] | dict[str, str | dict[Any, Any]]] = [
         {
             "client_id": "client-1",
             "name": "Node One",
@@ -77,19 +78,22 @@ def build_request(authorization: str) -> Request:
     )
 
 
-def test_init_fetches_token_and_known_nodes(auth0_success):
+def test_init_fetches_token_and_known_nodes(auth0_success: tuple[list[Any], list[Any]]):
     post_calls, get_calls = auth0_success
 
     manager = AuthManager()
 
     assert manager.get_token() == "token-1"
-    assert manager.get_known_nodes() == {
-        "client-1": {
-            "name": "Node One",
-            "match_url": "https://node-one.example/match",
-        },
-        "client-2": {"name": "Node Two", "match_url": None},
-    }
+    assert manager.get_known_nodes() == [
+        VlmNetworkNodeMetadata(
+            client_id="client-1",
+            client_name="Node One",
+            match_url="https://node-one.example/match",
+        ),
+        VlmNetworkNodeMetadata(
+            client_id="client-2", client_name="Node Two", match_url=None
+        ),
+    ]
     assert post_calls == [
         {
             "url": AuthManager.TOKEN_REQUEST_URL,
@@ -111,7 +115,9 @@ def test_init_fetches_token_and_known_nodes(auth0_success):
     ]
 
 
-def test_get_token_uses_cached_token_before_expiry(auth0_success):
+def test_get_token_uses_cached_token_before_expiry(
+    auth0_success: tuple[list[Any], list[Any]],
+) -> None:
     post_calls, _ = auth0_success
     manager = AuthManager()
 
@@ -120,7 +126,9 @@ def test_get_token_uses_cached_token_before_expiry(auth0_success):
     assert len(post_calls) == 1
 
 
-def test_get_token_refreshes_expired_token(auth0_success, monkeypatch):
+def test_get_token_refreshes_expired_token(
+    auth0_success: tuple[list[Any], list[Any]], monkeypatch: pytest.MonkeyPatch
+) -> None:
     post_calls, _ = auth0_success
     manager = AuthManager()
     monkeypatch.setattr(
@@ -132,7 +140,9 @@ def test_get_token_refreshes_expired_token(auth0_success, monkeypatch):
     assert len(post_calls) == 2
 
 
-def test_get_known_nodes_refreshes_expired_known_nodes(auth0_success, monkeypatch):
+def test_get_known_nodes_refreshes_expired_known_nodes(
+    auth0_success: tuple[list[Any], list[Any]], monkeypatch: pytest.MonkeyPatch
+) -> None:
     _, get_calls = auth0_success
     manager = AuthManager()
     monkeypatch.setattr(
@@ -141,12 +151,12 @@ def test_get_known_nodes_refreshes_expired_known_nodes(auth0_success, monkeypatc
         datetime.now(tz=UTC) - timedelta(seconds=1),
     )
 
-    assert manager.get_known_nodes()["client-1"]["name"] == "Node One"
+    assert manager.get_known_nodes()[0].client_name == "Node One"
 
     assert len(get_calls) == 2
 
 
-def test_refresh_token_raises_auth0_error(monkeypatch):
+def test_refresh_token_raises_auth0_error(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(
         auth_manager.requests,
         "post",
@@ -158,7 +168,9 @@ def test_refresh_token_raises_auth0_error(monkeypatch):
         manager.get_token()
 
 
-def test_refresh_known_nodes_raises_auth0_error(monkeypatch):
+def test_refresh_known_nodes_raises_auth0_error(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     monkeypatch.setattr(
         auth_manager.requests,
         "post",
@@ -179,7 +191,9 @@ def test_refresh_known_nodes_raises_auth0_error(monkeypatch):
         AuthManager()
 
 
-def test_authenticate_request_accepts_known_client(monkeypatch):
+def test_authenticate_request_accepts_known_client(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     manager = build_auth_manager()
     monkeypatch.setattr(
         manager,
@@ -206,8 +220,8 @@ def test_authenticate_request_accepts_known_client(monkeypatch):
 
 
 @pytest.mark.parametrize(
-    ("authorization", "detail"),
-    [
+    argnames=("authorization", "detail"),
+    argvalues=[
         ("", "Invalid authorization header"),
         ("Bearer", "Invalid authorization header"),
         ("Basic test-token", "Invalid token scheme"),
@@ -215,7 +229,7 @@ def test_authenticate_request_accepts_known_client(monkeypatch):
 )
 def test_authenticate_request_rejects_invalid_authorization_header(
     authorization: str, detail: str
-):
+) -> None:
     manager = build_auth_manager()
 
     with pytest.raises(HTTPException) as exc_info:
@@ -225,7 +239,9 @@ def test_authenticate_request_rejects_invalid_authorization_header(
     assert exc_info.value.detail == detail
 
 
-def test_authenticate_request_rejects_invalid_token(monkeypatch):
+def test_authenticate_request_rejects_invalid_token(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     manager = build_auth_manager()
 
     def decode(**kwargs) -> dict[str, str]:
@@ -240,7 +256,9 @@ def test_authenticate_request_rejects_invalid_token(monkeypatch):
     assert exc_info.value.detail == "Invalid token: bad token"
 
 
-def test_authenticate_request_rejects_unknown_client(monkeypatch):
+def test_authenticate_request_rejects_unknown_client(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     manager = build_auth_manager()
     monkeypatch.setattr(
         manager,

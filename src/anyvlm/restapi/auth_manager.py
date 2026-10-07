@@ -11,11 +11,21 @@ from typing import Any
 import jwt
 import requests
 from fastapi import HTTPException, Request
+from pydantic.dataclasses import dataclass
 from requests.models import Response
 
 from anyvlm.utils.exceptions import Auth0Error
 
 _logger: Logger = logging.getLogger(__name__)
+
+
+@dataclass
+class VlmNetworkNodeMetadata:
+    """Houses metadata about a VLM Network node"""
+
+    client_id: str
+    client_name: str
+    match_url: str | None
 
 
 class AuthManager:
@@ -28,7 +38,7 @@ class AuthManager:
 
     KNOWN_NODES_REFRESH_INTERVAL: timedelta = timedelta(hours=24)
 
-    _known_nodes: dict[str, dict[str, str | None]]
+    _known_nodes: list[VlmNetworkNodeMetadata]
     _known_nodes_expiry: datetime
 
     _token: str = ""
@@ -63,23 +73,26 @@ class AuthManager:
         )
 
         if response.status_code == HTTPStatus.OK:
-            self._known_nodes = {}
+            self._known_nodes = []
         else:
             error_message: str = "Unable to fetch known VLM Network nodes from Auth0"
             raise Auth0Error(error_message)
 
         data = response.json()
         for entry in data:
-            self._known_nodes[entry.get("client_id")] = {
-                "name": entry.get("name"),
-                "match_url": entry.get("client_metadata", {}).get("match_url"),
-            }
+            self._known_nodes.append(
+                VlmNetworkNodeMetadata(
+                    client_id=entry.get("client_id", ""),
+                    client_name=entry.get("name", ""),
+                    match_url=entry.get("client_metadata", {}).get("match_url"),
+                )
+            )
 
         self._known_nodes_expiry = (
             datetime.now(tz=UTC) + self.KNOWN_NODES_REFRESH_INTERVAL
         )
 
-    def get_known_nodes(self) -> dict[str, list[str]]:
+    def get_known_nodes(self) -> list[VlmNetworkNodeMetadata]:
         """Retrieves a list of all known nodes on the VLM Network"""
         return self._get_or_refresh_value(
             value_name="_known_nodes", refresh_value=self._refresh_known_nodes
