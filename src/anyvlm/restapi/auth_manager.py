@@ -13,6 +13,8 @@ import requests
 from fastapi import HTTPException, Request
 from requests.models import Response
 
+from anyvlm.utils.exceptions import Auth0Error
+
 _logger: Logger = logging.getLogger(__name__)
 
 
@@ -58,7 +60,8 @@ class AuthManager:
         if response.status_code == HTTPStatus.OK:
             self._known_nodes = {}
         else:
-            raise Exception  # noqa: TRY002  TODO: be more specific
+            error_message: str = "Unable to fetch known VLM Network nodes"
+            raise Auth0Error(error_message)
 
         data = response.json()
         for entry in data:
@@ -143,5 +146,11 @@ class AuthManager:
             ) from e
 
         client_id = decoded["azp"]
+
         message: str = f"Received match request from client_id '{client_id}'"
         _logger.info(msg=message)
+
+        if client_id not in self._known_nodes:
+            raise HTTPException(
+                status_code=HTTPStatus.FORBIDDEN, detail="Unknown client ID"
+            )
