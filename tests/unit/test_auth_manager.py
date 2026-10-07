@@ -41,8 +41,8 @@ def auth0_success(monkeypatch: pytest.MonkeyPatch) -> tuple[list[Any], list[Any]
         },
     ]
 
-    monkeypatch.setenv("VLM_CLIENT_ID", "test-client")
-    monkeypatch.setenv("VLM_CLIENT_SECRET", "test-secret")
+    monkeypatch.setenv(name="VLM_CLIENT_ID", value="test-client")
+    monkeypatch.setenv(name="VLM_CLIENT_SECRET", value="test-secret")
 
     def post(*, url: str, json: dict[str, str], timeout: int) -> MockResponse:
         post_calls.append({"url": url, "json": json, "timeout": timeout})
@@ -69,7 +69,7 @@ def build_auth_manager() -> AuthManager:
 def build_request(authorization: str) -> Request:
     """Build a Request with an Authorization header."""
     return Request(
-        {
+        scope={
             "type": "http",
             "method": "GET",
             "path": "/anyvlm/variant_counts",
@@ -81,7 +81,7 @@ def build_request(authorization: str) -> Request:
 def test_init_fetches_token_and_known_nodes(auth0_success: tuple[list[Any], list[Any]]):
     post_calls, get_calls = auth0_success
 
-    manager = AuthManager()
+    manager: AuthManager = AuthManager()
 
     assert manager.get_token() == "token-1"
     assert manager.get_known_nodes() == [
@@ -119,7 +119,7 @@ def test_get_token_uses_cached_token_before_expiry(
     auth0_success: tuple[list[Any], list[Any]],
 ) -> None:
     post_calls, _ = auth0_success
-    manager = AuthManager()
+    manager: AuthManager = AuthManager()
 
     assert manager.get_token() == "token-1"
 
@@ -130,7 +130,7 @@ def test_get_token_refreshes_expired_token(
     auth0_success: tuple[list[Any], list[Any]], monkeypatch: pytest.MonkeyPatch
 ) -> None:
     post_calls, _ = auth0_success
-    manager = AuthManager()
+    manager: AuthManager = AuthManager()
     monkeypatch.setattr(
         manager, "_token_expiry", datetime.now(tz=UTC) - timedelta(seconds=1)
     )
@@ -144,7 +144,7 @@ def test_get_known_nodes_refreshes_expired_known_nodes(
     auth0_success: tuple[list[Any], list[Any]], monkeypatch: pytest.MonkeyPatch
 ) -> None:
     _, get_calls = auth0_success
-    manager = AuthManager()
+    manager: AuthManager = AuthManager()
     monkeypatch.setattr(
         manager,
         "_known_nodes_expiry",
@@ -194,7 +194,7 @@ def test_refresh_known_nodes_raises_auth0_error(
 def test_authenticate_request_accepts_known_client(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    manager = build_auth_manager()
+    manager: AuthManager = build_auth_manager()
     monkeypatch.setattr(
         manager,
         "_known_nodes",
@@ -216,7 +216,12 @@ def test_authenticate_request_accepts_known_client(
 
     monkeypatch.setattr(auth_manager.jwt, "decode", decode)
 
-    assert manager.authenticate_request(build_request("Bearer test-token")) is None
+    assert (
+        manager.authenticate_request(
+            request=build_request(authorization="Bearer test-token")
+        )
+        is None
+    )
 
 
 @pytest.mark.parametrize(
@@ -230,10 +235,10 @@ def test_authenticate_request_accepts_known_client(
 def test_authenticate_request_rejects_invalid_authorization_header(
     authorization: str, detail: str
 ) -> None:
-    manager = build_auth_manager()
+    manager: AuthManager = build_auth_manager()
 
     with pytest.raises(HTTPException) as exc_info:
-        manager.authenticate_request(build_request(authorization))
+        manager.authenticate_request(request=build_request(authorization))
 
     assert exc_info.value.status_code == HTTPStatus.FORBIDDEN
     assert exc_info.value.detail == detail
@@ -242,7 +247,7 @@ def test_authenticate_request_rejects_invalid_authorization_header(
 def test_authenticate_request_rejects_invalid_token(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    manager = build_auth_manager()
+    manager: AuthManager = build_auth_manager()
 
     def decode(**kwargs) -> dict[str, str]:
         raise auth_manager.jwt.InvalidTokenError("bad token")
@@ -250,7 +255,9 @@ def test_authenticate_request_rejects_invalid_token(
     monkeypatch.setattr(auth_manager.jwt, "decode", decode)
 
     with pytest.raises(HTTPException) as exc_info:
-        manager.authenticate_request(build_request("Bearer test-token"))
+        manager.authenticate_request(
+            request=build_request(authorization="Bearer test-token")
+        )
 
     assert exc_info.value.status_code == HTTPStatus.FORBIDDEN
     assert exc_info.value.detail == "Invalid token: bad token"
@@ -259,7 +266,7 @@ def test_authenticate_request_rejects_invalid_token(
 def test_authenticate_request_rejects_unknown_client(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    manager = build_auth_manager()
+    manager: AuthManager = build_auth_manager()
     monkeypatch.setattr(
         manager,
         "_known_nodes",
@@ -273,7 +280,9 @@ def test_authenticate_request_rejects_unknown_client(
     )
 
     with pytest.raises(HTTPException) as exc_info:
-        manager.authenticate_request(build_request("Bearer test-token"))
+        manager.authenticate_request(
+            request=build_request(authorization="Bearer test-token")
+        )
 
     assert exc_info.value.status_code == HTTPStatus.FORBIDDEN
     assert exc_info.value.detail == "Unknown client ID"
