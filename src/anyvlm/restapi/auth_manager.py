@@ -55,7 +55,13 @@ class AuthManager:
 
     def _refresh_known_nodes(self) -> None:
         """Retrieve an updated list of known nodes on the VLM Network + reset the expiry time for the next check"""
-        response: Response = requests.get(url=self.KNOWN_NODES_REQUEST_URL, timeout=10)
+        response: Response = requests.get(
+            url=self.KNOWN_NODES_REQUEST_URL,
+            headers={
+                "Authorization": f"Bearer {self._get_or_refresh_value(value_name='_token', refresh_value=self._refresh_token)}"
+            },
+            timeout=10,
+        )
 
         if response.status_code == HTTPStatus.OK:
             self._known_nodes = {}
