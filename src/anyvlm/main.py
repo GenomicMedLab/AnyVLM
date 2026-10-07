@@ -21,6 +21,7 @@ from anyvlm.anyvar.base_client import BaseAnyVarClient
 from anyvlm.anyvar.http_client import HttpAnyVarClient
 from anyvlm.anyvar.python_client import PythonAnyVarClient
 from anyvlm.config import get_config
+from anyvlm.restapi.auth_manager import AuthManager
 from anyvlm.restapi.vlm import router as vlm_router
 from anyvlm.schemas.common import (
     SERVICE_DESCRIPTION,
@@ -139,6 +140,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator:
     await _configure_logging()
     app.state.anyvar_client = create_anyvar_client()
     app.state.anyvlm_storage = create_anyvlm_storage()
+    app.state.auth_manager = AuthManager()
     yield
     app.state.anyvar_client.close()
     app.state.anyvlm_storage.close()
