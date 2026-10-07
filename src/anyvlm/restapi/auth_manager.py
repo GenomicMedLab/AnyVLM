@@ -66,7 +66,7 @@ class AuthManager:
         if response.status_code == HTTPStatus.OK:
             self._known_nodes = {}
         else:
-            error_message: str = "Unable to fetch known VLM Network nodes"
+            error_message: str = "Unable to fetch known VLM Network nodes from Auth0"
             raise Auth0Error(error_message)
 
         data = response.json()
@@ -98,6 +98,10 @@ class AuthManager:
             },
             timeout=10,
         )
+
+        if response.status_code != HTTPStatus.OK:
+            error_message: str = "Unable to fetch bearer token from Auth0"
+            raise Auth0Error(error_message)
 
         data = response.json()
 
