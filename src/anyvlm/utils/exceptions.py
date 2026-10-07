@@ -19,3 +19,7 @@ class VcfIngestionError(Exception):
 
 class VariantLookupError(Exception):
     """Raised when a variant cannot be retrieved from AnyVar"""
+
+
+class Auth0Error(Exception):
+    """Used when an error occurs with the Auth0 API"""
