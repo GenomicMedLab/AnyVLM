@@ -2,7 +2,8 @@
 
 import logging
 import os
-from datetime import UTC, datetime
+from collections.abc import Callable
+from datetime import UTC, datetime, timedelta
 from http import HTTPStatus
 from logging import Logger
 from typing import Any
@@ -21,19 +22,62 @@ class AuthManager:
     BASE_VLM_AUTH_URL: str = "https://vlm-auth.us.auth0.com"
     TOKEN_REQUEST_URL: str = BASE_VLM_AUTH_URL + "/oauth/token"
     AUDIENCE: str = BASE_VLM_AUTH_URL + "/api/v2/"
+    KNOWN_NODES_REQUEST_URL: str = BASE_VLM_AUTH_URL + "/api/v2/clients"
 
-    known_node_ids: list[str]
+    KNOWN_NODES_REFRESH_INTERVAL: timedelta = timedelta(hours=24)
+
+    _known_nodes: dict[str, dict[str, str | None]]
+    _known_nodes_expiry: datetime
+
     _token: str = ""
-    token_expiry: datetime
+    _token_expiry: datetime
 
     def __init__(self) -> None:  # noqa: D107
-        self.known_node_ids = self.get_known_nodes()
+        self.refresh_known_nodes()
 
-    def get_known_nodes(self) -> list[str]:
+    def _get_or_refresh_value(
+        self, value_name: str, refresh_value: Callable[[], None]
+    ) -> Any:  # noqa: ANN401
+        """Get the specified value. If it has expired, refresh the value first.
+        NOTE: This function expects `value_name` to have a corresponding variable called `self.{value_name}_expiry`
+        that will be checked to determine if the value has expired.
+
+        :param value_name: The variable name of the value to get.
+        :param refresh_value: The function to refresh the value + reset the expiry datetime, to use if the value is expired.
+        """
+        if (not getattr(self, value_name)) or (
+            datetime.now(tz=UTC) >= getattr(self, f"{value_name})_expiry")
+        ):
+            refresh_value()
+        return getattr(self, value_name)
+
+    def refresh_known_nodes(self) -> None:
+        """Retrieve an updated list of known nodes on the VLM Network + reset the expiry time for the next check"""
+        response: Response = requests.get(url=self.KNOWN_NODES_REQUEST_URL, timeout=10)
+
+        if response.status_code == HTTPStatus.OK:
+            self._known_nodes = {}
+        else:
+            raise Exception  # noqa: TRY002  TODO: be more specific
+
+        data = response.json()
+        for entry in data:
+            self._known_nodes[entry.get("client_id")] = {
+                "name": entry.get("name"),
+                "match_url": entry.get("client_metadata", {}).get("match_url"),
+            }
+
+        self._known_nodes_expiry = (
+            datetime.now(tz=UTC) + self.KNOWN_NODES_REFRESH_INTERVAL
+        )
+
+    def get_known_nodes(self) -> dict[str, list[str]]:
         """Retrieves a list of all known nodes on the VLM Network"""
-        return []  # TODO
+        return self._get_or_refresh_value(
+            value_name="known_nodes", refresh_value=self.refresh_known_nodes
+        )
 
-    def set_token(self) -> None:
+    def refresh_token(self) -> None:
         """Sets a new JWT token and updates the token expiry time"""
         response: Response = requests.post(
             url=self.TOKEN_REQUEST_URL,
@@ -49,7 +93,7 @@ class AuthManager:
         data = response.json()
 
         self._token = data["access_token"]
-        self.token_expiry = datetime.now(tz=UTC) + data["expires_in"]
+        self._token_expiry = datetime.now(tz=UTC) + data["expires_in"]
 
     def get_token(self) -> str:
         """Retrieve a current JWT token. Will set a new token if there
@@ -57,9 +101,9 @@ class AuthManager:
 
         :return: a JWT token
         """
-        if (not self._token) or (datetime.now(tz=UTC) >= self.token_expiry):
-            self.set_token()
-        return self._token
+        return self._get_or_refresh_value(
+            value_name="token", refresh_value=self.refresh_token
+        )
 
     def authenticate_request(self, request: Request) -> None:
         """Authenticate JWT token from incoming match requests
