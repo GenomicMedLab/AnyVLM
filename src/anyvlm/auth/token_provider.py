@@ -7,20 +7,21 @@ from http import HTTPStatus
 import requests
 from requests.models import Response
 
+from anyvlm.config import Settings, get_config
 from anyvlm.utils.exceptions import TokenRetrievalError
 
 
 class TokenProvider:
     """Handles retrieving/caching valid bearer tokens"""
 
-    BASE_VLM_AUTH_URL: str = "https://vlm-auth.us.auth0.com"
-    AUDIENCE_URL: str = BASE_VLM_AUTH_URL + "/api/v2/"
-    TOKEN_REQUEST_URL: str = BASE_VLM_AUTH_URL + "/oauth/token"
-
     _token: str = ""
     _token_expiry: datetime
 
     def __init__(self) -> None:  # noqa: D107
+        settings: Settings = get_config()
+        self.AUDIENCE_URL: str = settings.base_vlm_network_url + "/api/v2/"
+        self.TOKEN_REQUEST_URL: str = settings.base_vlm_network_url + "/oauth/token"
+
         self.get_token()
 
     def get_token(self) -> str:

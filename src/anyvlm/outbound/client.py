@@ -8,14 +8,17 @@ import requests
 from anyvlm.auth.token_provider import TokenProvider
 
 
-class Client:
+class VlmClient:
     """Handles sending authenticated outbound requests to the VLM Network"""
 
     def __init__(self) -> None:  # noqa: D107
         self.token_provider: TokenProvider = TokenProvider()
 
-    async def request(
-        self, method_type: HTTPMethod, url: str, request_body: dict[Any, Any] | None
+    def request(
+        self,
+        method_type: HTTPMethod,
+        url: str,
+        request_body: dict[Any, Any] | None = None,
     ) -> Any:  # noqa: ANN401
         """Send an authenticated outbound request to the VLM Network"""
         return requests.request(
