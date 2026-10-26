@@ -4,8 +4,10 @@ from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from http import HTTPMethod, HTTPStatus
 
+from requests import Response
+
 from anyvlm.config import Settings, get_config
-from anyvlm.outbound.client import VlmClient
+from anyvlm.outbound.vlm_client import VlmClient
 from anyvlm.utils.exceptions import NodeRetrievalError
 
 
@@ -27,8 +29,8 @@ class NodeRegistry:
     _nodes_expiry: datetime
     _vlm_client: VlmClient
 
-    def __init__(self) -> None:  # noqa: D107
-        self._vlm_client = VlmClient()
+    def __init__(self, vlm_client: VlmClient) -> None:  # noqa: D107
+        self._vlm_client = vlm_client
 
         settings: Settings = get_config()
         self.NODES_REQUEST_URL: str = settings.base_vlm_network_url + "/api/v2/clients"
@@ -44,19 +46,19 @@ class NodeRegistry:
 
     def _refresh_nodes(self) -> None:
         """Retrieve an updated list of known nodes on the VLM Network + reset the expiry time for the next check"""
-        response = self._vlm_client.request(
+        response: Response = self._vlm_client.request(
             method_type=HTTPMethod.GET, url=self.NODES_REQUEST_URL
         )
 
         if response.status_code == HTTPStatus.OK:
-            self._known_nodes = []
+            self._nodes = []
         else:
             error_message: str = "Unable to fetch VLM Network nodes from Auth0"
             raise NodeRetrievalError(error_message)
 
         data = response.json()
         for entry in data:
-            self._known_nodes.append(
+            self._nodes.append(
                 VlmNode(
                     client_id=entry.get("client_id", ""),
                     client_name=entry.get("name", ""),
@@ -64,6 +66,4 @@ class NodeRegistry:
                 )
             )
 
-        self._known_nodes_expiry: datetime = (
-            datetime.now(tz=UTC) + self.NODES_REFRESH_INTERVAL
-        )
+        self._nodes_expiry = datetime.now(tz=UTC) + self.NODES_REFRESH_INTERVAL
