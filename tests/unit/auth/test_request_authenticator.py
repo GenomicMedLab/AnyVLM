@@ -1,0 +1,74 @@
+from typing import Any
+from unittest.mock import MagicMock
+
+import pytest
+
+from anyvlm.auth.request_authenticator import RequestAuthenticator
+from anyvlm.utils.exceptions import AuthenticationError
+
+
+def _authenticator(
+    claims: dict[Any, Any], node_ids: list[str]
+) -> tuple[RequestAuthenticator, MagicMock, MagicMock]:
+    jwt_validator: MagicMock = MagicMock()
+    jwt_validator.validate_and_decode_token.return_value = claims
+
+    node_registry: MagicMock = MagicMock()
+    node_registry.get_node_ids.return_value = node_ids
+
+    return (
+        RequestAuthenticator(jwt_validator=jwt_validator, node_registry=node_registry),
+        jwt_validator,
+        node_registry,
+    )
+
+
+def test_authenticates_known_node_without_refreshing_registry():
+    request_authenticator, jwt_validator, node_registry = _authenticator(
+        claims={"client_id": "client-one"}, node_ids=["client-one"]
+    )
+
+    request_authenticator.authenticate(request=MagicMock())
+
+    jwt_validator.validate_and_decode_token.assert_called_once()
+    node_registry.refresh_nodes.assert_not_called()
+    node_registry.get_node_ids.assert_called_once()
+
+
+def test_refreshes_registry_when_node_is_not_cached() -> None:
+    request_authenticator, _, node_registry = _authenticator(
+        claims={"client_id": "client-one"}, node_ids=[]
+    )
+    node_registry.get_node_ids.side_effect = [[], ["client-one"]]
+
+    request_authenticator.authenticate(request=MagicMock())
+
+    node_registry.refresh_nodes.assert_called_once()
+    assert node_registry.get_node_ids.call_count == 2
+
+
+def test_rejects_unknown_node_after_refresh() -> None:
+    request_, _, node_registry = _authenticator(
+        claims={"client_id": "unknown"}, node_ids=[]
+    )
+
+    with pytest.raises(
+        AuthenticationError,
+        match="Unrecognized VLM Network client: unknown",
+    ):
+        request_.authenticate(request=MagicMock())
+
+    node_registry.refresh_nodes.assert_called_once()
+
+
+@pytest.mark.parametrize(
+    argnames="claims", argvalues=[{}, {"client_id": ""}, {"client_id": None}]
+)
+def test_rejects_missing_client_identity(claims: dict[Any, Any]) -> None:
+    request_, _, node_registry = _authenticator(claims, node_ids=[])
+
+    with pytest.raises(AuthenticationError, match="Missing client identity"):
+        request_.authenticate(request=MagicMock())
+
+    node_registry.get_node_ids.assert_not_called()
+    node_registry.refresh_nodes.assert_not_called()

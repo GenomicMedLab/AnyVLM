@@ -1,6 +1,7 @@
 """Check basic functions of general endpoint(s)"""
 
 from pathlib import Path
+from unittest.mock import MagicMock
 
 import jsonschema
 import pytest
@@ -12,6 +13,7 @@ from anyvlm.main import app as vlm_restapi
 
 @pytest.fixture(scope="module")
 def restapi_client():
+    vlm_restapi.state.request_authenticator = MagicMock()
     return TestClient(app=vlm_restapi)
 
 
