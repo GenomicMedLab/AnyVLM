@@ -161,10 +161,10 @@ async def lifespan(app: FastAPI) -> AsyncGenerator:
     app.state.anyvar_client = create_anyvar_client()
     app.state.anyvlm_storage = create_anyvlm_storage()
 
-    token_provider = TokenProvider()
-    vlm_client = VlmClient(token_provider)
-    node_registry = NodeRegistry(vlm_client)
-    jwt_validator = JWTValidator()
+    token_provider: TokenProvider = TokenProvider()
+    vlm_client: VlmClient = VlmClient(token_provider)
+    node_registry: NodeRegistry = NodeRegistry(vlm_client)
+    jwt_validator: JWTValidator = JWTValidator()
 
     app.state.request_authenticator = RequestAuthenticator(
         jwt_validator=jwt_validator,
