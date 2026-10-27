@@ -33,7 +33,7 @@ class NodeRegistry:
         self._vlm_client = vlm_client
 
         settings: Settings = get_config()
-        self.NODES_REQUEST_URL: str = settings.base_vlm_network_url + "/api/v2/clients"
+        self.NODES_REQUEST_URL: str = settings.base_vlm_network_url + "api/v2/clients"
 
         self.refresh_nodes()
 

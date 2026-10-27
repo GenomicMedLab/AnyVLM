@@ -37,7 +37,7 @@ class JWTValidator:
                     "verify_signature": False,
                     "verify_iss": True,
                     "verify_exp": True,
-                    "require": ["azp"],
+                    "require": ["iss", "exp", "azp"],
                 },
             )
         except jwt.InvalidTokenError as e:

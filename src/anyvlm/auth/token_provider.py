@@ -19,8 +19,8 @@ class TokenProvider:
 
     def __init__(self) -> None:  # noqa: D107
         settings: Settings = get_config()
-        self.AUDIENCE_URL: str = settings.base_vlm_network_url + "/api/v2/"
-        self.TOKEN_REQUEST_URL: str = settings.base_vlm_network_url + "/oauth/token"
+        self.AUDIENCE_URL: str = settings.base_vlm_network_url + "api/v2/"
+        self.TOKEN_REQUEST_URL: str = settings.base_vlm_network_url + "oauth/token"
 
         self.get_token()
 
