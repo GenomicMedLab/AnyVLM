@@ -152,7 +152,7 @@ app = FastAPI(
     version=__version__,
     docs_url=API_PREFIX,
     openapi_url=f"{API_PREFIX}/openapi.json",
-    license={
+    license_info={
         "name": "Apache 2.0",
         "url": "https://github.com/genomicmedlab/anyvlm/blob/main/LICENSE",
     },
