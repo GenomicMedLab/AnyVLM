@@ -46,7 +46,7 @@ venv/%:
 	python$* -m venv $@; \
 	. $@/bin/activate; \
 	python -m ensurepip --upgrade; \
-	pip install --upgrade pip setuptools; \
+	python -m pip install --upgrade 'pip>=26.2.2' setuptools; \
 	pip install .
 
 #=> develop: install package in develop mode
