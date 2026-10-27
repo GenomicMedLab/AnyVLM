@@ -35,16 +35,20 @@ class NodeRegistry:
         settings: Settings = get_config()
         self.NODES_REQUEST_URL: str = settings.base_vlm_network_url + "/api/v2/clients"
 
-        self._refresh_nodes()
+        self.refresh_nodes()
 
     def get_nodes(self) -> list[VlmNode]:
         """Get a list of known nodes on the VLM network. Uses the cached list if cache is set & unexpired."""
         now: datetime = datetime.now(tz=UTC)
         if (not self._nodes) or (now >= self._nodes_expiry):
-            self._refresh_nodes()
+            self.refresh_nodes()
         return self._nodes
 
-    def _refresh_nodes(self) -> None:
+    def get_node_ids(self) -> list[str]:
+        """Get a list of the client_ids for all nodes on the VLM network"""
+        return [node.client_id for node in self.get_nodes()]
+
+    def refresh_nodes(self) -> None:
         """Retrieve an updated list of known nodes on the VLM Network + reset the expiry time for the next check"""
         response: Response = self._vlm_client.request(
             method_type=HTTPMethod.GET, url=self.NODES_REQUEST_URL

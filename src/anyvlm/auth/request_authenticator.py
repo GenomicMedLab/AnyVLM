@@ -1,0 +1,49 @@
+"""Handles authenticating inbound requests"""
+
+from typing import Any
+
+from fastapi import Request
+
+from anyvlm.auth.jwt_validator import JWTValidator
+from anyvlm.outbound.node_registry import NodeRegistry
+from anyvlm.utils.exceptions import AuthenticationError
+
+
+class RequestAuthenticator:
+    """Handles authenticating inbound requests"""
+
+    def __init__(  # noqa: D107
+        self,
+        jwt_validator: JWTValidator,
+        node_registry: NodeRegistry,
+    ) -> None:
+        self.jwt_validator: JWTValidator = jwt_validator
+        self.node_registry: NodeRegistry = node_registry
+
+    def authenticate(self, request: Request) -> None:
+        """Authenticate a request: validate and decode request token +
+        confirm requesting node is known member of the VLM network.
+
+        :param request: The inbound request to authenticate
+        :raises: `AuthenticationError`, if unable to authenticate.
+        """
+        decoded_token_claims: dict[str, Any] = (
+            self.jwt_validator.validate_and_decode_token(request)
+        )
+
+        client_id: str | None = decoded_token_claims.get("client_id")
+
+        if not isinstance(client_id, str) or not client_id:
+            raise AuthenticationError("Missing client identity")
+
+        # First check cached node list
+        if self._is_known_node(client_id=client_id):
+            return
+
+        # If not in cached node list, refresh and try again
+        self.node_registry.refresh_nodes()
+        if not self._is_known_node(client_id):
+            raise AuthenticationError(f"Unrecognized VLM Network client: {client_id}")
+
+    def _is_known_node(self, client_id: str) -> bool:
+        return client_id in self.node_registry.get_node_ids()

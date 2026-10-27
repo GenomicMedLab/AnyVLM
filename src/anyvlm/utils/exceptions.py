@@ -27,3 +27,7 @@ class TokenRetrievalError(Exception):
 
 class NodeRetrievalError(Exception):
     """Raised when the list of nodes on the VLM network cannot be retrieved"""
+
+
+class AuthenticationError(Exception):
+    """Raised when an error occurs during Authentication"""
