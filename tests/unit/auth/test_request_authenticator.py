@@ -4,7 +4,7 @@ from unittest.mock import MagicMock
 import pytest
 
 from anyvlm.auth.request_authenticator import RequestAuthenticator
-from anyvlm.utils.exceptions import AuthenticationError
+from anyvlm.utils.exceptions import AuthError
 
 
 def _authenticator(
@@ -53,7 +53,7 @@ def test_rejects_unknown_node_after_refresh() -> None:
     )
 
     with pytest.raises(
-        AuthenticationError,
+        AuthError,
         match="Unrecognized VLM Network client: unknown",
     ):
         request_.authenticate(request=MagicMock())
@@ -67,7 +67,7 @@ def test_rejects_unknown_node_after_refresh() -> None:
 def test_rejects_missing_client_identity(claims: dict[Any, Any]) -> None:
     request_, _, node_registry = _authenticator(claims, node_ids=[])
 
-    with pytest.raises(AuthenticationError, match="Missing client identity"):
+    with pytest.raises(AuthError, match="Missing client identity"):
         request_.authenticate(request=MagicMock())
 
     node_registry.get_node_ids.assert_not_called()

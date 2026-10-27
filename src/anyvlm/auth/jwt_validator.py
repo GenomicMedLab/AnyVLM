@@ -1,12 +1,12 @@
 """Handles validating and decoding JWT tokens"""
 
-from http import HTTPStatus
 from typing import Any
 
 import jwt
-from fastapi import HTTPException, Request
+from fastapi import Request
 
 from anyvlm.config import get_config
+from anyvlm.utils.exceptions import AuthError, AuthErrorReason
 
 
 class JWTValidator:
@@ -24,13 +24,9 @@ class JWTValidator:
                 request.headers.get("Authorization", "").strip().split(sep=" ")
             )
         except ValueError as e:
-            raise HTTPException(
-                status_code=HTTPStatus.FORBIDDEN, detail="Invalid authorization header"
-            ) from e
+            raise AuthError(error_reason=AuthErrorReason.INVALID_HEADER) from e
         if scheme.lower() != "bearer":
-            raise HTTPException(
-                status_code=HTTPStatus.FORBIDDEN, detail="Invalid token scheme"
-            )
+            raise AuthError(error_reason=AuthErrorReason.INVALID_SCHEMA)
 
         try:
             decoded_claims: dict[str, Any] = jwt.decode(
@@ -45,8 +41,6 @@ class JWTValidator:
                 },
             )
         except jwt.InvalidTokenError as e:
-            raise HTTPException(
-                status_code=HTTPStatus.FORBIDDEN, detail=f"Invalid token: {e}"
-            ) from e
+            raise AuthError(error_reason=AuthErrorReason.INVALID_TOKEN) from e
 
         return decoded_claims

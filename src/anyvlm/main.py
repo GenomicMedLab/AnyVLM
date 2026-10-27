@@ -34,7 +34,7 @@ from anyvlm.schemas.common import (
     ServiceType,
 )
 from anyvlm.storage.base_storage import Storage
-from anyvlm.utils.exceptions import AuthenticationError
+from anyvlm.utils.exceptions import AuthError
 from anyvlm.utils.types import (
     EndpointTag,
 )
@@ -144,10 +144,9 @@ def authenticate_inbound_request(
     )
     try:
         request_authenticator.authenticate(request)
-    except AuthenticationError as e:
+    except AuthError as e:
         raise HTTPException(
-            status_code=401,
-            detail=str(e),
+            status_code=e.code, detail=e.error_reason, headers=e.header
         ) from e
 
 

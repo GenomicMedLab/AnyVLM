@@ -6,7 +6,7 @@ from fastapi import Request
 
 from anyvlm.auth.jwt_validator import JWTValidator
 from anyvlm.outbound.node_registry import NodeRegistry
-from anyvlm.utils.exceptions import AuthenticationError
+from anyvlm.utils.exceptions import AuthError, AuthErrorReason
 
 
 class RequestAuthenticator:
@@ -31,10 +31,10 @@ class RequestAuthenticator:
             self.jwt_validator.validate_and_decode_token(request)
         )
 
-        client_id: str | None = decoded_token_claims.get("client_id")
+        client_id: str | None = decoded_token_claims.get("azp")
 
         if not isinstance(client_id, str) or not client_id:
-            raise AuthenticationError("Missing client identity")
+            raise AuthError(error_reason=AuthErrorReason.MISSING_CLIENT_ID)
 
         # First check cached node list
         if self._is_known_node(client_id=client_id):
@@ -43,7 +43,7 @@ class RequestAuthenticator:
         # If not in cached node list, refresh and try again
         self.node_registry.refresh_nodes()
         if not self._is_known_node(client_id):
-            raise AuthenticationError(f"Unrecognized VLM Network client: {client_id}")
+            raise AuthError(error_reason=AuthErrorReason.UNRECOGNIZED_NODE)
 
     def _is_known_node(self, client_id: str) -> bool:
         return client_id in self.node_registry.get_node_ids()
