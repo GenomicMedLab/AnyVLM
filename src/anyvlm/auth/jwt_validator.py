@@ -34,7 +34,7 @@ class JWTValidator:
                 algorithms=["RS256"],
                 issuer=get_config().base_vlm_network_url,
                 options={
-                    "verify_signature": False,
+                    "verify_signature": False,  # See PR comment for more details: https://github.com/GenomicMedLab/AnyVLM/pull/120
                     "verify_iss": True,
                     "verify_exp": True,
                     "require": ["iss", "exp", "azp"],
