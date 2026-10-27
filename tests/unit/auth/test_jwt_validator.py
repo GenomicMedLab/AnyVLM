@@ -17,12 +17,17 @@ def _request(authorization: str | None) -> MagicMock:
 
 
 def test_decodes_valid_bearer_token() -> None:
-    claims: dict[str, str] = {"client_id": "client-one", "azp": "client-one"}
+    claims: dict[str, Any] = {
+        "client_id": "client-one",
+        "azp": "client-one",
+        "iss": "https://issuer.example",
+        "exp": 2_000_000_000,
+    }
     with (
         patch("anyvlm.auth.jwt_validator.get_config") as get_config,
         patch("anyvlm.auth.jwt_validator.jwt.decode", return_value=claims) as decode,
     ):
-        get_config.return_value.base_vlm_network_url = "https://issuer.example"
+        get_config.return_value.base_vlm_network_url = "https://issuer.example/"
 
         decoded_claims: dict[str, Any] = JWTValidator().validate_and_decode_token(
             request=_request(authorization="Bearer encoded-token")
@@ -32,12 +37,12 @@ def test_decodes_valid_bearer_token() -> None:
     decode.assert_called_once_with(
         jwt="encoded-token",
         algorithms=["RS256"],
-        issuer="https://issuer.example",
+        issuer="https://issuer.example/",
         options={
             "verify_signature": False,
             "verify_iss": True,
             "verify_exp": True,
-            "require": ["azp"],
+            "require": ["iss", "exp", "azp"],
         },
     )
 
@@ -66,7 +71,7 @@ def test_rejects_invalid_authorization_headers(
 
 
 def test_rejects_an_expired_token() -> None:
-    issuer = "https://issuer.example"
+    issuer = "https://issuer.example/"
     expired_token = jwt.encode(
         {
             "azp": "client-one",

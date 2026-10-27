@@ -32,7 +32,7 @@ def test_loads_nodes_and_exposes_client_ids() -> None:
     )
 
     with patch("anyvlm.outbound.node_registry.get_config") as get_config:
-        get_config.return_value.base_vlm_network_url = "https://network.example"
+        get_config.return_value.base_vlm_network_url = "https://network.example/"
         registry: NodeRegistry = NodeRegistry(vlm_client=client)
 
     assert [node.client_id for node in registry.get_nodes()] == [
@@ -54,7 +54,7 @@ def test_refresh_nodes_replaces_cached_nodes() -> None:
     ]
 
     with patch("anyvlm.outbound.node_registry.get_config") as get_config:
-        get_config.return_value.base_vlm_network_url = "https://network.example"
+        get_config.return_value.base_vlm_network_url = "https://network.example/"
         registry: NodeRegistry = NodeRegistry(vlm_client=client)
         registry.refresh_nodes()
 
@@ -69,7 +69,7 @@ def test_refreshes_expired_cache_on_get_nodes() -> None:
     ]
 
     with patch("anyvlm.outbound.node_registry.get_config") as get_config:
-        get_config.return_value.base_vlm_network_url = "https://network.example"
+        get_config.return_value.base_vlm_network_url = "https://network.example/"
         registry: NodeRegistry = NodeRegistry(vlm_client=client)
         registry._nodes_expiry = datetime.now(tz=UTC) - timedelta(seconds=1)
         assert registry.get_node_ids() == ["refreshed"]
@@ -82,6 +82,6 @@ def test_raises_when_node_retrieval_fails() -> None:
     client.request.return_value = _response(status_code=HTTPStatus.SERVICE_UNAVAILABLE)
 
     with patch("anyvlm.outbound.node_registry.get_config") as get_config:
-        get_config.return_value.base_vlm_network_url = "https://network.example"
+        get_config.return_value.base_vlm_network_url = "https://network.example/"
         with pytest.raises(NodeRetrievalError, match="Unable to fetch"):
             NodeRegistry(vlm_client=client)
