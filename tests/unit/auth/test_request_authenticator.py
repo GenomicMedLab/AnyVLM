@@ -4,7 +4,7 @@ from unittest.mock import MagicMock
 import pytest
 
 from anyvlm.auth.request_authenticator import RequestAuthenticator
-from anyvlm.utils.exceptions import AuthError
+from anyvlm.utils.exceptions import AuthError, AuthErrorReason
 
 
 def _authenticator(
@@ -23,9 +23,9 @@ def _authenticator(
     )
 
 
-def test_authenticates_known_node_without_refreshing_registry():
+def test_authenticates_known_node_without_refreshing_registry() -> None:
     request_authenticator, jwt_validator, node_registry = _authenticator(
-        claims={"client_id": "client-one"}, node_ids=["client-one"]
+        claims={"azp": "client-one"}, node_ids=["client-one"]
     )
 
     request_authenticator.authenticate(request=MagicMock())
@@ -37,7 +37,7 @@ def test_authenticates_known_node_without_refreshing_registry():
 
 def test_refreshes_registry_when_node_is_not_cached() -> None:
     request_authenticator, _, node_registry = _authenticator(
-        claims={"client_id": "client-one"}, node_ids=[]
+        claims={"azp": "client-one"}, node_ids=[]
     )
     node_registry.get_node_ids.side_effect = [[], ["client-one"]]
 
@@ -48,26 +48,22 @@ def test_refreshes_registry_when_node_is_not_cached() -> None:
 
 
 def test_rejects_unknown_node_after_refresh() -> None:
-    request_, _, node_registry = _authenticator(
-        claims={"client_id": "unknown"}, node_ids=[]
-    )
+    request_, _, node_registry = _authenticator(claims={"azp": "unknown"}, node_ids=[])
 
     with pytest.raises(
         AuthError,
-        match="Unrecognized VLM Network client: unknown",
+        match=AuthErrorReason.UNRECOGNIZED_NODE,
     ):
         request_.authenticate(request=MagicMock())
 
     node_registry.refresh_nodes.assert_called_once()
 
 
-@pytest.mark.parametrize(
-    argnames="claims", argvalues=[{}, {"client_id": ""}, {"client_id": None}]
-)
+@pytest.mark.parametrize(argnames="claims", argvalues=[{}, {"azp": ""}, {"azp": None}])
 def test_rejects_missing_client_identity(claims: dict[Any, Any]) -> None:
     request_, _, node_registry = _authenticator(claims, node_ids=[])
 
-    with pytest.raises(AuthError, match="Missing client identity"):
+    with pytest.raises(AuthError, match=AuthErrorReason.MISSING_CLIENT_ID):
         request_.authenticate(request=MagicMock())
 
     node_registry.get_node_ids.assert_not_called()

@@ -34,7 +34,9 @@ class NodeRetrievalError(Exception):
 
 
 class AuthErrorReason(StrEnum):
-    """Defines the error messages"""
+    """Defines the authentication error messages.
+    All reasons must have a corresponding code mapped in the 'AuthError' class
+    """
 
     INVALID_HEADER = "Invalid request header"
     INVALID_SCHEMA = "Invalid token schema"
@@ -48,6 +50,7 @@ class AuthErrorReason(StrEnum):
 class AuthError(Exception):
     """Raised when an error occurs during Authentication"""
 
+    # Every reason in `AuthErrorReason` must have a corresponding code mapped here
     reason_to_code_mapping: ClassVar[dict[AuthErrorReason, HTTPStatus]] = {
         AuthErrorReason.INVALID_HEADER: HTTPStatus.BAD_REQUEST,
         AuthErrorReason.INVALID_SCHEMA: HTTPStatus.UNAUTHORIZED,

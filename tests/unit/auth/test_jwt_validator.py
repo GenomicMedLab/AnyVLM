@@ -1,29 +1,31 @@
+from datetime import UTC, datetime, timedelta
 from http import HTTPStatus
+from typing import Any
 from unittest.mock import MagicMock, patch
 
 import jwt
 import pytest
-from fastapi import HTTPException
 
 from anyvlm.auth.jwt_validator import JWTValidator
+from anyvlm.utils.exceptions import AuthError, AuthErrorReason
 
 
 def _request(authorization: str | None) -> MagicMock:
-    request = MagicMock()
+    request: MagicMock = MagicMock()
     request.headers.get.return_value = authorization or ""
     return request
 
 
-def test_decodes_valid_bearer_token():
-    claims = {"client_id": "client-one", "azp": "client-one"}
+def test_decodes_valid_bearer_token() -> None:
+    claims: dict[str, str] = {"client_id": "client-one", "azp": "client-one"}
     with (
         patch("anyvlm.auth.jwt_validator.get_config") as get_config,
         patch("anyvlm.auth.jwt_validator.jwt.decode", return_value=claims) as decode,
     ):
         get_config.return_value.base_vlm_network_url = "https://issuer.example"
 
-        decoded_claims = JWTValidator().validate_and_decode_token(
-            _request("Bearer encoded-token")
+        decoded_claims: dict[str, Any] = JWTValidator().validate_and_decode_token(
+            request=_request(authorization="Bearer encoded-token")
         )
 
     assert decoded_claims == claims
@@ -41,30 +43,52 @@ def test_decodes_valid_bearer_token():
 
 
 @pytest.mark.parametrize(
-    ("authorization", "detail"),
-    [
-        (None, "Invalid authorization header"),
-        ("Bearer", "Invalid authorization header"),
-        ("Basic encoded-token", "Invalid token scheme"),
+    argnames=("authorization", "reason"),
+    argvalues=[
+        (None, AuthErrorReason.INVALID_HEADER),
+        ("Bearer", AuthErrorReason.INVALID_HEADER),
+        ("Basic encoded-token", AuthErrorReason.INVALID_SCHEMA),
     ],
 )
-def test_rejects_invalid_authorization_headers(authorization: str | None, detail: str):
-    with pytest.raises(HTTPException) as error:
-        JWTValidator().validate_and_decode_token(_request(authorization))
+def test_rejects_invalid_authorization_headers(
+    authorization: str | None, reason: AuthErrorReason
+) -> None:
+    with pytest.raises(AuthError) as error:
+        JWTValidator().validate_and_decode_token(request=_request(authorization))
 
-    assert error.value.status_code == HTTPStatus.FORBIDDEN
-    assert error.value.detail == detail
+    assert error.value.error_reason == reason
+    assert error.value.code == (
+        HTTPStatus.BAD_REQUEST
+        if reason == AuthErrorReason.INVALID_HEADER
+        else HTTPStatus.UNAUTHORIZED
+    )
+    assert error.value.header == {"WWW-Authenticate": 'Bearer realm="AnyVLM"'}
 
 
-def test_translates_jwt_errors_to_forbidden():
-    with (
-        patch(
-            "anyvlm.auth.jwt_validator.jwt.decode",
-            side_effect=jwt.InvalidTokenError("expired"),
-        ),
-        pytest.raises(HTTPException) as exc_info,
-    ):
-        JWTValidator().validate_and_decode_token(_request("Bearer token"))
+def test_rejects_an_expired_token() -> None:
+    issuer = "https://issuer.example"
+    expired_token = jwt.encode(
+        {
+            "azp": "client-one",
+            "iss": issuer,
+            "exp": datetime.now(tz=UTC) - timedelta(seconds=1),
+        },
+        key="unused-signing-key",
+        algorithm="HS256",
+    )
 
-    assert exc_info.value.status_code == HTTPStatus.FORBIDDEN
-    assert exc_info.value.detail == "Invalid token: expired"
+    get_config_patch = patch("anyvlm.auth.jwt_validator.get_config")
+    get_config = get_config_patch.start()
+    try:
+        get_config.return_value.base_vlm_network_url = issuer
+
+        with pytest.raises(AuthError) as error:
+            JWTValidator().validate_and_decode_token(
+                request=_request(authorization=f"Bearer {expired_token}")
+            )
+    finally:
+        get_config_patch.stop()
+
+    assert error.value.error_reason == AuthErrorReason.INVALID_TOKEN
+    assert error.value.code == HTTPStatus.UNAUTHORIZED
+    assert error.value.header == {"WWW-Authenticate": 'Bearer error="invalid_token"'}
