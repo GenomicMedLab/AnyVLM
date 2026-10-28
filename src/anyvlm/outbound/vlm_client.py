@@ -12,7 +12,11 @@ from anyvlm.auth.token_provider import TokenProvider
 class VlmClient:
     """Handles sending authenticated outbound requests to the VLM Network"""
 
-    def __init__(self, token_provider: TokenProvider) -> None:  # noqa: D107
+    def __init__(self, token_provider: TokenProvider) -> None:
+        """Initializes a VLM client to send outbound requests to the VLM Network
+
+        :param token_provider: A TokenProvider instance; used to obtain JWT tokens for outbound HTTP requests to other nodes on the VLM network
+        """
         self.token_provider: TokenProvider = token_provider
 
     async def request(
