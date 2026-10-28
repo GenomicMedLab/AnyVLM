@@ -2,7 +2,7 @@ import os
 from datetime import UTC, datetime, timedelta
 from http import HTTPMethod, HTTPStatus
 from typing import Any
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, call, patch
 
 import pytest
 
@@ -42,8 +42,34 @@ def test_loads_nodes_and_exposes_client_ids() -> None:
     ]
     client.request.assert_called_once_with(
         method_type=HTTPMethod.GET,
-        url="https://network.example/api/v2/clients",
+        url="https://network.example/api/v2/clients?page=0&per_page=100",
     )
+
+
+def test_loads_nodes_from_multiple_pages() -> None:
+    client: MagicMock = MagicMock()
+    client.request.side_effect = [
+        _response(data=[{"client_id": "client-one"}] * 100),
+        _response(data=[{"client_id": "client-two"}]),
+    ]
+
+    with patch("anyvlm.outbound.node_registry.get_config") as get_config:
+        get_config.return_value.base_vlm_network_url = "https://network.example/"
+        registry: NodeRegistry = NodeRegistry(vlm_client=client)
+
+    assert [node.client_id for node in registry.get_nodes()] == [
+        "client-one",
+    ] * 100 + ["client-two"]
+    assert client.request.call_args_list == [
+        call(
+            method_type=HTTPMethod.GET,
+            url="https://network.example/api/v2/clients?page=0&per_page=100",
+        ),
+        call(
+            method_type=HTTPMethod.GET,
+            url="https://network.example/api/v2/clients?page=1&per_page=100",
+        ),
+    ]
 
 
 def test_refresh_nodes_replaces_cached_nodes() -> None:
@@ -114,7 +140,8 @@ def test_registry_excludes_self_when_other_nodes_exist() -> None:
         "client-one",
     ]
     client.request.assert_called_once_with(
-        method_type=HTTPMethod.GET, url="https://network.example/api/v2/clients"
+        method_type=HTTPMethod.GET,
+        url="https://network.example/api/v2/clients?page=0&per_page=100",
     )
 
 
@@ -138,5 +165,6 @@ def test_registry_returns_empty_list_when_only_self_exists() -> None:
 
     assert [node.client_id for node in registry.get_nodes()] == []
     client.request.assert_called_once_with(
-        method_type=HTTPMethod.GET, url="https://network.example/api/v2/clients"
+        method_type=HTTPMethod.GET,
+        url="https://network.example/api/v2/clients?page=0&per_page=100",
     )
