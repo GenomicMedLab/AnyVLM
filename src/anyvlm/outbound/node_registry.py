@@ -8,7 +8,7 @@ from http import HTTPMethod, HTTPStatus
 from requests import Response
 
 from anyvlm.config import Settings, get_config
-from anyvlm.outbound.vlm_client import VlmClient
+from anyvlm.outbound.vlm_client import VLMClient
 from anyvlm.utils.exceptions import NodeRetrievalError
 
 
@@ -31,9 +31,9 @@ class NodeRegistry:
 
     _nodes: list[VlmNode]
     _nodes_expiry: datetime
-    _vlm_client: VlmClient
+    _vlm_client: VLMClient
 
-    def __init__(self, vlm_client: VlmClient) -> None:
+    def __init__(self, vlm_client: VLMClient) -> None:
         """Initializes a list of all other nodes currently on the VLM Network
 
         :param vlm_client: A 'VlmClient' instance used to send outbound HTTP requests to the VLM Network
