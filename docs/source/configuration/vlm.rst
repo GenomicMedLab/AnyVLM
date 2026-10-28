@@ -24,3 +24,9 @@ The VLM API presently requires declaration of several values for service identif
    * - ``BEACON_NODE_ID``
      - Unique ID for the service instance
      - ``"org.anyvlm.gregor"``
+   * - ``VLM_CLIENT_ID``
+     - The `client_id` provided to you by the VLM Network administrators
+     - ``"kjnq3iuyththofdh88347"``
+   * - ``VLM_SECRET_ID``
+     - The `client_secret` provided to you by the VLM Network administrators
+     - ``"nlk34t98nvcnjkcf78r9shvfkidsxhfabn3947tghvdb9"``
