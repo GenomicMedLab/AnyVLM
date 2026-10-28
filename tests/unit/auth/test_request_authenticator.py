@@ -1,3 +1,4 @@
+from datetime import UTC, datetime, timedelta
 from typing import Any
 from unittest.mock import MagicMock
 
@@ -57,6 +58,53 @@ def test_rejects_unknown_node_after_refresh() -> None:
         request_.authenticate(request=MagicMock())
 
     node_registry.refresh_nodes.assert_called_once()
+
+
+def test_rejects_unknown_clients_without_refreshing_during_cooldown() -> None:
+    request_authenticator, jwt_validator, node_registry = _authenticator(
+        claims={"azp": "client-one"}, node_ids=[]
+    )
+    request_authenticator.last_node_refresh = datetime.now(tz=UTC) - timedelta(
+        seconds=request_authenticator.NODE_REGISTRY_REFRESH_COOLDOWN_SECONDS + 1
+    )
+    jwt_validator.validate_and_decode_token.side_effect = [
+        {"azp": "client-one"},
+        {"azp": "client-two"},
+    ]
+
+    for _ in range(2):
+        with pytest.raises(
+            AuthError,
+            match=AuthErrorReason.UNRECOGNIZED_NODE,
+        ):
+            request_authenticator.authenticate(request=MagicMock())
+
+    node_registry.refresh_nodes.assert_called_once()
+
+
+def test_refreshes_registry_again_after_cooldown() -> None:
+    request_authenticator, _, node_registry = _authenticator(
+        claims={"azp": "unknown"}, node_ids=[]
+    )
+    request = MagicMock()
+
+    with pytest.raises(
+        AuthError,
+        match=AuthErrorReason.UNRECOGNIZED_NODE,
+    ):
+        request_authenticator.authenticate(request=request)
+
+    request_authenticator.last_node_refresh = datetime.now(tz=UTC) - timedelta(
+        seconds=request_authenticator.NODE_REGISTRY_REFRESH_COOLDOWN_SECONDS + 1
+    )
+
+    with pytest.raises(
+        AuthError,
+        match=AuthErrorReason.UNRECOGNIZED_NODE,
+    ):
+        request_authenticator.authenticate(request=request)
+
+    assert node_registry.refresh_nodes.call_count == 2
 
 
 @pytest.mark.parametrize(argnames="claims", argvalues=[{}, {"azp": ""}, {"azp": None}])
