@@ -17,14 +17,21 @@ def _authenticator(
     node_registry: MagicMock = MagicMock()
     node_registry.get_node_ids.return_value = node_ids
 
+    request_authenticator: RequestAuthenticator = RequestAuthenticator(
+        jwt_validator=jwt_validator, node_registry=node_registry
+    )
+    request_authenticator.last_node_refresh = datetime.now(tz=UTC) - timedelta(
+        seconds=request_authenticator.NODE_REGISTRY_REFRESH_COOLDOWN_SECONDS
+    )
+
     return (
-        RequestAuthenticator(jwt_validator=jwt_validator, node_registry=node_registry),
+        request_authenticator,
         jwt_validator,
         node_registry,
     )
 
 
-def test_authenticates_known_node_without_refreshing_registry() -> None:
+def test_authenticates_known_node_without_refreshing_registry():
     request_authenticator, jwt_validator, node_registry = _authenticator(
         claims={"azp": "client-one"}, node_ids=["client-one"]
     )
