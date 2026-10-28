@@ -1,5 +1,6 @@
 """Retrieves information about other nodes on the VLM Network"""
 
+import os
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from http import HTTPMethod, HTTPStatus
@@ -51,19 +52,22 @@ class NodeRegistry:
         )
 
         if response.status_code == HTTPStatus.OK:
-            self._nodes = []
+            self._nodes = []  # blank out the existing node list, so we can repopulate it w/ fresh data
         else:
             error_message: str = "Unable to fetch VLM Network nodes from Auth0"
             raise NodeRetrievalError(error_message)
 
         data = response.json()
         for entry in data:
-            self._nodes.append(
-                VlmNode(
-                    client_id=entry.get("client_id", ""),
-                    client_name=entry.get("name", ""),
-                    match_url=entry.get("client_metadata", {}).get("match_url"),
+            if entry.get("client_id") != os.environ.get(
+                "VLM_CLIENT_ID"
+            ):  # exclude our own node from the registry
+                self._nodes.append(
+                    VlmNode(
+                        client_id=entry.get("client_id", ""),
+                        client_name=entry.get("name", ""),
+                        match_url=entry.get("client_metadata", {}).get("match_url"),
+                    )
                 )
-            )
 
         self._nodes_expiry = datetime.now(tz=UTC) + self.NODES_REFRESH_INTERVAL
