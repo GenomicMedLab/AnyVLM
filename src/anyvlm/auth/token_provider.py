@@ -17,6 +17,10 @@ class TokenProvider:
     AUDIENCE_URL: str = BASE_VLM_AUTH_URL + "/api/v2/"
     TOKEN_REQUEST_URL: str = BASE_VLM_AUTH_URL + "/oauth/token"
 
+    # used to add margin to the token expiry time, to account for the time
+    # it takes for the token provider to send its response back to AnyVLM
+    TOKEN_EXPIRY_MARGIN_SECONDS = 30
+
     _token: str = ""
     _token_expiry: datetime
 
@@ -56,5 +60,5 @@ class TokenProvider:
 
         self._token = data["access_token"]
         self._token_expiry = datetime.now(tz=UTC) + timedelta(
-            seconds=data["expires_in"]
+            seconds=(data["expires_in"] - self.TOKEN_EXPIRY_MARGIN_SECONDS)
         )
