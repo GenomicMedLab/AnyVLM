@@ -24,7 +24,8 @@ class TokenProvider:
     _token: str = ""
     _token_expiry: datetime
 
-    def __init__(self) -> None:  # noqa: D107
+    def __init__(self) -> None:
+        """Initializes a TokenProvider to obtain JWT tokens for outbound HTTP requests to other nodes on the VLM Network"""
         self.get_token()
 
     def get_token(self) -> str:
