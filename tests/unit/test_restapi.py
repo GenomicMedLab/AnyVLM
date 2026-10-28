@@ -1,24 +1,14 @@
 """Check basic functions of general endpoint(s)"""
 
 from pathlib import Path
-from unittest.mock import MagicMock
 
 import jsonschema
-import pytest
 import yaml
 from fastapi.testclient import TestClient
 
-from anyvlm.main import app as vlm_restapi
 
-
-@pytest.fixture(scope="module")
-def restapi_client():
-    vlm_restapi.state.request_authenticator = MagicMock()
-    return TestClient(app=vlm_restapi)
-
-
-def test_service_info(restapi_client: TestClient, test_data_dir: Path):
-    response = restapi_client.get("/anyvlm/service-info")
+def test_service_info(api_client: TestClient, test_data_dir: Path):
+    response = api_client.get("/anyvlm/service-info")
     response.raise_for_status()
 
     with (test_data_dir / "ga4gh-service-info" / "service-info.yaml").open() as f:
