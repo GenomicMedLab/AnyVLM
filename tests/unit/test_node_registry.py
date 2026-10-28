@@ -1,3 +1,4 @@
+import os
 from datetime import UTC, datetime, timedelta
 from http import HTTPMethod, HTTPStatus
 from typing import Any
@@ -84,3 +85,34 @@ def test_raises_when_node_retrieval_fails() -> None:
         get_config.return_value.base_vlm_network_url = "https://network.example/"
         with pytest.raises(NodeRetrievalError, match="Unable to fetch"):
             NodeRegistry(vlm_client=client)
+
+
+def test_node_registry_excludes_self() -> None:
+    # this is our own node's client_id
+    self_vlm_client_id: str = os.environ.get("VLM_CLIENT_ID", "")
+
+    client: MagicMock = MagicMock()
+    client.request.return_value = _response(
+        data=[
+            {
+                "client_id": "client-one",
+                "name": "One",
+                "client_metadata": {"match_url": "https://one.example"},
+            },
+            {
+                "client_id": self_vlm_client_id,
+                "name": "GenomicMedLabs' AnyVLM instance",
+            },
+        ]
+    )
+
+    with patch("anyvlm.outbound.node_registry.get_config") as get_config:
+        get_config.return_value.base_vlm_network_url = "https://network.example/"
+        registry: NodeRegistry = NodeRegistry(vlm_client=client)
+
+    assert [node.client_id for node in registry.get_nodes()] == [
+        "client-one",
+    ]
+    client.request.assert_called_once_with(
+        method_type=HTTPMethod.GET, url="https://network.example/api/v2/clients"
+    )

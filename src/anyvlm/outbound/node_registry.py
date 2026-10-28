@@ -41,7 +41,7 @@ class NodeRegistry:
     def get_nodes(self) -> list[VlmNode]:
         """Get a list of known nodes on the VLM network. Uses the cached list if cache is set & unexpired."""
         now: datetime = datetime.now(tz=UTC)
-        if (not self._nodes) or (now >= self._nodes_expiry):
+        if (not self._nodes_expiry) or (now >= self._nodes_expiry):
             self.refresh_nodes()
         return self._nodes
 
