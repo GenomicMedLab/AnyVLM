@@ -12,11 +12,18 @@ from anyvlm.utils.exceptions import AuthError, AuthErrorReason
 class RequestAuthenticator:
     """Handles authenticating inbound requests"""
 
-    def __init__(  # noqa: D107
+    def __init__(
         self,
         jwt_validator: JWTValidator,
         node_registry: NodeRegistry,
     ) -> None:
+        """Initializes a RequestAuthenticator to authenticate inbound requests from other VLM Network nodes
+
+        :param jwt_validator: A 'JWTValidator' instance, used to validate/decode JWT tokens
+        :param node_registry: A 'NodeRegistry' instance, used to retrieve a list of all other nodes on the VLM Network
+
+        :raises: `NodeRetrievalError` if unable to initialize a NodeRegistry
+        """
         self.jwt_validator: JWTValidator = jwt_validator
         self.node_registry: NodeRegistry = node_registry
 
@@ -25,7 +32,7 @@ class RequestAuthenticator:
         confirm requesting node is known member of the VLM network.
 
         :param request: The inbound request to authenticate
-        :raises: `AuthenticationError`, if unable to authenticate.
+        :raises: `AuthError`, if unable to authenticate.
         """
         decoded_token_claims: dict[str, Any] = (
             self.jwt_validator.validate_and_decode_token(request)

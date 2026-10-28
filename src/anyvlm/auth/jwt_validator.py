@@ -17,7 +17,7 @@ class JWTValidator:
 
         :param request: The inbound request containing the token to be validated/decoded
         :return: The decoded token claims
-        :raises: `HTTPException`, if unable to validate or decode the request's token
+        :raises: `AuthError`, if unable to validate or decode the request's token
         """
         try:
             scheme, token = (
