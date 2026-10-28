@@ -1,4 +1,3 @@
-import os
 from datetime import UTC, datetime, timedelta
 from http import HTTPMethod, HTTPStatus
 from typing import Any
@@ -113,9 +112,12 @@ def test_raises_when_node_retrieval_fails() -> None:
             NodeRegistry(vlm_client=client)
 
 
-def test_registry_excludes_self_when_other_nodes_exist() -> None:
+def test_registry_excludes_self_when_other_nodes_exist(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     # this is our own node's client_id
-    self_vlm_client_id: str = os.environ.get("VLM_CLIENT_ID", "")
+    self_vlm_client_id = "self-client"
+    monkeypatch.setenv("VLM_CLIENT_ID", self_vlm_client_id)
 
     client: MagicMock = MagicMock()
     client.request.return_value = _response(
@@ -145,9 +147,12 @@ def test_registry_excludes_self_when_other_nodes_exist() -> None:
     )
 
 
-def test_registry_returns_empty_list_when_only_self_exists() -> None:
+def test_registry_returns_empty_list_when_only_self_exists(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     # this is our own node's client_id
-    self_vlm_client_id: str = os.environ.get("VLM_CLIENT_ID", "")
+    self_vlm_client_id = "self-client"
+    monkeypatch.setenv("VLM_CLIENT_ID", self_vlm_client_id)
 
     client: MagicMock = MagicMock()
     client.request.return_value = _response(
