@@ -19,7 +19,7 @@ class VlmClient:
         """
         self.token_provider: TokenProvider = token_provider
 
-    async def request(
+    def request(
         self,
         method_type: HTTPMethod,
         url: str,
