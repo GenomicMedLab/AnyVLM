@@ -87,7 +87,7 @@ def test_raises_when_node_retrieval_fails() -> None:
             NodeRegistry(vlm_client=client)
 
 
-def test_node_registry_excludes_self() -> None:
+def test_registry_excludes_self_when_other_nodes_exist() -> None:
     # this is our own node's client_id
     self_vlm_client_id: str = os.environ.get("VLM_CLIENT_ID", "")
 
@@ -113,6 +113,30 @@ def test_node_registry_excludes_self() -> None:
     assert [node.client_id for node in registry.get_nodes()] == [
         "client-one",
     ]
+    client.request.assert_called_once_with(
+        method_type=HTTPMethod.GET, url="https://network.example/api/v2/clients"
+    )
+
+
+def test_registry_returns_empty_list_when_only_self_exists() -> None:
+    # this is our own node's client_id
+    self_vlm_client_id: str = os.environ.get("VLM_CLIENT_ID", "")
+
+    client: MagicMock = MagicMock()
+    client.request.return_value = _response(
+        data=[
+            {
+                "client_id": self_vlm_client_id,
+                "name": "GenomicMedLabs' AnyVLM instance",
+            },
+        ]
+    )
+
+    with patch("anyvlm.outbound.node_registry.get_config") as get_config:
+        get_config.return_value.base_vlm_network_url = "https://network.example/"
+        registry: NodeRegistry = NodeRegistry(vlm_client=client)
+
+    assert [node.client_id for node in registry.get_nodes()] == []
     client.request.assert_called_once_with(
         method_type=HTTPMethod.GET, url="https://network.example/api/v2/clients"
     )
