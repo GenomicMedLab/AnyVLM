@@ -55,7 +55,7 @@ class TokenProvider:
         )
 
         if response.status_code != HTTPStatus.OK:
-            error_message: str = "Unable to fetch bearer token from Auth0"
+            error_message: str = f"Unable to fetch bearer token from Auth0 - {response.status_code} response received"
             raise TokenRetrievalError(error_message)
 
         data = response.json()
