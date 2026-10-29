@@ -17,17 +17,21 @@ def _request(authorization: str | None) -> MagicMock:
 
 
 def test_decodes_valid_bearer_token() -> None:
+    issuer: str = "https://issuer.example/"
+    audience: str = issuer + "api"
     claims: dict[str, Any] = {
         "client_id": "client-one",
         "azp": "client-one",
-        "iss": "https://issuer.example",
+        "iss": issuer,
+        "aud": audience,
         "exp": 2_000_000_000,
     }
     with (
         patch("anyvlm.auth.jwt_validator.get_config") as get_config,
         patch("anyvlm.auth.jwt_validator.jwt.decode", return_value=claims) as decode,
     ):
-        get_config.return_value.base_vlm_network_url = "https://issuer.example/"
+        get_config.return_value.vlm_network_base_url = issuer
+        get_config.return_value.vlm_network_audience_url = audience
 
         decoded_claims: dict[str, Any] = JWTValidator().validate_and_decode_token(
             request=_request(authorization="Bearer encoded-token")
@@ -37,12 +41,14 @@ def test_decodes_valid_bearer_token() -> None:
     decode.assert_called_once_with(
         jwt="encoded-token",
         algorithms=["RS256"],
-        issuer="https://issuer.example/",
+        issuer=issuer,
+        audience=audience,
         options={
             "verify_signature": False,
             "verify_iss": True,
             "verify_exp": True,
-            "require": ["iss", "exp", "azp"],
+            "verify_aud": True,
+            "require": ["iss", "exp", "azp", "aud"],
         },
     )
 
@@ -72,10 +78,11 @@ def test_rejects_invalid_authorization_headers(
 
 def test_rejects_an_expired_token() -> None:
     issuer = "https://issuer.example/"
-    expired_token = jwt.encode(
-        {
+    expired_token: str = jwt.encode(
+        payload={
             "azp": "client-one",
             "iss": issuer,
+            "aud": issuer + "/api",
             "exp": datetime.now(tz=UTC) - timedelta(seconds=1),
         },
         key="unused-signing-key",
@@ -85,7 +92,7 @@ def test_rejects_an_expired_token() -> None:
     get_config_patch = patch("anyvlm.auth.jwt_validator.get_config")
     get_config = get_config_patch.start()
     try:
-        get_config.return_value.base_vlm_network_url = issuer
+        get_config.return_value.vlm_network_base_url = issuer
 
         with pytest.raises(AuthError) as error:
             JWTValidator().validate_and_decode_token(

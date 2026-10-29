@@ -27,8 +27,8 @@ class Settings(BaseSettings):
     anyvar_uri: str | None = None
     storage_uri: str = "postgresql://postgres@localhost:5432/anyvlm"
     logging_config: FilePath | None = None
-    base_vlm_network_url: str = "https://vlm-auth.us.auth0.com/"
-    vlm_network_audience_url: str = base_vlm_network_url + "api/v2/"
+    vlm_network_base_url: str = "https://vlm-auth.us.auth0.com/"
+    vlm_network_audience_url: str = vlm_network_base_url + "api/v2/"
 
 
 @cache

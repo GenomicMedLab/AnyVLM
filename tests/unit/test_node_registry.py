@@ -32,7 +32,7 @@ def test_loads_nodes_and_exposes_client_ids() -> None:
     )
 
     with patch("anyvlm.outbound.node_registry.get_config") as get_config:
-        get_config.return_value.base_vlm_network_url = "https://network.example/"
+        get_config.return_value.vlm_network_base_url = "https://network.example/"
         registry: NodeRegistry = NodeRegistry(vlm_client=client)
 
     assert registry.get_node_ids() == [
@@ -53,7 +53,7 @@ def test_loads_nodes_from_multiple_pages() -> None:
     ]
 
     with patch("anyvlm.outbound.node_registry.get_config") as get_config:
-        get_config.return_value.base_vlm_network_url = "https://network.example/"
+        get_config.return_value.vlm_network_base_url = "https://network.example/"
         registry: NodeRegistry = NodeRegistry(vlm_client=client)
 
     assert registry.get_node_ids() == [
@@ -79,7 +79,7 @@ def test_refresh_nodes_replaces_cached_nodes() -> None:
     ]
 
     with patch("anyvlm.outbound.node_registry.get_config") as get_config:
-        get_config.return_value.base_vlm_network_url = "https://network.example/"
+        get_config.return_value.vlm_network_base_url = "https://network.example/"
         registry: NodeRegistry = NodeRegistry(vlm_client=client)
         registry.refresh_nodes()
 
@@ -94,7 +94,7 @@ def test_refreshes_expired_cache_on_get_nodes() -> None:
     ]
 
     with patch("anyvlm.outbound.node_registry.get_config") as get_config:
-        get_config.return_value.base_vlm_network_url = "https://network.example/"
+        get_config.return_value.vlm_network_base_url = "https://network.example/"
         registry: NodeRegistry = NodeRegistry(vlm_client=client)
         registry._nodes_expiry = datetime.now(tz=UTC) - timedelta(seconds=1)  # pyright: ignore[reportPrivateUsage]
         assert registry.get_node_ids() == ["refreshed"]
@@ -107,7 +107,7 @@ def test_raises_when_node_retrieval_fails() -> None:
     client.request.return_value = _response(status_code=HTTPStatus.SERVICE_UNAVAILABLE)
 
     with patch("anyvlm.outbound.node_registry.get_config") as get_config:
-        get_config.return_value.base_vlm_network_url = "https://network.example/"
+        get_config.return_value.vlm_network_base_url = "https://network.example/"
         with pytest.raises(NodeRetrievalError, match="Unable to fetch"):
             NodeRegistry(vlm_client=client)
 
@@ -135,7 +135,7 @@ def test_registry_excludes_self_when_other_nodes_exist(
     )
 
     with patch("anyvlm.outbound.node_registry.get_config") as get_config:
-        get_config.return_value.base_vlm_network_url = "https://network.example/"
+        get_config.return_value.vlm_network_base_url = "https://network.example/"
         registry: NodeRegistry = NodeRegistry(vlm_client=client)
 
     assert registry.get_node_ids() == [
@@ -165,7 +165,7 @@ def test_registry_returns_empty_list_when_only_self_exists(
     )
 
     with patch("anyvlm.outbound.node_registry.get_config") as get_config:
-        get_config.return_value.base_vlm_network_url = "https://network.example/"
+        get_config.return_value.vlm_network_base_url = "https://network.example/"
         registry: NodeRegistry = NodeRegistry(vlm_client=client)
 
     assert registry.get_node_ids() == []

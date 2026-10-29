@@ -35,7 +35,7 @@ class JWTValidator:
             decoded_claims: dict[str, Any] = jwt.decode(
                 jwt=token,
                 algorithms=["RS256"],
-                issuer=configs.base_vlm_network_url,
+                issuer=configs.vlm_network_base_url,
                 audience=configs.vlm_network_audience_url,
                 options={
                     "verify_signature": False,  # See PR comment for more details: https://github.com/GenomicMedLab/AnyVLM/pull/120
