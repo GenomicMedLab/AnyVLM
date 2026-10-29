@@ -50,8 +50,8 @@ def test_decodes_valid_bearer_token() -> None:
 @pytest.mark.parametrize(
     argnames=("authorization", "reason"),
     argvalues=[
-        (None, AuthErrorReason.INVALID_HEADER),
-        ("Bearer", AuthErrorReason.INVALID_HEADER),
+        (None, AuthErrorReason.MISSING_AUTH_HEADER),
+        ("Bearer", AuthErrorReason.MALFORMED_AUTH_HEADER),
         ("Basic encoded-token", AuthErrorReason.INVALID_SCHEMA),
     ],
 )
@@ -63,9 +63,9 @@ def test_rejects_invalid_authorization_headers(
 
     assert error.value.error_reason == reason
     assert error.value.code == (
-        HTTPStatus.BAD_REQUEST
-        if reason == AuthErrorReason.INVALID_HEADER
-        else HTTPStatus.UNAUTHORIZED
+        HTTPStatus.UNAUTHORIZED
+        if reason == AuthErrorReason.INVALID_SCHEMA
+        else HTTPStatus.BAD_REQUEST
     )
     assert error.value.header == {"WWW-Authenticate": 'Bearer realm="AnyVLM"'}
 

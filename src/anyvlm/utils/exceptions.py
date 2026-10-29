@@ -38,10 +38,10 @@ class AuthErrorReason(StrEnum):
     All reasons must have a corresponding code mapped in the 'AuthError' class
     """
 
-    INVALID_HEADER = "Invalid request header"
+    MISSING_AUTH_HEADER = "Missing authorization request header"
+    MALFORMED_AUTH_HEADER = "Malformed authorization request header"
     INVALID_SCHEMA = "Invalid token schema"
     INVALID_TOKEN = "Invalid access token"
-    MISSING_TOKEN = "Missing bearer token"
     EXPIRED_TOKEN = "Access token has expired"
     MISSING_CLIENT_ID = "Missing client identity"
     UNRECOGNIZED_NODE = "Client is not authorized for access"
@@ -52,19 +52,16 @@ class AuthError(Exception):
 
     # Every reason in `AuthErrorReason` must have a corresponding code mapped here
     reason_to_code_mapping: ClassVar[dict[AuthErrorReason, HTTPStatus]] = {
-        AuthErrorReason.INVALID_HEADER: HTTPStatus.BAD_REQUEST,
+        AuthErrorReason.MISSING_AUTH_HEADER: HTTPStatus.BAD_REQUEST,
+        AuthErrorReason.MALFORMED_AUTH_HEADER: HTTPStatus.BAD_REQUEST,
         AuthErrorReason.INVALID_SCHEMA: HTTPStatus.UNAUTHORIZED,
         AuthErrorReason.INVALID_TOKEN: HTTPStatus.UNAUTHORIZED,
-        AuthErrorReason.MISSING_TOKEN: HTTPStatus.UNAUTHORIZED,
         AuthErrorReason.EXPIRED_TOKEN: HTTPStatus.UNAUTHORIZED,
         AuthErrorReason.MISSING_CLIENT_ID: HTTPStatus.UNAUTHORIZED,
         AuthErrorReason.UNRECOGNIZED_NODE: HTTPStatus.FORBIDDEN,
     }
 
     reason_to_header_mapping: ClassVar[dict[AuthErrorReason, dict[str, str]]] = {
-        AuthErrorReason.MISSING_TOKEN: {
-            "WWW-Authenticate": 'Bearer realm="AnyVLM"',
-        },
         AuthErrorReason.INVALID_TOKEN: {
             "WWW-Authenticate": 'Bearer error="invalid_token"',
         },
@@ -77,7 +74,10 @@ class AuthError(Exception):
         AuthErrorReason.MISSING_CLIENT_ID: {
             "WWW-Authenticate": 'Bearer error="invalid_token"',
         },
-        AuthErrorReason.INVALID_HEADER: {
+        AuthErrorReason.MISSING_AUTH_HEADER: {
+            "WWW-Authenticate": 'Bearer realm="AnyVLM"',
+        },
+        AuthErrorReason.MALFORMED_AUTH_HEADER: {
             "WWW-Authenticate": 'Bearer realm="AnyVLM"',
         },
         AuthErrorReason.INVALID_SCHEMA: {

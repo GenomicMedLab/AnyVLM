@@ -19,12 +19,13 @@ class JWTValidator:
         :return: The decoded token claims
         :raises: `AuthError`, if unable to validate or decode the request's token
         """
+        auth_header: str | None = request.headers.get("Authorization")
+        if not auth_header:
+            raise AuthError(error_reason=AuthErrorReason.MISSING_AUTH_HEADER)
         try:
-            scheme, token = (
-                request.headers.get("Authorization", "").strip().split(sep=" ")
-            )
+            scheme, token = auth_header.strip().split(sep=" ")
         except ValueError as e:
-            raise AuthError(error_reason=AuthErrorReason.INVALID_HEADER) from e
+            raise AuthError(error_reason=AuthErrorReason.MALFORMED_AUTH_HEADER) from e
         if scheme.lower() != "bearer":
             raise AuthError(error_reason=AuthErrorReason.INVALID_SCHEMA)
 
