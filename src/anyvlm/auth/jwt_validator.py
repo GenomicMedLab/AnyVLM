@@ -43,4 +43,9 @@ class JWTValidator:
         except jwt.InvalidTokenError as e:
             raise AuthError(error_reason=AuthErrorReason.INVALID_TOKEN) from e
 
+        try:
+            int(decoded_claims["exp"])  # catch malformed/empty 'exp' values
+        except TypeError as e:
+            raise AuthError(error_reason=AuthErrorReason.INVALID_TOKEN) from e
+
         return decoded_claims
