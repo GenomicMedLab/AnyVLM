@@ -42,6 +42,7 @@ class TokenProvider:
 
     def _refresh_token(self) -> None:
         """Retrieves and sets a new JWT token and updates the token expiry time"""
+        now: datetime = datetime.now(tz=UTC)
         response: Response = requests.post(
             url=self.TOKEN_REQUEST_URL,
             json={
@@ -60,6 +61,6 @@ class TokenProvider:
         data = response.json()
 
         self._token = data["access_token"]
-        self._token_expiry = datetime.now(tz=UTC) + timedelta(
+        self._token_expiry = now + timedelta(
             seconds=(data["expires_in"] - self.TOKEN_EXPIRY_MARGIN_SECONDS)
         )
