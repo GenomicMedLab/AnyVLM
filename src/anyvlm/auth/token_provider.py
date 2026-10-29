@@ -27,6 +27,14 @@ class TokenProvider:
         self.AUDIENCE_URL: str = settings.base_vlm_network_url + "api/v2/"
         self.TOKEN_REQUEST_URL: str = settings.base_vlm_network_url + "oauth/token"
 
+        client_id: str | None = os.getenv("VLM_CLIENT_ID")
+        client_secret: str | None = os.getenv("VLM_CLIENT_SECRET")
+        if not client_id or not client_secret:
+            error_message: str = "Unable to retrieve token - missing 'VLM_CLIENT_ID' and/or 'VLM_CLIENT_SECRET' environment variables"
+            raise TokenRetrievalError(error_message)
+        self.client_id: str = client_id
+        self.client_secret: str = client_secret
+
         self.get_token()
 
     def get_token(self) -> str:
@@ -43,11 +51,12 @@ class TokenProvider:
 
     def _refresh_token(self) -> None:
         """Retrieves and sets a new JWT token and updates the token expiry time"""
+        now: datetime = datetime.now(tz=UTC)
         response: Response = requests.post(
             url=self.TOKEN_REQUEST_URL,
             json={
-                "client_id": os.getenv("VLM_CLIENT_ID"),
-                "client_secret": os.getenv("VLM_CLIENT_SECRET"),
+                "client_id": self.client_id,
+                "client_secret": self.client_secret,
                 "audience": self.AUDIENCE_URL,
                 "grant_type": "client_credentials",
             },
@@ -55,12 +64,12 @@ class TokenProvider:
         )
 
         if response.status_code != HTTPStatus.OK:
-            error_message: str = "Unable to fetch bearer token from Auth0"
+            error_message: str = f"Unable to fetch bearer token from Auth0 - {response.status_code} response received"
             raise TokenRetrievalError(error_message)
 
         data = response.json()
 
         self._token = data["access_token"]
-        self._token_expiry = datetime.now(tz=UTC) + timedelta(
+        self._token_expiry = now + timedelta(
             seconds=(data["expires_in"] - self.TOKEN_EXPIRY_MARGIN_SECONDS)
         )
