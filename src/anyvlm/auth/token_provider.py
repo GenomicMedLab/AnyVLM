@@ -7,7 +7,10 @@ from http import HTTPStatus
 import requests
 from requests.models import Response
 
-from anyvlm.config import Settings, get_config
+from anyvlm.utils.constants import (
+    VLM_NETWORK_AUDIENCE_URL,
+    VLM_NETWORK_TOKEN_REQUEST_URL,
+)
 from anyvlm.utils.exceptions import TokenRetrievalError
 
 
@@ -23,15 +26,13 @@ class TokenProvider:
 
     def __init__(self) -> None:
         """Initializes a TokenProvider to obtain JWT tokens for outbound HTTP requests to other nodes on the VLM Network"""
-        settings: Settings = get_config()
-        self.AUDIENCE_URL: str = settings.base_vlm_network_url + "api/v2/"
-        self.TOKEN_REQUEST_URL: str = settings.base_vlm_network_url + "oauth/token"
-
         client_id: str | None = os.getenv("VLM_CLIENT_ID")
         client_secret: str | None = os.getenv("VLM_CLIENT_SECRET")
+
         if not client_id or not client_secret:
             error_message: str = "Unable to retrieve token - missing 'VLM_CLIENT_ID' and/or 'VLM_CLIENT_SECRET' environment variables"
             raise TokenRetrievalError(error_message)
+
         self.client_id: str = client_id
         self.client_secret: str = client_secret
 
@@ -53,11 +54,11 @@ class TokenProvider:
         """Retrieves and sets a new JWT token and updates the token expiry time"""
         now: datetime = datetime.now(tz=UTC)
         response: Response = requests.post(
-            url=self.TOKEN_REQUEST_URL,
+            url=VLM_NETWORK_TOKEN_REQUEST_URL,
             json={
                 "client_id": self.client_id,
                 "client_secret": self.client_secret,
-                "audience": self.AUDIENCE_URL,
+                "audience": VLM_NETWORK_AUDIENCE_URL,
                 "grant_type": "client_credentials",
             },
             timeout=10,
