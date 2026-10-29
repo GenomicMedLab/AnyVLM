@@ -1,5 +1,6 @@
-# ruff: noqa: D100, D103
-from http import HTTPMethod
+# ruff: noqa: D100, D103, T203
+import pprint
+from http import HTTPMethod, HTTPStatus
 
 from dotenv import load_dotenv
 from requests.models import Response
@@ -20,7 +21,7 @@ def match_search(
     reference_bases: Nucleotide,
     alternate_bases: Nucleotide,
 ) -> Response:
-    query_url += f"/?assembly_id={assembly_id}&referenceName={reference_name}&start={start}&referenceBases={reference_bases}&alternateBases={alternate_bases}"
+    query_url += f"?assemblyId={assembly_id}&referenceName={reference_name}&start={start}&referenceBases={reference_bases}&alternateBases={alternate_bases}"
     vlm_client: VLMClient = VLMClient(token_provider=TokenProvider())
     return vlm_client.request(method_type=HTTPMethod.GET, url=query_url)
 
@@ -28,7 +29,13 @@ def match_search(
 if __name__ == "__main__":
     vlm_client: VLMClient = VLMClient(token_provider=TokenProvider())
     node_registry: NodeRegistry = NodeRegistry(vlm_client)
-    # for node in node_registry.get_nodes():
-    #     print(f"{node.client_name}:")
-    #     print(f"  client_id: {node.client_id}")
-    #     print(f"  match_url: {node.match_url}")
+    match_url = ""
+    for node in node_registry.get_nodes():
+        if node.client_id == "F7rjcLm2oWuihue1wDFOC6RwwJw6vqYY":  # seqr
+            match_url: str = node.match_url if node.match_url else ""
+
+    response = match_search(match_url, GrcAssemblyId.GRCH38, "chr12", 10000, "A", "T")
+
+    if response.status_code == HTTPStatus.OK:
+        data = response.json()
+        pprint.pprint(object=data)
