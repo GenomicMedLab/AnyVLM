@@ -26,6 +26,16 @@ class TokenProvider:
 
     def __init__(self) -> None:
         """Initializes a TokenProvider to obtain JWT tokens for outbound HTTP requests to other nodes on the VLM Network"""
+        client_id: str | None = os.getenv("VLM_CLIENT_ID")
+        client_secret: str | None = os.getenv("VLM_CLIENT_SECRET")
+
+        if not client_id or not client_secret:
+            error_message: str = "Unable to retrieve token - missing 'VLM_CLIENT_ID' and/or 'VLM_CLIENT_SECRET' environment variables"
+            raise TokenRetrievalError(error_message)
+
+        self.client_id: str = client_id
+        self.client_secret: str = client_secret
+
         self.get_token()
 
     def get_token(self) -> str:
@@ -46,8 +56,8 @@ class TokenProvider:
         response: Response = requests.post(
             url=self.TOKEN_REQUEST_URL,
             json={
-                "client_id": os.getenv("VLM_CLIENT_ID"),
-                "client_secret": os.getenv("VLM_CLIENT_SECRET"),
+                "client_id": self.client_id,
+                "client_secret": self.client_secret,
                 "audience": self.AUDIENCE_URL,
                 "grant_type": "client_credentials",
             },
