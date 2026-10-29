@@ -72,7 +72,7 @@ class NodeRegistry:
             )
 
             if response.status_code != HTTPStatus.OK:
-                error_message: str = "Unable to fetch VLM Network nodes from Auth0"
+                error_message: str = f"Unable to fetch VLM Network nodes from Auth0 - received {response.status_code} response"
                 raise NodeRetrievalError(error_message)
 
             data = response.json()
