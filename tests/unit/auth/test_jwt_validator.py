@@ -104,3 +104,33 @@ def test_rejects_an_expired_token() -> None:
     assert error.value.error_reason == AuthErrorReason.INVALID_TOKEN
     assert error.value.code == HTTPStatus.UNAUTHORIZED
     assert error.value.header == {"WWW-Authenticate": 'Bearer error="invalid_token"'}
+
+
+def test_rejects_incorrect_audience() -> None:
+    issuer = "https://issuer.example/"
+    token_with_wrong_audience: str = jwt.encode(
+        payload={
+            "azp": "client-one",
+            "iss": issuer,
+            "aud": issuer + "/api",
+            "exp": datetime.now(tz=UTC) - timedelta(seconds=1),
+        },
+        key="unused-signing-key",
+        algorithm="HS256",
+    )
+
+    get_config_patch = patch("anyvlm.auth.jwt_validator.get_config")
+    get_config = get_config_patch.start()
+    try:
+        get_config.return_value.vlm_network_audience_url = "https://issuer-2.example/"
+
+        with pytest.raises(AuthError) as error:
+            JWTValidator().validate_and_decode_token(
+                request=_request(authorization=f"Bearer {token_with_wrong_audience}")
+            )
+    finally:
+        get_config_patch.stop()
+
+    assert error.value.error_reason == AuthErrorReason.INVALID_TOKEN
+    assert error.value.code == HTTPStatus.UNAUTHORIZED
+    assert error.value.header == {"WWW-Authenticate": 'Bearer error="invalid_token"'}
