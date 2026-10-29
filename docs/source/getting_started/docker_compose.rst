@@ -32,8 +32,17 @@ Create all required volumes:
 
 Download ``uta_20241220.pgd.gz`` from https://dl.biocommons.org/uta/ using a web browser and move it to the root of the repository.
 
-Create a `.env` file following the included `.emv.example` template, and set the required environment variables variables as outlined
-in the :doc:`VLM API Configuration page </configuration/vlm>`.
+Create a `.env` file from the included `.env.example` template:
+
+.. code-block:: console
+
+   % cp .env.example .env
+
+Then set the required environment variables as outlined in the :doc:`VLM API Configuration page </configuration/vlm>`.
+In particular, replace the example values for ``VLM_CLIENT_ID`` and ``VLM_CLIENT_SECRET`` with the credentials
+provided by the VLM Network administrators.
+
+Docker Compose reads these values from the project ``.env`` file and forwards them to the AnyVLM service at runtime.
 
 Then, launch the application:
 
