@@ -32,6 +32,8 @@ environ.setdefault("BEACON_NODE_ID", "org.anyvlm.test")
 environ.setdefault("HANDOVER_TYPE_ID", "CUSTOM:test-id")
 environ.setdefault("HANDOVER_TYPE_LABEL", "Test Label")
 environ.setdefault("BEACON_HANDOVER_URL", "https://test.example.com")
+environ.setdefault("VLM_CLIENT_ID", "example-client-id")
+environ.setdefault("VLM_CLIENT_SECRET", "example-client-secret")
 
 
 def _reset_app_state(app: FastAPI) -> None:

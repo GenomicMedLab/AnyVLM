@@ -7,8 +7,8 @@ from http import HTTPMethod, HTTPStatus
 
 from requests import Response
 
-from anyvlm.config import Settings, get_config
 from anyvlm.outbound.vlm_client import VLMClient
+from anyvlm.utils.constants import VLM_NETWORK_NODES_REQUEST_URL
 from anyvlm.utils.exceptions import NodeRetrievalError
 
 
@@ -39,10 +39,6 @@ class NodeRegistry:
         :param vlm_client: A 'VlmClient' instance used to send outbound HTTP requests to the VLM Network
         """
         self._vlm_client = vlm_client
-
-        settings: Settings = get_config()
-        self.NODES_REQUEST_URL: str = settings.vlm_network_base_url + "api/v2/clients"
-
         self.refresh_nodes()
 
     def get_nodes(self) -> list[VlmNode]:
@@ -70,13 +66,13 @@ class NodeRegistry:
             response: Response = self._vlm_client.request(
                 method_type=HTTPMethod.GET,
                 url=(
-                    f"{self.NODES_REQUEST_URL}?page={page}"
+                    f"{VLM_NETWORK_NODES_REQUEST_URL}?page={page}"
                     f"&per_page={self.NODES_RESULTS_PAGE_SIZE}"
                 ),
             )
 
             if response.status_code != HTTPStatus.OK:
-                error_message: str = "Unable to fetch VLM Network nodes from Auth0"
+                error_message: str = f"Unable to fetch VLM Network nodes from Auth0 - received {response.status_code} response"
                 raise NodeRetrievalError(error_message)
 
             data = response.json()

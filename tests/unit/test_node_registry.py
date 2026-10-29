@@ -1,11 +1,12 @@
 from datetime import UTC, datetime, timedelta
 from http import HTTPMethod, HTTPStatus
 from typing import Any
-from unittest.mock import MagicMock, call, patch
+from unittest.mock import MagicMock, call
 
 import pytest
 
 from anyvlm.outbound.node_registry import NodeRegistry
+from anyvlm.utils.constants import VLM_NETWORK_NODES_REQUEST_URL
 from anyvlm.utils.exceptions import NodeRetrievalError
 
 
@@ -31,9 +32,7 @@ def test_loads_nodes_and_exposes_client_ids() -> None:
         ]
     )
 
-    with patch("anyvlm.outbound.node_registry.get_config") as get_config:
-        get_config.return_value.vlm_network_base_url = "https://network.example/"
-        registry: NodeRegistry = NodeRegistry(vlm_client=client)
+    registry: NodeRegistry = NodeRegistry(vlm_client=client)
 
     assert registry.get_node_ids() == [
         "client-one",
@@ -41,7 +40,7 @@ def test_loads_nodes_and_exposes_client_ids() -> None:
     ]
     client.request.assert_called_once_with(
         method_type=HTTPMethod.GET,
-        url="https://network.example/api/v2/clients?page=0&per_page=100",
+        url=VLM_NETWORK_NODES_REQUEST_URL + "?page=0&per_page=100",
     )
 
 
@@ -52,9 +51,7 @@ def test_loads_nodes_from_multiple_pages() -> None:
         _response(data=[{"client_id": "client-two"}]),
     ]
 
-    with patch("anyvlm.outbound.node_registry.get_config") as get_config:
-        get_config.return_value.vlm_network_base_url = "https://network.example/"
-        registry: NodeRegistry = NodeRegistry(vlm_client=client)
+    registry: NodeRegistry = NodeRegistry(vlm_client=client)
 
     assert registry.get_node_ids() == [
         "client-one",
@@ -62,11 +59,11 @@ def test_loads_nodes_from_multiple_pages() -> None:
     assert client.request.call_args_list == [
         call(
             method_type=HTTPMethod.GET,
-            url="https://network.example/api/v2/clients?page=0&per_page=100",
+            url=VLM_NETWORK_NODES_REQUEST_URL + "?page=0&per_page=100",
         ),
         call(
             method_type=HTTPMethod.GET,
-            url="https://network.example/api/v2/clients?page=1&per_page=100",
+            url=VLM_NETWORK_NODES_REQUEST_URL + "?page=1&per_page=100",
         ),
     ]
 
@@ -78,10 +75,8 @@ def test_refresh_nodes_replaces_cached_nodes() -> None:
         _response(data=[{"client_id": "new"}]),
     ]
 
-    with patch("anyvlm.outbound.node_registry.get_config") as get_config:
-        get_config.return_value.vlm_network_base_url = "https://network.example/"
-        registry: NodeRegistry = NodeRegistry(vlm_client=client)
-        registry.refresh_nodes()
+    registry: NodeRegistry = NodeRegistry(vlm_client=client)
+    registry.refresh_nodes()
 
     assert registry.get_node_ids() == ["new"]
 
@@ -93,11 +88,9 @@ def test_refreshes_expired_cache_on_get_nodes() -> None:
         _response(data=[{"client_id": "refreshed"}]),
     ]
 
-    with patch("anyvlm.outbound.node_registry.get_config") as get_config:
-        get_config.return_value.vlm_network_base_url = "https://network.example/"
-        registry: NodeRegistry = NodeRegistry(vlm_client=client)
-        registry._nodes_expiry = datetime.now(tz=UTC) - timedelta(seconds=1)  # pyright: ignore[reportPrivateUsage]
-        assert registry.get_node_ids() == ["refreshed"]
+    registry: NodeRegistry = NodeRegistry(vlm_client=client)
+    registry._nodes_expiry = datetime.now(tz=UTC) - timedelta(seconds=1)  # pyright: ignore[reportPrivateUsage]
+    assert [node.client_id for node in registry.get_nodes()] == ["refreshed"]
 
     assert client.request.call_count == 2
 
@@ -106,10 +99,8 @@ def test_raises_when_node_retrieval_fails() -> None:
     client: MagicMock = MagicMock()
     client.request.return_value = _response(status_code=HTTPStatus.SERVICE_UNAVAILABLE)
 
-    with patch("anyvlm.outbound.node_registry.get_config") as get_config:
-        get_config.return_value.vlm_network_base_url = "https://network.example/"
-        with pytest.raises(NodeRetrievalError, match="Unable to fetch"):
-            NodeRegistry(vlm_client=client)
+    with pytest.raises(NodeRetrievalError, match="Unable to fetch"):
+        NodeRegistry(vlm_client=client)
 
 
 def test_registry_excludes_self_when_other_nodes_exist(
@@ -134,16 +125,14 @@ def test_registry_excludes_self_when_other_nodes_exist(
         ]
     )
 
-    with patch("anyvlm.outbound.node_registry.get_config") as get_config:
-        get_config.return_value.vlm_network_base_url = "https://network.example/"
-        registry: NodeRegistry = NodeRegistry(vlm_client=client)
+    registry: NodeRegistry = NodeRegistry(vlm_client=client)
 
     assert registry.get_node_ids() == [
         "client-one",
     ]
     client.request.assert_called_once_with(
         method_type=HTTPMethod.GET,
-        url="https://network.example/api/v2/clients?page=0&per_page=100",
+        url=VLM_NETWORK_NODES_REQUEST_URL + "?page=0&per_page=100",
     )
 
 
@@ -164,12 +153,10 @@ def test_registry_returns_empty_list_when_only_self_exists(
         ]
     )
 
-    with patch("anyvlm.outbound.node_registry.get_config") as get_config:
-        get_config.return_value.vlm_network_base_url = "https://network.example/"
-        registry: NodeRegistry = NodeRegistry(vlm_client=client)
+    registry: NodeRegistry = NodeRegistry(vlm_client=client)
 
     assert registry.get_node_ids() == []
     client.request.assert_called_once_with(
         method_type=HTTPMethod.GET,
-        url="https://network.example/api/v2/clients?page=0&per_page=100",
+        url=VLM_NETWORK_NODES_REQUEST_URL + "?page=0&per_page=100",
     )
