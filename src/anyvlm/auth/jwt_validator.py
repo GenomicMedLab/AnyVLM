@@ -5,7 +5,7 @@ from typing import Any
 import jwt
 from fastapi import Request
 
-from anyvlm.config import get_config
+from anyvlm.config import Settings, get_config
 from anyvlm.utils.exceptions import AuthError, AuthErrorReason
 
 
@@ -19,6 +19,8 @@ class JWTValidator:
         :return: The decoded token claims
         :raises: `AuthError`, if unable to validate or decode the request's token
         """
+        configs: Settings = get_config()
+
         auth_header: str | None = request.headers.get("Authorization")
         if not auth_header:
             raise AuthError(error_reason=AuthErrorReason.MISSING_AUTH_HEADER)
@@ -33,12 +35,14 @@ class JWTValidator:
             decoded_claims: dict[str, Any] = jwt.decode(
                 jwt=token,
                 algorithms=["RS256"],
-                issuer=get_config().base_vlm_network_url,
+                issuer=configs.base_vlm_network_url,
+                audience=configs.vlm_network_audience_url,
                 options={
                     "verify_signature": False,  # See PR comment for more details: https://github.com/GenomicMedLab/AnyVLM/pull/120
                     "verify_iss": True,
                     "verify_exp": True,
-                    "require": ["iss", "exp", "azp"],
+                    "verify_aud": True,
+                    "require": ["iss", "exp", "azp", "aud"],
                 },
             )
         except jwt.InvalidTokenError as e:

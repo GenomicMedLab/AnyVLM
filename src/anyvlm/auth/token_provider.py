@@ -24,7 +24,7 @@ class TokenProvider:
     def __init__(self) -> None:
         """Initializes a TokenProvider to obtain JWT tokens for outbound HTTP requests to other nodes on the VLM Network"""
         settings: Settings = get_config()
-        self.AUDIENCE_URL: str = settings.base_vlm_network_url + "api/v2/"
+        self.AUDIENCE_URL: str = settings.vlm_network_audience_url
         self.TOKEN_REQUEST_URL: str = settings.base_vlm_network_url + "oauth/token"
 
         self.get_token()
