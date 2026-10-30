@@ -25,7 +25,7 @@ load_dotenv()
 T = TypeVar(name="T")
 
 
-def match_search(
+def variant_match_search(
     query_url: str,
     assembly_id: GrcAssemblyId,
     reference_name: ChromosomeName,
@@ -33,7 +33,7 @@ def match_search(
     reference_bases: Nucleotide,
     alternate_bases: Nucleotide,
 ) -> Response:
-    """Search for a matching variant in other VLM Nodes, and retrieve their CAF data for this variant,
+    """Search for a matching variant in other VLM Nodes, and retrieve their CAF data for this variant.
 
     :param query_url: The URL for the node you are querying
     :assembly_id: The assembly for variant you're matching
@@ -217,7 +217,7 @@ def print_args(**kwargs) -> None:  # pyright: ignore[reportUnknownParameterType,
         print(f"\t{name} = {value!r}")
 
 
-def run_match_query() -> None:
+def run_variant_match_query() -> None:
     """Script to prompt a user to query an external VLM Network node"""
     print("VARIANT MATCH QUERY")
     vlm_client: VLMClient = VLMClient(token_provider=TokenProvider())
@@ -249,7 +249,7 @@ def run_match_query() -> None:
     )
 
     print("\nRESULT:")
-    response: Response = match_search(
+    response: Response = variant_match_search(
         query_url=match_url,  # pyright: ignore[reportArgumentType]
         assembly_id=assembly,
         reference_name=reference_name,
@@ -268,4 +268,4 @@ def run_match_query() -> None:
 
 
 if __name__ == "__main__":
-    run_match_query()
+    run_variant_match_query()
