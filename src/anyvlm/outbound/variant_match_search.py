@@ -1,4 +1,6 @@
-"""Prompt a user to query an external VLM Network node"""
+"""Prompt a user to query an external VLM Network node
+Run this script with the following command: `python -m src.anyvlm.outbound.variant_match_search`
+"""
 
 import pprint
 import sys
