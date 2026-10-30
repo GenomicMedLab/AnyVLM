@@ -19,3 +19,7 @@ class VcfIngestionError(Exception):
 
 class VariantLookupError(Exception):
     """Raised when a variant cannot be retrieved from AnyVar"""
+
+
+class TokenRetrievalError(Exception):
+    """Raised when a token cannot be retrieved"""
