@@ -1,0 +1,136 @@
+from datetime import UTC, datetime, timedelta
+from http import HTTPStatus
+from typing import Any
+from unittest.mock import MagicMock, patch
+
+import jwt
+import pytest
+
+from anyvlm.auth.jwt_validator import JWTValidator
+from anyvlm.utils.exceptions import AuthError, AuthErrorReason
+
+
+def _request(authorization: str | None) -> MagicMock:
+    request: MagicMock = MagicMock()
+    request.headers.get.return_value = authorization or ""
+    return request
+
+
+def test_decodes_valid_bearer_token() -> None:
+    issuer: str = "https://issuer.example/"
+    audience: str = issuer + "api"
+    claims: dict[str, Any] = {
+        "client_id": "client-one",
+        "azp": "client-one",
+        "iss": issuer,
+        "aud": audience,
+        "exp": 2_000_000_000,
+    }
+    with (
+        patch("anyvlm.auth.jwt_validator.get_config") as get_config,
+        patch("anyvlm.auth.jwt_validator.jwt.decode", return_value=claims) as decode,
+    ):
+        get_config.return_value.vlm_network_base_url = issuer
+        get_config.return_value.vlm_network_audience_url = audience
+
+        decoded_claims: dict[str, Any] = JWTValidator().validate_and_decode_token(
+            request=_request(authorization="Bearer encoded-token")
+        )
+
+    assert decoded_claims == claims
+    decode.assert_called_once_with(
+        jwt="encoded-token",
+        algorithms=["RS256"],
+        issuer=issuer,
+        audience=audience,
+        options={
+            "verify_signature": False,
+            "verify_iss": True,
+            "verify_exp": True,
+            "verify_aud": True,
+            "require": ["iss", "exp", "azp", "aud"],
+        },
+    )
+
+
+@pytest.mark.parametrize(
+    argnames=("authorization", "reason"),
+    argvalues=[
+        (None, AuthErrorReason.MISSING_AUTH_HEADER),
+        ("Bearer", AuthErrorReason.MALFORMED_AUTH_HEADER),
+        ("Basic encoded-token", AuthErrorReason.INVALID_SCHEMA),
+    ],
+)
+def test_rejects_invalid_authorization_headers(
+    authorization: str | None, reason: AuthErrorReason
+) -> None:
+    with pytest.raises(AuthError) as error:
+        JWTValidator().validate_and_decode_token(request=_request(authorization))
+
+    assert error.value.error_reason == reason
+    assert error.value.code == (
+        HTTPStatus.UNAUTHORIZED
+        if reason == AuthErrorReason.INVALID_SCHEMA
+        else HTTPStatus.BAD_REQUEST
+    )
+    assert error.value.header == {"WWW-Authenticate": 'Bearer realm="AnyVLM"'}
+
+
+def test_rejects_an_expired_token() -> None:
+    issuer = "https://issuer.example/"
+    expired_token: str = jwt.encode(
+        payload={
+            "azp": "client-one",
+            "iss": issuer,
+            "aud": issuer + "/api",
+            "exp": datetime.now(tz=UTC) - timedelta(seconds=1),
+        },
+        key="unused-signing-key",
+        algorithm="HS256",
+    )
+
+    get_config_patch = patch("anyvlm.auth.jwt_validator.get_config")
+    get_config = get_config_patch.start()
+    try:
+        get_config.return_value.vlm_network_base_url = issuer
+
+        with pytest.raises(AuthError) as error:
+            JWTValidator().validate_and_decode_token(
+                request=_request(authorization=f"Bearer {expired_token}")
+            )
+    finally:
+        get_config_patch.stop()
+
+    assert error.value.error_reason == AuthErrorReason.INVALID_TOKEN
+    assert error.value.code == HTTPStatus.UNAUTHORIZED
+    assert error.value.header == {"WWW-Authenticate": 'Bearer error="invalid_token"'}
+
+
+def test_rejects_incorrect_audience() -> None:
+    issuer = "https://issuer.example/"
+    token_with_wrong_audience: str = jwt.encode(
+        payload={
+            "azp": "client-one",
+            "iss": issuer,
+            "aud": issuer + "/api",
+            "exp": datetime.now(tz=UTC) - timedelta(seconds=1),
+        },
+        key="unused-signing-key",
+        algorithm="HS256",
+    )
+
+    get_config_patch = patch("anyvlm.auth.jwt_validator.get_config")
+    get_config = get_config_patch.start()
+    try:
+        get_config.return_value.vlm_network_audience_url = "https://issuer-2.example/"
+
+        with pytest.raises(AuthError) as error:
+            JWTValidator().validate_and_decode_token(
+                request=_request(authorization=f"Bearer {token_with_wrong_audience}")
+            )
+    finally:
+        get_config_patch.stop()
+
+    assert error.value.error_reason == AuthErrorReason.INVALID_TOKEN
+    assert error.value.code == HTTPStatus.UNAUTHORIZED
+    assert error.value.header == {"WWW-Authenticate": 'Bearer error="invalid_token"'}

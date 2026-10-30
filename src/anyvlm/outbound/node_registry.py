@@ -7,7 +7,7 @@ from http import HTTPMethod, HTTPStatus
 
 from requests import Response
 
-from anyvlm.outbound.vlm_client import VlmClient
+from anyvlm.outbound.vlm_client import VLMClient
 from anyvlm.utils.constants import VLM_NETWORK_NODES_REQUEST_URL
 from anyvlm.utils.exceptions import NodeRetrievalError
 
@@ -31,9 +31,9 @@ class NodeRegistry:
 
     _nodes: list[VlmNode]
     _nodes_expiry: datetime
-    _vlm_client: VlmClient
+    _vlm_client: VLMClient
 
-    def __init__(self, vlm_client: VlmClient) -> None:
+    def __init__(self, vlm_client: VLMClient) -> None:
         """Initializes a list of all other nodes currently on the VLM Network
 
         :param vlm_client: A 'VlmClient' instance used to send outbound HTTP requests to the VLM Network
@@ -49,6 +49,10 @@ class NodeRegistry:
         if (not self._nodes_expiry) or (now >= self._nodes_expiry):
             self.refresh_nodes()
         return self._nodes
+
+    def get_node_ids(self) -> list[str]:
+        """Get a list of the client_ids for all nodes on the VLM network"""
+        return [node.client_id for node in self.get_nodes()]
 
     def refresh_nodes(self) -> None:
         """Retrieve an updated list of known nodes on the VLM Network + reset the expiry time for the next check

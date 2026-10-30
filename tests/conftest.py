@@ -1,10 +1,15 @@
 import json
+from collections.abc import Generator
 from os import environ
 from pathlib import Path
+from typing import Any
+from unittest.mock import MagicMock
 
 import pytest
 from anyvar.anyvar import create_storage, create_translator
 from dotenv import load_dotenv
+from fastapi import FastAPI
+from fastapi.testclient import TestClient
 from ga4gh.core.models import iriReference
 from ga4gh.va_spec.base import StudyGroup
 from ga4gh.vrs import models
@@ -12,6 +17,7 @@ from helpers import EXPECTED_VRS_ID, build_caf
 from pydantic import BaseModel
 
 from anyvlm.anyvar.python_client import PythonAnyVarClient
+from anyvlm.main import app as vlm_restapi
 from anyvlm.storage.postgres import PostgresObjectStore
 from anyvlm.utils.types import (
     AncillaryResults,
@@ -28,6 +34,24 @@ environ.setdefault("HANDOVER_TYPE_LABEL", "Test Label")
 environ.setdefault("BEACON_HANDOVER_URL", "https://test.example.com")
 environ.setdefault("VLM_CLIENT_ID", "example-client-id")
 environ.setdefault("VLM_CLIENT_SECRET", "example-client-secret")
+
+
+def _reset_app_state(app: FastAPI) -> None:
+    state_attrs = ("request_authenticator", "anyvar_client", "anyvlm_storage")
+    for attr in state_attrs:
+        if hasattr(app.state, attr):
+            delattr(app.state, attr)
+
+
+@pytest.fixture
+def api_client() -> Generator[TestClient, Any, None]:
+    """Provide an API client with isolated application state."""
+    _reset_app_state(app=vlm_restapi)
+    vlm_restapi.state.request_authenticator = MagicMock()
+    try:
+        yield TestClient(app=vlm_restapi)
+    finally:
+        _reset_app_state(app=vlm_restapi)
 
 
 @pytest.fixture(scope="session")

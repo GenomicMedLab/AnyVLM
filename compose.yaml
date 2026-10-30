@@ -10,6 +10,8 @@ services:
       - 127.0.0.1:8080:8000
     environment:
       - ANYVLM_STORAGE_URI=postgresql://anyvlm:anyvlm-pw@anyvlm_db:5432/anyvlm
+      - VLM_CLIENT_ID=${VLM_CLIENT_ID:?VLM_CLIENT_ID must be set}
+      - VLM_CLIENT_SECRET=${VLM_CLIENT_SECRET:?VLM_CLIENT_SECRET must be set}
       - HANDOVER_TYPE_ID=CUSTOM:GREGoR-NCH
       - HANDOVER_TYPE_LABEL=GREGoR AnyVLM Reference
       - BEACON_HANDOVER_URL=https://variants.gregorconsortium.org/
