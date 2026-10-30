@@ -2,7 +2,7 @@
 
 from enum import StrEnum
 from types import MappingProxyType
-from typing import Annotated
+from typing import Annotated, TypeAlias
 
 from anyvar.mapping.liftover import ReferenceAssembly
 from ga4gh.va_spec.base import CohortAlleleFrequencyStudyResult
@@ -73,12 +73,12 @@ ASSEMBLY_MAP: MappingProxyType[GrcAssemblyId | UcscAssemblyBuild, ReferenceAssem
 )
 
 
-Nucleotide = Annotated[
+Nucleotide: TypeAlias = Annotated[
     str,
     BeforeValidator(str.upper),
     StringConstraints(pattern=r"^[ACGT]$"),
 ]
-nucleotide_adapter: TypeAdapter[str] = TypeAdapter[str](Nucleotide)
+nucleotide_adapter: TypeAdapter[Nucleotide] = TypeAdapter[str](Nucleotide)
 
 
 def _normalize_chromosome_name(chromosome_name: str) -> str:
@@ -105,7 +105,8 @@ def _normalize_chromosome_name(chromosome_name: str) -> str:
     )
 
 
-ChromosomeName = Annotated[str, AfterValidator(_normalize_chromosome_name)]
+ChromosomeName: TypeAlias = Annotated[str, AfterValidator(_normalize_chromosome_name)]
+chromosome_name_adapter: TypeAdapter[ChromosomeName] = TypeAdapter[str](ChromosomeName)
 
 
 class Zygosity(StrEnum):

@@ -2,10 +2,10 @@
 import pprint
 import sys
 from http import HTTPMethod, HTTPStatus
-from typing import Any
+from typing import Any, TypeVar
 
 from dotenv import load_dotenv
-from pydantic import ValidationError
+from pydantic import TypeAdapter, ValidationError
 from requests.models import Response
 
 from anyvlm.auth.token_provider import TokenProvider
@@ -15,6 +15,7 @@ from anyvlm.utils.types import (
     ChromosomeName,
     GrcAssemblyId,
     Nucleotide,
+    chromosome_name_adapter,
     nucleotide_adapter,
 )
 
@@ -83,6 +84,30 @@ def _select_option_helper(
             return options_list[int(selection_number) - 1]
 
 
+T = TypeVar(name="T")
+
+
+def _validate_input_with_type_adapter(
+    type_adapter: TypeAdapter[T], prompt: str, error_message: str | None
+) -> T:
+    print()
+    while True:
+        raw_input: str = input("> " + prompt)
+        try:
+            transformed_input: T = type_adapter.validate_python(raw_input)
+        except ValidationError as e:
+            print(
+                "❌ "
+                + (
+                    error_message
+                    if error_message is not None
+                    else f"{e.errors()[0]['msg']}"
+                )
+            )
+        else:
+            return transformed_input
+
+
 def _select_node(node_registry: NodeRegistry) -> VLMNode:
     return _select_option_helper(
         options_list=node_registry.get_nodes(),
@@ -101,11 +126,10 @@ def _select_assembly() -> GrcAssemblyId:
 
 
 def _select_reference_name() -> ChromosomeName:
-    options_list: list[str] = [f"chr{i}" for i in range(1, 22)] + ["X", "Y", "M"]
-    return _select_option_helper(
-        options_list=options_list,
-        prompt="Select the chromosome for the variant you're matching on:",
-        no_results_message="Whoops, there was an error retrieving chromosome selection options",
+    return _validate_input_with_type_adapter(
+        type_adapter=chromosome_name_adapter,
+        prompt="Enter the chromosome for the variant you're matching on: ",
+        error_message=None,
     )
 
 
@@ -126,21 +150,11 @@ def _select_start_position() -> int:
 
 
 def _select_base(base_type: str) -> Nucleotide:
-    print()
-    while True:
-        selected_nucleotide_str: str = input(
-            f"Enter the {base_type} base for the variant you're matching on: "
-        )
-        try:
-            selected_nucleotide: Nucleotide = nucleotide_adapter.validate_python(
-                selected_nucleotide_str
-            )
-        except ValidationError:
-            print(
-                "❌ Please enter a valid nucleotide. (Note: only single bases are supported by the VLM Network at this time)"
-            )
-        else:
-            return selected_nucleotide
+    return _validate_input_with_type_adapter(
+        type_adapter=nucleotide_adapter,
+        prompt=f"Enter the {base_type} base for the variant you're matching on: ",
+        error_message="Please enter a valid nucleotide. (Note: only single bases are supported by the VLM Network at this time)",
+    )
 
 
 if __name__ == "__main__":
@@ -154,7 +168,7 @@ if __name__ == "__main__":
         print("Sorry, your selected node does not support match queries at this time")
         _exit_early()
 
-    print("\nTell us more about the variant you're matching against ⬇️")
+    print("\n⬇️  Tell us more about the variant you're matching against:")
     assembly: GrcAssemblyId = _select_assembly()
     reference_name: ChromosomeName = _select_reference_name()
     start_position: int = _select_start_position()
