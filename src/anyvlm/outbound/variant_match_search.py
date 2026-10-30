@@ -149,7 +149,7 @@ def _select_node(node_registry: NodeRegistry) -> VLMNode:
     :returns: A VLMNode of the user's choice
     """
     return _select_option_helper(
-        options_list=node_registry.get_nodes(),
+        options_list=[node for node in node_registry.get_nodes() if node.match_url],
         prompt="Select a node to query from the list below:",
         no_results_message="Sorry, no nodes are currently registered on the network",
         option_attribute="client_name",
@@ -265,7 +265,7 @@ def run_variant_match_query() -> None:
         pprint.pprint(object=data)
     else:
         print(
-            f"Sorry, there was an error querying this node. We received a response status code of :{response.status_code}"
+            f"Sorry, there was an error querying this node. We received a response status code of: {response.status_code}"
         )
 
 
