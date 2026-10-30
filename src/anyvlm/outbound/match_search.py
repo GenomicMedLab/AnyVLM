@@ -2,6 +2,7 @@
 import pprint
 import sys
 from http import HTTPMethod, HTTPStatus
+from typing import Any
 
 from dotenv import load_dotenv
 from requests.models import Response
@@ -27,51 +28,94 @@ def match_search(
     return vlm_client.request(method_type=HTTPMethod.GET, url=query_url)
 
 
-def _select_node(node_registry: NodeRegistry) -> VLMNode | None:
-    print("Select a node to query from the list below:")
-    nodes: list[VLMNode] = node_registry.get_nodes()
-    for i, node in enumerate[VLMNode](nodes):
-        print(f" ({i + 1}) {node.client_name}")
-    print()
+def _exit_early() -> None:
+    print("🛑 exiting...")
+    sys.exit()
 
-    num_nodes: int = len(nodes)
-    if num_nodes == 0:
-        print("Sorry, no nodes are currently registered on the network")
+
+def _validate_selected_number(
+    selection: str, max_value: int, min_value: int = 0
+) -> int | None:
+    try:
+        selection_number = int(selection)
+    except ValueError:
         return None
 
-    repeat_question = True
-    error_message: str = f"❌ Please enter a number between 1-{num_nodes}"
-    while repeat_question:
-        selection: str = input("> Enter the number for your node of choice: ")
+    if selection_number <= min_value or selection_number > max_value:
+        return None
 
-        try:
-            selection_number = int(selection)
-        except ValueError:
-            print(error_message)
+    return selection_number
 
-        if selection_number <= 0 or selection_number > num_nodes:
-            print(error_message)
+
+def _select_option_helper(
+    options_list: list[Any],
+    prompt: str,
+    no_results_message: str,
+    option_attribute: str | None = None,
+) -> Any:  # noqa: ANN401
+    print(prompt)
+
+    num_options: int = len(options_list)
+    if num_options == 0:
+        print(no_results_message)
+        _exit_early()
+
+    for i, option in enumerate(options_list):
+        selection_value = (
+            getattr(option, option_attribute) if option_attribute else option
+        )
+        print(f" ({i + 1}) {selection_value}")
+    print()
+
+    while True:
+        selection: str = input("> Enter your selection's number: ")
+        selection_number: int | None = _validate_selected_number(
+            selection=selection, max_value=num_options
+        )
+        if not selection_number:
+            print(f"❌ Please enter a number between 1-{num_options}")
         else:
-            repeat_question = False
+            return options_list[int(selection_number) - 1]
 
-    return nodes[selection_number - 1]
+
+def _select_node(node_registry: NodeRegistry) -> VLMNode:
+    return _select_option_helper(
+        options_list=node_registry.get_nodes(),
+        prompt="Select a node to query from the list below:",
+        no_results_message="Sorry, no nodes are currently registered on the network",
+        option_attribute="client_name",
+    )
+
+
+def _select_assembly() -> GrcAssemblyId:
+    return _select_option_helper(
+        options_list=list(GrcAssemblyId),
+        prompt="Select the assembly for the variant you're matching on:",
+        no_results_message="Whoops, there was an error retrieving assembly options",
+    )
 
 
 if __name__ == "__main__":
+    print("VARIANT MATCH QUERY")
     vlm_client: VLMClient = VLMClient(token_provider=TokenProvider())
     node_registry: NodeRegistry = NodeRegistry(vlm_client)
-    selected_node: VLMNode | None = _select_node(node_registry)
-    if not selected_node:
-        print("No node selected for querying - exiting")
-        sys.exit()
+    selected_node: VLMNode = _select_node(node_registry)
 
     match_url = selected_node.match_url
     if not match_url:
         print("Sorry, your selected node does not support match queries at this time")
-        sys.exit()
+        _exit_early()
+
+    print("\nTell us more about the variant you're matching against ⬇️")
+    assembly: GrcAssemblyId = _select_assembly()
 
     response: Response = match_search(
-        match_url, GrcAssemblyId.GRCH38, "chr12", 10000, "A", "T"
+        query_url=match_url,  # pyright: ignore[reportArgumentType]
+        assembly_id=assembly,
+        reference_name="chr12",
+        start=10000,
+        reference_bases="A",
+        alternate_bases="T",
     )
 
     if response.status_code == HTTPStatus.OK:
