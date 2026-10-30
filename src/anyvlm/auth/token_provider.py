@@ -7,15 +7,15 @@ from http import HTTPStatus
 import requests
 from requests.models import Response
 
+from anyvlm.utils.constants import (
+    VLM_NETWORK_AUDIENCE_URL,
+    VLM_NETWORK_TOKEN_REQUEST_URL,
+)
 from anyvlm.utils.exceptions import TokenRetrievalError
 
 
 class TokenProvider:
     """Handles retrieving/caching valid bearer tokens"""
-
-    BASE_VLM_AUTH_URL: str = "https://vlm-auth.us.auth0.com"
-    AUDIENCE_URL: str = BASE_VLM_AUTH_URL + "/api/v2/"
-    TOKEN_REQUEST_URL: str = BASE_VLM_AUTH_URL + "/oauth/token"
 
     # used to add margin to the token expiry time, to account for the time
     # it takes for the token provider to send its response back to AnyVLM
@@ -54,11 +54,11 @@ class TokenProvider:
         """Retrieves and sets a new JWT token and updates the token expiry time"""
         now: datetime = datetime.now(tz=UTC)
         response: Response = requests.post(
-            url=self.TOKEN_REQUEST_URL,
+            url=VLM_NETWORK_TOKEN_REQUEST_URL,
             json={
                 "client_id": self.client_id,
                 "client_secret": self.client_secret,
-                "audience": self.AUDIENCE_URL,
+                "audience": VLM_NETWORK_AUDIENCE_URL,
                 "grant_type": "client_credentials",
             },
             timeout=10,
