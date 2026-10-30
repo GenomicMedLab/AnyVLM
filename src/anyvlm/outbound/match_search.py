@@ -157,13 +157,18 @@ def _select_base(base_type: str) -> Nucleotide:
     )
 
 
+def print_args(**kwargs) -> None:  # pyright: ignore[reportUnknownParameterType, reportMissingParameterType]
+    for name, value in kwargs.items():
+        print(f"\t{name} = {value!r}")
+
+
 if __name__ == "__main__":
     print("VARIANT MATCH QUERY")
     vlm_client: VLMClient = VLMClient(token_provider=TokenProvider())
     node_registry: NodeRegistry = NodeRegistry(vlm_client)
     selected_node: VLMNode = _select_node(node_registry)
 
-    match_url = selected_node.match_url
+    match_url: str | None = selected_node.match_url
     if not match_url:
         print("Sorry, your selected node does not support match queries at this time")
         _exit_early()
@@ -174,6 +179,18 @@ if __name__ == "__main__":
     start_position: int = _select_start_position()
     reference_base: Nucleotide = _select_base(base_type="reference")
     alternate_base: Nucleotide = _select_base(base_type="alternate")
+
+    print("\n---\n")
+    print(
+        f"Querying '{selected_node.client_name}' at '{match_url}' with the following parameters:"
+    )
+    print_args(
+        assembly=assembly.value,
+        reference_name=reference_name,
+        start_position=start_position,
+        reference_base=reference_base,
+        alternate_base=alternate_base,
+    )
 
     print("\nRESULT:")
     response: Response = match_search(
