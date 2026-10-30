@@ -1,8 +1,9 @@
-# ruff: noqa: D100, D103, T203, T201
+"""Prompt a user to query an external VLM Network node"""
+
 import pprint
 import sys
 from http import HTTPMethod, HTTPStatus
-from typing import Any, TypeVar
+from typing import TypeVar
 
 from dotenv import load_dotenv
 from pydantic import TypeAdapter, ValidationError
@@ -21,6 +22,8 @@ from anyvlm.utils.types import (
 
 load_dotenv()
 
+T = TypeVar(name="T")
+
 
 def match_search(
     query_url: str,
@@ -30,19 +33,37 @@ def match_search(
     reference_bases: Nucleotide,
     alternate_bases: Nucleotide,
 ) -> Response:
+    """Search for a matching variant in other VLM Nodes, and retrieve their CAF data for this variant,
+
+    :param query_url: The URL for the node you are querying
+    :assembly_id: The assembly for variant you're matching
+    :reference_name: The name of the chromosome the variant you're matching is on
+    :start: The start position of the variant you're matching
+    :reference_bases: The reference base for the variant you're matching
+    :alternate_bases: The alternate base for hte variant you're matching
+    :return: The Response object from the node you're querying. Will match
+    """
     query_url += f"?assemblyId={assembly_id}&referenceName={reference_name}&start={start}&referenceBases={reference_bases}&alternateBases={alternate_bases}"
     vlm_client: VLMClient = VLMClient(token_provider=TokenProvider())
     return vlm_client.request(method_type=HTTPMethod.GET, url=query_url)
 
 
 def _exit_early() -> None:
+    """Print an 'exiting' message and exit"""
     print("🛑 exiting...")
     sys.exit()
 
 
-def _validate_selected_number(
+def _validate_selected_int(
     selection: str, max_value: int, min_value: int = 0
 ) -> int | None:
+    """Ensure an inputted number is an int, and that it is within the specified range
+
+    :param selection: The selected int to be validated
+    :param max_value: The maximum allowable value for the int
+    :param min_value: [Optional] The minimum allowable value for the int. Defaults to `0` if not set.
+    :returns: The value as an `int` if valid, else `None`
+    """
     try:
         selection_number = int(selection)
     except ValueError:
@@ -55,11 +76,19 @@ def _validate_selected_number(
 
 
 def _select_option_helper(
-    options_list: list[Any],
+    options_list: list[T],
     prompt: str,
     no_results_message: str,
     option_attribute: str | None = None,
-) -> Any:  # noqa: ANN401
+) -> T:
+    """A helper function to prompt a user to select one choice from an options list repeatedly until they choose a valid selection
+
+    :param options_list: The list of options from which the user should choose
+    :param prompt: The message to display to the user directing them to make a selection
+    :param no_results_message: The message to display to the user if the 'options_list' is empty
+    :param option_attribute: [Optional] If the options in your 'options_list' are objects, specify the attribute of those objects that should be displayed for the options list
+    :returns: A result of the type specified by your options list
+    """
     print("\n" + prompt)
 
     num_options: int = len(options_list)
@@ -75,7 +104,7 @@ def _select_option_helper(
 
     while True:
         selection: str = input("> Enter your selection's number: ")
-        selection_number: int | None = _validate_selected_number(
+        selection_number: int | None = _validate_selected_int(
             selection=selection, max_value=num_options
         )
         if not selection_number:
@@ -84,12 +113,15 @@ def _select_option_helper(
             return options_list[int(selection_number) - 1]
 
 
-T = TypeVar(name="T")
-
-
 def _validate_input_with_type_adapter(
     type_adapter: TypeAdapter[T], prompt: str, error_message: str | None
 ) -> T:
+    """Validates that user inputs matches the constraints defined by the provided TypeAdapter
+
+    :param type_adapter: The TypeAdapter to use for validation
+    :parma prompt: The message to display to the user directing them to make a selection
+    :param error_message: [Optional] A message to display to the user if the validation fails, prompting them to try again. If omitted, the function will fallback to using the error message raised during the failed validation.
+    """
     print()
     while True:
         raw_input: str = input("> " + prompt)
@@ -109,6 +141,11 @@ def _validate_input_with_type_adapter(
 
 
 def _select_node(node_registry: NodeRegistry) -> VLMNode:
+    """Prompts the user to select a node to query
+
+    :param node_registry: The list of nodes to choose from
+    :returns: A VLMNode of the user's choice
+    """
     return _select_option_helper(
         options_list=node_registry.get_nodes(),
         prompt="Select a node to query from the list below:",
@@ -118,14 +155,22 @@ def _select_node(node_registry: NodeRegistry) -> VLMNode:
 
 
 def _select_assembly() -> GrcAssemblyId:
+    """Prompts the user to select an assembly for the variant they want to match on
+
+    :returns: The user's selected assembly
+    """
     return _select_option_helper(
-        options_list=list(GrcAssemblyId),
+        options_list=list[GrcAssemblyId](GrcAssemblyId),
         prompt="Select the assembly for the variant you're matching on:",
         no_results_message="Whoops, there was an error retrieving assembly options",
     )
 
 
 def _select_reference_name() -> ChromosomeName:
+    """Prompts the user to select a chromosome for the variant they want to match on
+
+    :returns: The user's selected chromosome
+    """
     return _validate_input_with_type_adapter(
         type_adapter=chromosome_name_adapter,
         prompt="Enter the chromosome for the variant you're matching on: ",
@@ -134,13 +179,17 @@ def _select_reference_name() -> ChromosomeName:
 
 
 def _select_start_position() -> int:
+    """Prompts the user to select a start position for the variant they want to match on
+
+    :returns: The user's selected start position
+    """
     print()
     max_start_position = 250000000  # heuristic cap; longest chromosome on either assembly is just under this length
     while True:
         start_position_string: str = input(
             "Enter the start position for the variant you're matching on: "
         )
-        start_position_number: int | None = _validate_selected_number(
+        start_position_number: int | None = _validate_selected_int(
             selection=start_position_string, max_value=max_start_position
         )
         if not start_position_number:
@@ -150,6 +199,11 @@ def _select_start_position() -> int:
 
 
 def _select_base(base_type: str) -> Nucleotide:
+    """Prompts the user to select a nucleotide base of the specified type
+
+    :param base_type: The type of base to prompt the user for
+    :returns: The user's selected nucleotide base
+    """
     return _validate_input_with_type_adapter(
         type_adapter=nucleotide_adapter,
         prompt=f"Enter the {base_type} base for the variant you're matching on: ",
@@ -158,11 +212,13 @@ def _select_base(base_type: str) -> Nucleotide:
 
 
 def print_args(**kwargs) -> None:  # pyright: ignore[reportUnknownParameterType, reportMissingParameterType]
+    """Prints out the provided arguments to the console"""
     for name, value in kwargs.items():
         print(f"\t{name} = {value!r}")
 
 
-if __name__ == "__main__":
+def run_match_query() -> None:
+    """Script to prompt a user to query an external VLM Network node"""
     print("VARIANT MATCH QUERY")
     vlm_client: VLMClient = VLMClient(token_provider=TokenProvider())
     node_registry: NodeRegistry = NodeRegistry(vlm_client)
@@ -209,3 +265,7 @@ if __name__ == "__main__":
         print(
             f"Sorry, there was an error querying this node. We received a response status code of :{response.status_code}"
         )
+
+
+if __name__ == "__main__":
+    run_match_query()

@@ -147,7 +147,8 @@ ignore-variadic-names = true
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401", "E402"]
 "tests/*" = ["ANN001", "ANN2", "ANN102", "S101", "B011", "INP001", "D", "C400", "PLR2004", "PLC0415", "S106", "S107", "SLF001"]
-"src/anyvlm/utils/exceptions.py" = ["S105"] # allows using the word 'token'
+"src/anyvlm/utils/exceptions.py" = ["S105"] # allows using the word 'token',
+"src/anyvlm/outbound/match_search.py" = ["T201", "T203"]
 
 [tool.ruff.format]
 docstring-code-format = true
