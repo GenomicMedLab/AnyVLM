@@ -6,7 +6,13 @@ from typing import Annotated
 
 from anyvar.mapping.liftover import ReferenceAssembly
 from ga4gh.va_spec.base import CohortAlleleFrequencyStudyResult
-from pydantic import AfterValidator, BaseModel, BeforeValidator, StringConstraints
+from pydantic import (
+    AfterValidator,
+    BaseModel,
+    BeforeValidator,
+    StringConstraints,
+    TypeAdapter,
+)
 
 
 class AncillaryResults(BaseModel):
@@ -72,6 +78,7 @@ Nucleotide = Annotated[
     BeforeValidator(str.upper),
     StringConstraints(pattern=r"^[ACGT]$"),
 ]
+nucleotide_adapter: TypeAdapter[str] = TypeAdapter[str](Nucleotide)
 
 
 def _normalize_chromosome_name(chromosome_name: str) -> str:

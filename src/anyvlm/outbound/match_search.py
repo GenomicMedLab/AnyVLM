@@ -5,12 +5,18 @@ from http import HTTPMethod, HTTPStatus
 from typing import Any
 
 from dotenv import load_dotenv
+from pydantic import ValidationError
 from requests.models import Response
 
 from anyvlm.auth.token_provider import TokenProvider
 from anyvlm.outbound.node_registry import NodeRegistry, VLMNode
 from anyvlm.outbound.vlm_client import VLMClient
-from anyvlm.utils.types import ChromosomeName, GrcAssemblyId, Nucleotide
+from anyvlm.utils.types import (
+    ChromosomeName,
+    GrcAssemblyId,
+    Nucleotide,
+    nucleotide_adapter,
+)
 
 load_dotenv()
 
@@ -104,9 +110,10 @@ def _select_reference_name() -> ChromosomeName:
 
 
 def _select_start_position() -> int:
+    print()
     max_start_position = 250000000  # heuristic cap; longest chromosome on either assembly is just under this length
     while True:
-        start_position_string = input(
+        start_position_string: str = input(
             "Enter the start position for the variant you're matching on: "
         )
         start_position_number: int | None = _validate_selected_number(
@@ -116,6 +123,24 @@ def _select_start_position() -> int:
             print(f"❌ Please enter a number between 1-{max_start_position}")
         else:
             return start_position_number
+
+
+def _select_base(base_type: str) -> Nucleotide:
+    print()
+    while True:
+        selected_nucleotide_str: str = input(
+            f"Enter the {base_type} base for the variant you're matching on: "
+        )
+        try:
+            selected_nucleotide: Nucleotide = nucleotide_adapter.validate_python(
+                selected_nucleotide_str
+            )
+        except ValidationError:
+            print(
+                "❌ Please enter a valid nucleotide. (Note: only single bases are supported by the VLM Network at this time)"
+            )
+        else:
+            return selected_nucleotide
 
 
 if __name__ == "__main__":
@@ -133,7 +158,10 @@ if __name__ == "__main__":
     assembly: GrcAssemblyId = _select_assembly()
     reference_name: ChromosomeName = _select_reference_name()
     start_position: int = _select_start_position()
+    reference_base: Nucleotide = _select_base(base_type="reference")
+    alternate_base: Nucleotide = _select_base(base_type="alternate")
 
+    print("\nRESULT:")
     response: Response = match_search(
         query_url=match_url,  # pyright: ignore[reportArgumentType]
         assembly_id=assembly,
