@@ -53,7 +53,7 @@ def _select_option_helper(
     no_results_message: str,
     option_attribute: str | None = None,
 ) -> Any:  # noqa: ANN401
-    print(prompt)
+    print("\n" + prompt)
 
     num_options: int = len(options_list)
     if num_options == 0:
@@ -65,7 +65,6 @@ def _select_option_helper(
             getattr(option, option_attribute) if option_attribute else option
         )
         print(f" ({i + 1}) {selection_value}")
-    print()
 
     while True:
         selection: str = input("> Enter your selection's number: ")
@@ -95,6 +94,30 @@ def _select_assembly() -> GrcAssemblyId:
     )
 
 
+def _select_reference_name() -> ChromosomeName:
+    options_list: list[str] = [f"chr{i}" for i in range(1, 22)] + ["X", "Y", "M"]
+    return _select_option_helper(
+        options_list=options_list,
+        prompt="Select the chromosome for the variant you're matching on:",
+        no_results_message="Whoops, there was an error retrieving chromosome selection options",
+    )
+
+
+def _select_start_position() -> int:
+    max_start_position = 250000000  # heuristic cap; longest chromosome on either assembly is just under this length
+    while True:
+        start_position_string = input(
+            "Enter the start position for the variant you're matching on: "
+        )
+        start_position_number: int | None = _validate_selected_number(
+            selection=start_position_string, max_value=max_start_position
+        )
+        if not start_position_number:
+            print(f"❌ Please enter a number between 1-{max_start_position}")
+        else:
+            return start_position_number
+
+
 if __name__ == "__main__":
     print("VARIANT MATCH QUERY")
     vlm_client: VLMClient = VLMClient(token_provider=TokenProvider())
@@ -108,12 +131,14 @@ if __name__ == "__main__":
 
     print("\nTell us more about the variant you're matching against ⬇️")
     assembly: GrcAssemblyId = _select_assembly()
+    reference_name: ChromosomeName = _select_reference_name()
+    start_position: int = _select_start_position()
 
     response: Response = match_search(
         query_url=match_url,  # pyright: ignore[reportArgumentType]
         assembly_id=assembly,
-        reference_name="chr12",
-        start=10000,
+        reference_name=reference_name,
+        start=start_position,
         reference_bases="A",
         alternate_bases="T",
     )
