@@ -256,8 +256,8 @@ def run_variant_match_query() -> None:
         assembly_id=assembly,
         reference_name=reference_name,
         start=start_position,
-        reference_bases="A",
-        alternate_bases="T",
+        reference_bases=reference_base,
+        alternate_bases=alternate_base,
     )
 
     if response.status_code == HTTPStatus.OK:
