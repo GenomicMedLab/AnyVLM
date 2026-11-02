@@ -7,6 +7,7 @@ from http import HTTPStatus
 from pprint import pprint
 from typing import TypeVar
 
+import requests
 from dotenv import load_dotenv
 from pydantic import TypeAdapter, ValidationError
 from requests.models import Response
@@ -229,16 +230,31 @@ def run_variant_match_query() -> None:
     )
 
     print("\nRESULT:")
-    response: Response = variant_match_search(
-        query_url=match_url,  # pyright: ignore[reportArgumentType]
-        assembly_id=assembly,
-        reference_name=reference_name,
-        start=start_position,
-        reference_bases=reference_base,
-        alternate_bases=alternate_base,
-    )
+    response: Response | None = None
+    try:
+        response = variant_match_search(
+            query_url=match_url,  # pyright: ignore[reportArgumentType]
+            assembly_id=assembly,
+            reference_name=reference_name,
+            start=start_position,
+            reference_bases=reference_base,
+            alternate_bases=alternate_base,
+        )
+        response.raise_for_status()
+    except requests.exceptions.Timeout:
+        print("❌ ERROR: Request timed out")
+        raise
+    except requests.exceptions.ConnectionError:
+        print("❌ ERROR: Failed to connect to server")
+        raise
+    except requests.exceptions.HTTPError as e:
+        print(f"❌ ERROR: HTTP error: {e.response.status_code}")
+        raise
+    except requests.exceptions.RequestException as e:
+        print(f"❌ ERROR: Request failed: {e}")
+        raise
 
-    if response.status_code == HTTPStatus.OK:
+    if response and response.status_code == HTTPStatus.OK:
         data = response.json()
         pprint(object=data)
     else:
