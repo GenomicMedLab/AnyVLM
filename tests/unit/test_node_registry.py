@@ -34,7 +34,7 @@ def test_loads_nodes_and_exposes_client_ids() -> None:
 
     registry: NodeRegistry = NodeRegistry(vlm_client=client)
 
-    assert [node.client_id for node in registry.get_nodes()] == [
+    assert registry.get_node_ids() == [
         "client-one",
         "client-two",
     ]
@@ -53,7 +53,7 @@ def test_loads_nodes_from_multiple_pages() -> None:
 
     registry: NodeRegistry = NodeRegistry(vlm_client=client)
 
-    assert [node.client_id for node in registry.get_nodes()] == [
+    assert registry.get_node_ids() == [
         "client-one",
     ] * 100 + ["client-two"]
     assert client.request.call_args_list == [
@@ -78,7 +78,7 @@ def test_refresh_nodes_replaces_cached_nodes() -> None:
     registry: NodeRegistry = NodeRegistry(vlm_client=client)
     registry.refresh_nodes()
 
-    assert [node.client_id for node in registry.get_nodes()] == ["new"]
+    assert registry.get_node_ids() == ["new"]
 
 
 def test_refreshes_expired_cache_on_get_nodes() -> None:
@@ -127,7 +127,7 @@ def test_registry_excludes_self_when_other_nodes_exist(
 
     registry: NodeRegistry = NodeRegistry(vlm_client=client)
 
-    assert [node.client_id for node in registry.get_nodes()] == [
+    assert registry.get_node_ids() == [
         "client-one",
     ]
     client.request.assert_called_once_with(
@@ -155,7 +155,7 @@ def test_registry_returns_empty_list_when_only_self_exists(
 
     registry: NodeRegistry = NodeRegistry(vlm_client=client)
 
-    assert [node.client_id for node in registry.get_nodes()] == []
+    assert registry.get_node_ids() == []
     client.request.assert_called_once_with(
         method_type=HTTPMethod.GET,
         url=VLM_NETWORK_NODES_REQUEST_URL + "?page=0&per_page=100",
