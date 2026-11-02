@@ -125,3 +125,26 @@ def test_rejects_incorrect_audience() -> None:
     assert error.value.error_reason == AuthErrorReason.INVALID_TOKEN
     assert error.value.code == HTTPStatus.UNAUTHORIZED
     assert error.value.header == {"WWW-Authenticate": 'Bearer error="invalid_token"'}
+
+
+def test_rejects_incorrect_issuer() -> None:
+    issuer: str = "https://wrong-issuer.com/"
+    token_with_wrong_issuer: str = jwt.encode(
+        payload={
+            "azp": "client-one",
+            "iss": issuer,
+            "aud": issuer + "api/v2/",
+            "exp": datetime.now(tz=UTC) - timedelta(seconds=1),
+        },
+        key="unused-signing-key",
+        algorithm="HS256",
+    )
+
+    with pytest.raises(AuthError) as error:
+        JWTValidator().validate_and_decode_token(
+            request=_request(authorization=f"Bearer {token_with_wrong_issuer}")
+        )
+
+    assert error.value.error_reason == AuthErrorReason.INVALID_TOKEN
+    assert error.value.code == HTTPStatus.UNAUTHORIZED
+    assert error.value.header == {"WWW-Authenticate": 'Bearer error="invalid_token"'}
