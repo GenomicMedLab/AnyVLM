@@ -13,7 +13,7 @@ WORKDIR /app
 COPY pyproject.toml .
 COPY src ./src
 
-RUN pip install --upgrade pip setuptools
+RUN python -m pip install --no-cache-dir --upgrade "pip>=26.2.2" setuptools
 RUN pip install --no-cache-dir .
 
 EXPOSE 8000
