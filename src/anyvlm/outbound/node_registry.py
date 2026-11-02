@@ -13,7 +13,7 @@ from anyvlm.utils.exceptions import NodeRetrievalError
 
 
 @dataclass
-class VlmNode:
+class VLMNode:
     """Houses metadata about a VLM Network node"""
 
     client_id: str
@@ -29,7 +29,7 @@ class NodeRegistry:
         100  # Auth0's node list is paginated w/ a max of 100 results per page
     )
 
-    _nodes: list[VlmNode]
+    _nodes: list[VLMNode]
     _nodes_expiry: datetime
     _vlm_client: VLMClient
 
@@ -41,7 +41,7 @@ class NodeRegistry:
         self._vlm_client = vlm_client
         self.refresh_nodes()
 
-    def get_nodes(self) -> list[VlmNode]:
+    def get_nodes(self) -> list[VLMNode]:
         """Get a list of known nodes on the VLM network. Uses the cached list if cache is set & unexpired.
         See 'self.refresh_nodes()' for list of possible Exceptions that may be raised.
         """
@@ -60,7 +60,7 @@ class NodeRegistry:
         :raises: `NodeRetrievalError` if request to the VLM Network to obtain the list of registered nodes fails
         :raises: `TokenRetrievalError` if unable to obtain a JWT token to send the request to the VLM Network
         """
-        refreshed_nodes: list[VlmNode] = []
+        refreshed_nodes: list[VLMNode] = []
         page = 0
         while True:
             response: Response = self._vlm_client.request(
@@ -77,7 +77,7 @@ class NodeRegistry:
 
             data = response.json()
             refreshed_nodes.extend(
-                VlmNode(
+                VLMNode(
                     client_id=entry.get("client_id", ""),
                     client_name=entry.get("name", ""),
                     match_url=entry.get("client_metadata", {}).get("match_url"),
