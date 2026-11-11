@@ -3,7 +3,6 @@
 from http import HTTPStatus
 
 import pytest
-from fastapi.testclient import TestClient
 from helpers import TEST_VARIANT
 
 from anyvlm.anyvar.base_client import AnyVarClientConnectionError
@@ -132,6 +131,7 @@ def expected_response_with_no_match(beacon_handovers_and_meta):
 
 @pytest.fixture
 def client_with_populated_dbs(
+    api_client,
     anyvar_populated_python_client,
     populated_postgres_storage,
 ):
@@ -139,16 +139,12 @@ def client_with_populated_dbs(
     vlm_restapi.state.anyvar_client = anyvar_populated_python_client
     vlm_restapi.state.anyvlm_storage = populated_postgres_storage
 
-    client = TestClient(vlm_restapi)
-
-    yield client
-
-    del vlm_restapi.state.anyvar_client
-    del vlm_restapi.state.anyvlm_storage
+    return api_client
 
 
 @pytest.fixture
 def client_with_registered_variant_no_caf(
+    api_client,
     anyvar_populated_python_client,
     postgres_storage,
 ):
@@ -156,16 +152,12 @@ def client_with_registered_variant_no_caf(
     vlm_restapi.state.anyvar_client = anyvar_populated_python_client
     vlm_restapi.state.anyvlm_storage = postgres_storage
 
-    client = TestClient(vlm_restapi)
-
-    yield client
-
-    del vlm_restapi.state.anyvar_client
-    del vlm_restapi.state.anyvlm_storage
+    return api_client
 
 
 @pytest.fixture
 def client_with_variant_not_registered(
+    api_client,
     anyvar_minimal_populated_python_client,
     populated_postgres_storage,
 ):
@@ -173,12 +165,7 @@ def client_with_variant_not_registered(
     vlm_restapi.state.anyvar_client = anyvar_minimal_populated_python_client
     vlm_restapi.state.anyvlm_storage = populated_postgres_storage
 
-    client = TestClient(vlm_restapi)
-
-    yield client
-
-    del vlm_restapi.state.anyvar_client
-    del vlm_restapi.state.anyvlm_storage
+    return api_client
 
 
 @pytest.mark.vcr

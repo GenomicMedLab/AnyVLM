@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from anyvlm.auth.token_provider import TokenProvider
-from anyvlm.outbound.vlm_client import VlmClient
+from anyvlm.outbound.vlm_client import VLMClient
 from anyvlm.utils.exceptions import TokenRetrievalError
 
 
@@ -25,7 +25,7 @@ def test_request_includes_cached_token_in_authorization_header() -> None:
         token_provider: TokenProvider = TokenProvider()
 
         with patch("anyvlm.outbound.vlm_client.requests.request") as mock_request:
-            VlmClient(token_provider).request(
+            VLMClient(token_provider).request(
                 method_type=HTTPMethod.GET,
                 url="https://example.com/variants",
                 request_body={"variant": "test"},
@@ -51,7 +51,7 @@ def test_request_includes_refreshed_token_in_authorization_header() -> None:
         token_provider._token_expiry = datetime.now(tz=UTC) - timedelta(seconds=1)  # pyright: ignore[reportPrivateUsage]
 
         with patch("anyvlm.outbound.vlm_client.requests.request") as mock_request:
-            VlmClient(token_provider).request(
+            VLMClient(token_provider).request(
                 method_type=HTTPMethod.POST, url="https://example.com/variants"
             )
 
@@ -70,7 +70,7 @@ def test_request_does_not_send_request_when_token_retrieval_fails() -> None:
     token_provider.get_token.side_effect = TokenRetrievalError(
         "Unable to fetch bearer token from Auth0"
     )
-    client: VlmClient = VlmClient(token_provider)
+    client: VLMClient = VLMClient(token_provider)
 
     with (
         patch("anyvlm.outbound.vlm_client.requests.request") as mock_request,

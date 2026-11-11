@@ -11,7 +11,7 @@ import anyio
 import yaml
 from anyvar.anyvar import create_storage, create_translator
 from dotenv import load_dotenv
-from fastapi import FastAPI, Request, Response, status
+from fastapi import Depends, FastAPI, HTTPException, Request, Response, status
 from fastapi.exception_handlers import request_validation_exception_handler
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
@@ -20,7 +20,12 @@ from anyvlm import __version__
 from anyvlm.anyvar.base_client import BaseAnyVarClient
 from anyvlm.anyvar.http_client import HttpAnyVarClient
 from anyvlm.anyvar.python_client import PythonAnyVarClient
+from anyvlm.auth.jwt_validator import JWTValidator
+from anyvlm.auth.request_authenticator import RequestAuthenticator
+from anyvlm.auth.token_provider import TokenProvider
 from anyvlm.config import get_config
+from anyvlm.outbound.node_registry import NodeRegistry
+from anyvlm.outbound.vlm_client import VLMClient
 from anyvlm.restapi.vlm import router as vlm_router
 from anyvlm.schemas.common import (
     SERVICE_DESCRIPTION,
@@ -29,6 +34,7 @@ from anyvlm.schemas.common import (
     ServiceType,
 )
 from anyvlm.storage.base_storage import Storage
+from anyvlm.utils.exceptions import AuthError
 from anyvlm.utils.types import (
     EndpointTag,
 )
@@ -129,6 +135,21 @@ async def _configure_logging() -> None:
     _logger.info("Logging with default configs.")
 
 
+def authenticate_inbound_request(
+    request: Request,
+) -> None:
+    """Authenticate inbound requests. Validates/decodes JWT tokens and ensures request is from a known node"""
+    request_authenticator: RequestAuthenticator = (
+        request.app.state.request_authenticator
+    )
+    try:
+        request_authenticator.authenticate(request)
+    except AuthError as e:
+        raise HTTPException(
+            status_code=e.code, detail=e.error_reason, headers=e.header
+        ) from e
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator:
     """Configure FastAPI instance lifespan.
@@ -139,6 +160,17 @@ async def lifespan(app: FastAPI) -> AsyncGenerator:
     await _configure_logging()
     app.state.anyvar_client = create_anyvar_client()
     app.state.anyvlm_storage = create_anyvlm_storage()
+
+    token_provider: TokenProvider = TokenProvider()
+    vlm_client: VLMClient = VLMClient(token_provider)
+    node_registry: NodeRegistry = NodeRegistry(vlm_client)
+    jwt_validator: JWTValidator = JWTValidator()
+
+    app.state.request_authenticator = RequestAuthenticator(
+        jwt_validator=jwt_validator,
+        node_registry=node_registry,
+    )
+
     yield
     app.state.anyvar_client.close()
     app.state.anyvlm_storage.close()
@@ -163,6 +195,7 @@ app = FastAPI(
     },
     swagger_ui_parameters={"tryItOutEnabled": True},
     lifespan=lifespan,
+    dependencies=[Depends(dependency=authenticate_inbound_request)],
 )
 app.include_router(vlm_router, prefix=API_PREFIX)
 

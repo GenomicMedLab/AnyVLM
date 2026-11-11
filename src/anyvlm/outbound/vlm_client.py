@@ -9,7 +9,7 @@ from requests import Response
 from anyvlm.auth.token_provider import TokenProvider
 
 
-class VlmClient:
+class VLMClient:
     """Handles sending authenticated outbound requests to the VLM Network"""
 
     def __init__(self, token_provider: TokenProvider) -> None:
