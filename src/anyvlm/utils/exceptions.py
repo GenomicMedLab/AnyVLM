@@ -23,3 +23,7 @@ class VariantLookupError(Exception):
 
 class TokenRetrievalError(Exception):
     """Raised when a token cannot be retrieved"""
+
+
+class NodeRetrievalError(Exception):
+    """Raised when the list of nodes on the VLM network cannot be retrieved"""
